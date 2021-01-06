@@ -95,38 +95,52 @@ RCT_REMAP_METHOD(isGeotriggeringRunning,
 }
 
 RCT_EXPORT_METHOD(stopGeotriggering:(RCTResponseSenderBlock)stopGeotriggeringSuccessfulCallback
-    stopGeotriggeringFailed:(RCTResponseSenderBlock)startGeotriggeringFailedCallback)
+    stopGeotriggeringFailed:(RCTResponseSenderBlock)stopGeotriggeringFailedCallback)
 {
     [[BDLocationManager instance] stopGeoTriggeringWithCompletion:^(NSError * error)
     {
         if (error != nil) {
-            startGeotriggeringFailedCallback(@[error.localizedDescription]);
+            stopGeotriggeringFailedCallback(@[error.localizedDescription]);
         } else {
             stopGeotriggeringSuccessfulCallback(@[]);
         }
     }];
 }
 
-RCT_EXPORT_METHOD(authenticate:(NSString *)projectId
-    requestAuthorization:(NSString *)authorizationLevel
-    authenticationSuccessful:(RCTResponseSenderBlock)authenticationSuccessfulCallback
-    authenticationFailed: (RCTResponseSenderBlock)authenticationFailedCallback)
+RCT_EXPORT_METHOD(startTempoTrackingWithCallbacks: (NSString *) destinationId
+                  startTempoSuccess: (RCTResponseSenderBlock) startTempoSuccessCallback
+                  startTempoFailed: (RCTResponseSenderBlock) startTempoFailedCallback)
 {
-    BDAuthorizationLevel bdAuthorizationLevel;
-    
-    if ([authorizationLevel isEqualToString:@"WhenInUse"])
-    {
-        bdAuthorizationLevel = authorizedWhenInUse;
-    } else {
-        bdAuthorizationLevel = authorizedAlways;
-    }
-        
-    _callbackAuthenticationSuccessful = authenticationSuccessfulCallback;
-    _callbackAuthenticationFailed = authenticationFailedCallback;
-    
-    NSLog( @"%@", BDLocationManager.instance);
+    [ BDLocationManager.instance startTempoTrackingWithDestinationId: destinationId completion:^(NSError * error) {
+        if (error != nil) {
+            startTempoFailedCallback(@[error.localizedDescription]);
+        } else {
+            startTempoSuccessCallback(@[]);
+        }
+    }];
+}
 
-    [[BDLocationManager instance] authenticateWithApiKey: projectId requestAuthorization: bdAuthorizationLevel];
+RCT_REMAP_METHOD(isTempoRunning,
+                 isTempoRunningResolver: (RCTPromiseResolveBlock)resolve
+                 isTempoRunningRejecter: (RCTPromiseRejectBlock)reject)
+{
+    BOOL isTempoRunning = [ BDLocationManager.instance isTempoRunning ];
+    NSNumber *output = [NSNumber numberWithBool: isTempoRunning ];
+
+    resolve(output);
+}
+
+RCT_EXPORT_METHOD(stopTempoTrackingWithCallbacks: (RCTResponseSenderBlock)stopTempoSuccessCallback
+                  stopTempoFailed: (RCTResponseSenderBlock)stopTempoFailedCallback)
+{
+    NSLog( @"Stop Tempo Tracking");
+    [ BDLocationManager.instance stopTempoTrackingWithCompletion:^(NSError * error) {
+        if (error != nil) {
+            stopTempoFailedCallback(@[error.localizedDescription]);
+        } else {
+            stopTempoSuccessCallback(@[]);
+        }
+    }];
 }
 
 RCT_EXPORT_METHOD(setCustomEventMetaData: (NSDictionary *) eventMetaData)
@@ -150,6 +164,67 @@ RCT_EXPORT_METHOD(notifyPushUpdateWithData: (NSDictionary *) data) {
     [[ BDLocationManager instance] notifyPushUpdateWithData:data];
 }
 
+/*
+*  This method returns a JavaScript Promise. Resolves the installRef from the BDLocationManager and Rejects and error.
+*/
+RCT_REMAP_METHOD(getInstallRef,
+                 getInstallRefWithResolver: (RCTPromiseResolveBlock)resolve
+                 rejecter: (RCTPromiseRejectBlock)reject)
+{
+    NSString *installRef = [ BDLocationManager.instance installRef ];
+
+    if (installRef) {
+        resolve(installRef);
+    } else {
+        NSError *error = nil;
+        reject(@"no_events", @"There were no events", error);
+    }
+}
+
+RCT_REMAP_METHOD(getSdkVersion,
+                 getSdkVersionResolver: (RCTPromiseResolveBlock)resolve
+                 getSdkVersionRejecter: (RCTPromiseRejectBlock)reject)
+{
+    NSString *sdkVersion = [ BDLocationManager.instance sdkVersion ];
+    resolve(sdkVersion);
+}
+
+RCT_REMAP_METHOD(getZonesAndFences,
+                  getZonesAndFencesResolver: (RCTPromiseResolveBlock)resolve
+                  getZonesAndFencesRejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSSet *zoneInfos = [ BDLocationManager.instance zoneInfos ];
+    resolve(zoneInfos);
+}
+
++ (BOOL)requiresMainQueueSetup
+{
+    return YES;
+}
+
+/* DEPRECATED METHODS */
+
+RCT_EXPORT_METHOD(authenticate:(NSString *)projectId
+    requestAuthorization:(NSString *)authorizationLevel
+    authenticationSuccessful:(RCTResponseSenderBlock)authenticationSuccessfulCallback
+    authenticationFailed: (RCTResponseSenderBlock)authenticationFailedCallback)
+{
+    BDAuthorizationLevel bdAuthorizationLevel;
+    
+    if ([authorizationLevel isEqualToString:@"WhenInUse"])
+    {
+        bdAuthorizationLevel = authorizedWhenInUse;
+    } else {
+        bdAuthorizationLevel = authorizedAlways;
+    }
+        
+    _callbackAuthenticationSuccessful = authenticationSuccessfulCallback;
+    _callbackAuthenticationFailed = authenticationFailedCallback;
+    
+    NSLog( @"%@", BDLocationManager.instance);
+
+    [[BDLocationManager instance] authenticateWithApiKey: projectId requestAuthorization: bdAuthorizationLevel];
+}
 
 RCT_EXPORT_METHOD(logOut: (RCTResponseSenderBlock)logOutSuccessfulCallback
     logOutFailed: (RCTResponseSenderBlock)logOutFailedCallback)
@@ -161,7 +236,7 @@ RCT_EXPORT_METHOD(logOut: (RCTResponseSenderBlock)logOutSuccessfulCallback
 
 RCT_EXPORT_METHOD(startTempoTracking: (NSString *) destinationId
                   _callbackStartTempoError: (RCTResponseSenderBlock) startTempoFailedCallback)
-{   
+{
     @try {
         NSLog( @"Start Tempo Tracking");
         [ BDLocationManager.instance startTempoTracking: destinationId ];
@@ -171,27 +246,11 @@ RCT_EXPORT_METHOD(startTempoTracking: (NSString *) destinationId
     }
 }
 
-RCT_EXPORT_METHOD(stopTempoTracking)
-{   
+RCT_EXPORT_METHOD(stopTempoTracking: (RCTResponseSenderBlock)stopTempoSuccessCallback
+                  stopTempoFailed: (RCTResponseSenderBlock)stopTempoFailedCallback)
+{
     NSLog( @"Stop Tempo Tracking");
     [ BDLocationManager.instance stopTempoTracking ];
-}
-
-/*
-*  This method returns a JavaScript Promise. Resolves the installRef from the BDLocationManager and Rejects and error.
-*/
-RCT_REMAP_METHOD(getInstallRef,
-                  getInstallRefWithResolver: (RCTPromiseResolveBlock)resolve
-                  rejecter: (RCTPromiseRejectBlock)reject)
-{   
-    NSString *installRef = [ BDLocationManager.instance installRef ];
-
-    if (installRef) {
-        resolve(installRef);
-    } else {
-        NSError *error = nil;
-        reject(@"no_events", @"There were no events", error);
-    }
 }
 
 RCT_REMAP_METHOD(isBlueDotPointServiceRunning,
@@ -204,10 +263,7 @@ RCT_REMAP_METHOD(isBlueDotPointServiceRunning,
     resolve(output);
 }
 
-+ (BOOL)requiresMainQueueSetup
-{
-    return YES;
-}
+
 
 - (NSArray<NSString *> *)supportedEvents {
     return @[

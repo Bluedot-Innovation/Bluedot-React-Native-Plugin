@@ -26,12 +26,16 @@ const stopGeotriggering = (onSuccessCallback, onFailCallback) => {
     NativeModules.BluedotPointSDK.stopGeotriggering(onSuccessCallback, onFailCallback)
 }
 
-const authenticate = (projectId, authorizationLevel, onSucessCallback, onFailCallback) => {
-    NativeModules.BluedotPointSDK.authenticate(projectId, authorizationLevel, onSucessCallback, onFailCallback)
+const startTempoTrackingWithCallbacks = (destinationId, onSuccessCallback, onFailCallback) => {
+    NativeModules.BluedotPointSDK.startTempoTrackingWithCallbacks(destinationId, onSuccessCallback, onFailCallback)
 }
 
-const logOut = (onSucessCallback, onFailCallback) => {
-    NativeModules.BluedotPointSDK.logOut(onSucessCallback, onFailCallback)
+const isTempoRunning = () => {
+    return NativeModules.BluedotPointSDK.isTempoRunning()
+}
+
+const stopTempoTrackingWithCallbacks = (onSuccessCallback, onFailCallback) => {
+    NativeModules.BluedotPointSDK.stopTempoTrackingWithCallbacks(onSuccessCallback, onFailCallback)
 }
 
 const setCustomEventMetaData = (eventMetaData) => {
@@ -54,21 +58,39 @@ const unsubscribe = (eventName, callback) => {
     eventEmitter.removeListener(eventName, callback)
 }
 
-const startTempoTracking = (destinationId, callback) => {
-    NativeModules.BluedotPointSDK.startTempoTracking(destinationId, callback)
+const getInstallRef = () => {
+    return NativeModules.BluedotPointSDK.getInstallRef()
+}
+
+const getSdkVersion = () => {
+    return NativeModules.BluedotPointSDK.getSdkVersion()
+}
+
+const getZonesAndFences = () => {
+    return NativeModules.BluedotPointSDK.getZonesAndFences()
+}
+
+// DEPRECATED METHODS
+const authenticate = (projectId, authorizationLevel, onSucessCallback, onFailCallback) => {
+    NativeModules.BluedotPointSDK.authenticate(projectId, authorizationLevel, onSucessCallback, onFailCallback)
+}
+
+const logOut = (onSucessCallback, onFailCallback) => {
+    NativeModules.BluedotPointSDK.logOut(onSucessCallback, onFailCallback)
+}
+
+const startTempoTracking = (destinationId, onFailCallback) => {
+    NativeModules.BluedotPointSDK.startTempoTracking(destinationId, onFailCallback)
 }
 
 const stopTempoTracking = () => {
-    NativeModules.BluedotPointSDK.stopTempoTracking()
-}
-
-const getInstallRef = () => {
-    return NativeModules.BluedotPointSDK.getInstallRef()
+   NativeModules.BluedotPointSDK.stopTempoTracking()
 }
 
 const isBlueDotPointServiceRunning = () => {
     return NativeModules.BluedotPointSDK.isBlueDotPointServiceRunning()
 }
+
 
 const BluedotPointSDK = { 
     authenticate, 
@@ -82,13 +104,18 @@ const BluedotPointSDK = {
     stopTempoTracking,
     getInstallRef,
     isBlueDotPointServiceRunning,
-    // New API
+    // New APIs
     initialize,
     isInitialized,
     reset,
     startGeotriggering,
     isGeotriggeringRunning,
-    stopGeotriggering
+    stopGeotriggering,
+    startTempoTrackingWithCallbacks,
+    isTempoRunning,
+    stopTempoTrackingWithCallbacks,
+    getSdkVersion,
+    getZonesAndFences
 }
 
 export default BluedotPointSDK
