@@ -2,6 +2,30 @@ import { NativeModules, NativeEventEmitter } from 'react-native';
 
 const eventEmitter = new NativeEventEmitter(NativeModules.BluedotPointSDK)
 
+const initialize = (projectId, onSucessCallback, onFailCallback) => {
+    NativeModules.BluedotPointSDK.initialize(projectId, onSucessCallback, onFailCallback)
+}
+
+const isInitialized = () => {
+    return NativeModules.BluedotPointSDK.isInitialized()
+}
+
+const reset = (onSuccessCallback, onFailCallback) => {
+    NativeModules.BluedotPointSDK.reset(onSuccessCallback, onFailCallback)
+}
+
+const startGeotriggering = (onSuccessCallback, onFailCallback) => {
+    NativeModules.BluedotPointSDK.startGeotriggering(onSuccessCallback, onFailCallback)
+}
+
+const isGeotriggeringRunning = () => {
+    return NativeModules.BluedotPointSDK.isGeotriggeringRunning()
+}
+
+const stopGeotriggering = (onSuccessCallback, onFailCallback) => {
+    NativeModules.BluedotPointSDK.stopGeotriggering(onSuccessCallback, onFailCallback)
+}
+
 const authenticate = (projectId, authorizationLevel, onSucessCallback, onFailCallback) => {
     NativeModules.BluedotPointSDK.authenticate(projectId, authorizationLevel, onSucessCallback, onFailCallback)
 }
@@ -57,7 +81,14 @@ const BluedotPointSDK = {
     startTempoTracking,
     stopTempoTracking,
     getInstallRef,
-    isBlueDotPointServiceRunning
+    isBlueDotPointServiceRunning,
+    // New API
+    initialize,
+    isInitialized,
+    reset,
+    startGeotriggering,
+    isGeotriggeringRunning,
+    stopGeotriggering
 }
 
 export default BluedotPointSDK

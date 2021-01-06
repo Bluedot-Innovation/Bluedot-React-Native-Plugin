@@ -19,15 +19,92 @@ RCT_EXPORT_MODULE()
     self = [super init];
     if (self) {
         
+        // Deprecated
         BDLocationManager.instance.sessionDelegate = self;
         BDLocationManager.instance.locationDelegate = self;
+        
+        // New APIs
         BDLocationManager.instance.tempoTrackingDelegate = self;
+        BDLocationManager.instance.geoTriggeringEventDelegate = self;
 
         //  Setup a generic date formatter
         _dateFormatter = [ NSDateFormatter new ];
         [ _dateFormatter setDateFormat: @"dd-MMM-yyyy HH:mm" ];
     }
     return self;
+}
+
+RCT_EXPORT_METHOD(initialize:(NSString *)projectId
+    initializationSuccessful:(RCTResponseSenderBlock)initializationSuccessfulCallback
+    initializationFailed: (RCTResponseSenderBlock)initializationFailedCallback)
+{
+    [[BDLocationManager instance] initializeWithProjectId: projectId completion:^(NSError * error)
+     {
+         if (error != nil) {
+             initializationFailedCallback(@[error.localizedDescription]);
+         } else {
+             initializationSuccessfulCallback(@[]);
+         }
+     }];
+}
+
+RCT_REMAP_METHOD(isInitialized,
+                 isInitializedResolver: (RCTPromiseResolveBlock)resolve
+                 isInitializedRejecter: (RCTPromiseRejectBlock)reject)
+{
+    BOOL isInitialized = [ BDLocationManager.instance isInitialized ];
+    NSNumber *output = [NSNumber numberWithBool: isInitialized ];
+
+    resolve(output);
+}
+
+RCT_EXPORT_METHOD(reset:(RCTResponseSenderBlock)resetSuccessfulCallback
+    resetFailed:(RCTResponseSenderBlock)resetFailedCallback)
+{
+    [[BDLocationManager instance] resetWithCompletion:^(NSError * error)
+    {
+        if (error != nil) {
+            resetFailedCallback(@[error.localizedDescription]);
+        } else {
+            resetSuccessfulCallback(@[]);
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(startGeotriggering:(RCTResponseSenderBlock)startGeotriggeringSuccessfulCallback
+    startGeotriggeringFailed:(RCTResponseSenderBlock)startGeotriggeringFailedCallback)
+{
+    [[BDLocationManager instance] startGeoTriggeringWithCompletion:^(NSError * error)
+    {
+        if (error != nil) {
+            startGeotriggeringFailedCallback(@[error.localizedDescription]);
+        } else {
+            startGeotriggeringSuccessfulCallback(@[]);
+        }
+    }];
+}
+
+RCT_REMAP_METHOD(isGeotriggeringRunning,
+                 isGeotriggeringRunningWithResolver: (RCTPromiseResolveBlock)resolve
+                 isGeotriggeringRunningRejecter: (RCTPromiseRejectBlock)reject)
+{
+    BOOL isGeoTriggeringRunning = [ BDLocationManager.instance isGeoTriggeringRunning ];
+    NSNumber *output = [NSNumber numberWithBool: isGeoTriggeringRunning ];
+
+    resolve(output);
+}
+
+RCT_EXPORT_METHOD(stopGeotriggering:(RCTResponseSenderBlock)stopGeotriggeringSuccessfulCallback
+    stopGeotriggeringFailed:(RCTResponseSenderBlock)startGeotriggeringFailedCallback)
+{
+    [[BDLocationManager instance] stopGeoTriggeringWithCompletion:^(NSError * error)
+    {
+        if (error != nil) {
+            startGeotriggeringFailedCallback(@[error.localizedDescription]);
+        } else {
+            stopGeotriggeringSuccessfulCallback(@[]);
+        }
+    }];
 }
 
 RCT_EXPORT_METHOD(authenticate:(NSString *)projectId
@@ -145,9 +222,42 @@ RCT_REMAP_METHOD(isBlueDotPointServiceRunning,
         @"stopRequiringUserInterventionForLocationServices",
         @"tempoStarted",
         @"tempoStopped",
-        @"tempoStartError"
+        @"tempoStartError",
+        @"enterZone",
+        @"exitZone"
     ];
 }
+
+// New API
+
+- (void)didEnterZone: (nonnull BDZoneEntryEvent *) enterEvent {
+    NSDictionary *returnFence = [ self fenceToDict: enterEvent.fence ];
+    NSDictionary *returnZone = [ self zoneToDict: enterEvent.zone ];
+    NSDictionary *returnLocation = [ self locationToDict: enterEvent.location ];
+    
+    [self sendEventWithName:@"enterZone" body:@{
+        @"fenceInfo" : returnFence,
+        @"zoneInfo" : returnZone,
+        @"locationInfo" : returnLocation,
+        @"isExitEnabled" : [NSNumber numberWithBool: enterEvent.isExitEnabled],
+        @"customData" : enterEvent.customData != nil ? enterEvent.customData : [NSNull null]
+    }];
+}
+
+- (void)didExitZone: (nonnull BDZoneExitEvent *) exitEvent {
+    NSDictionary *returnFence = [ self fenceToDict: exitEvent.fence ];
+    NSDictionary *returnZone = [ self zoneToDict: exitEvent.zone ];
+    NSTimeInterval  unixDate = [ exitEvent.date timeIntervalSince1970 ];
+    
+    [self sendEventWithName:@"exitZone" body:@{
+        @"fenceInfo" : returnFence,
+        @"zoneInfo" : returnZone,
+        @"date" : @(unixDate),
+        @"duration" : @(exitEvent.duration)
+    }];
+}
+
+// END of new API
 
 - (void)didStartTracking {
     [self sendEventWithName:@"tempoStarted" body:@{}];
@@ -310,7 +420,11 @@ RCT_REMAP_METHOD(isBlueDotPointServiceRunning,
 
 - (void)authenticationFailedWithError:(NSError *)error {
     NSLog( @"authenticationFailedWithError");
-    _callbackAuthenticationFailed(@[error.localizedDescription]);
+
+    if (_callbackAuthenticationFailed != nil)
+    {
+        _callbackAuthenticationFailed(@[error.localizedDescription]);
+    }
 
     //  Reset the authentication callback
     _callbackAuthenticationFailed = nil;
@@ -320,7 +434,10 @@ RCT_REMAP_METHOD(isBlueDotPointServiceRunning,
 - (void)authenticationWasDeniedWithReason:(NSString *)reason {
     NSLog( @"authenticationWasDeniedWithReason");
 
-    _callbackAuthenticationFailed(@[reason]);
+    if (_callbackAuthenticationFailed != nil)
+    {
+        _callbackAuthenticationFailed(@[reason]);
+    }
 
     //  Reset the authentication callback
     _callbackAuthenticationFailed = nil;
@@ -330,8 +447,11 @@ RCT_REMAP_METHOD(isBlueDotPointServiceRunning,
 - (void)authenticationWasSuccessful {
     NSLog( @"authenticationWasSuccessful");
 
-    //  Authentication has been successful; on iOS there are no possible warning issues
-    _callbackAuthenticationSuccessful(@[]);
+    if (_callbackAuthenticationSuccessful != nil)
+    {
+        //  Authentication has been successful; on iOS there are no possible warning issues
+        _callbackAuthenticationSuccessful(@[]);
+    }
 
     //  Reset the authentication callback
     _callbackAuthenticationFailed = nil;
@@ -340,9 +460,12 @@ RCT_REMAP_METHOD(isBlueDotPointServiceRunning,
 
 - (void)didEndSession {
     NSLog( @"Logged out" );
-    
-    _callbackLogOutSuccessful(@[]);
-    
+
+    if (_callbackLogOutSuccessful != nil)
+    {
+        _callbackLogOutSuccessful(@[]);
+    }
+
     //  Reset the callback
     _callbackLogOutSuccessful = nil;
     _callbackLogOutFailed = nil;
@@ -351,7 +474,10 @@ RCT_REMAP_METHOD(isBlueDotPointServiceRunning,
 - (void)didEndSessionWithError:(NSError *)error {
     NSLog( @"didEndSessionWithError");
     
-    _callbackLogOutFailed(@[error.localizedDescription]);
+    if (_callbackLogOutFailed != nil)
+    {
+        _callbackLogOutFailed(@[error.localizedDescription]);
+    }
     
     //  Reset the callback
     _callbackLogOutSuccessful = nil;
