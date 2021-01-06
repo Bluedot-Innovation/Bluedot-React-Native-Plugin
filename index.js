@@ -70,6 +70,10 @@ const getZonesAndFences = () => {
     return NativeModules.BluedotPointSDK.getZonesAndFences()
 }
 
+const startGeotriggeringWithAppRestartNotification = (onSuccessCallback, onFailCallback, notificationTitle, notificationButtonText) => {
+    NativeModules.BluedotPointSDK.startGeotriggeringWithAppRestartNotification(onSuccessCallback, onFailCallback, notificationTitle, notificationButtonText)
+}
+
 // DEPRECATED METHODS
 const authenticate = (projectId, authorizationLevel, onSucessCallback, onFailCallback) => {
     NativeModules.BluedotPointSDK.authenticate(projectId, authorizationLevel, onSucessCallback, onFailCallback)
@@ -90,7 +94,6 @@ const stopTempoTracking = () => {
 const isBlueDotPointServiceRunning = () => {
     return NativeModules.BluedotPointSDK.isBlueDotPointServiceRunning()
 }
-
 
 const BluedotPointSDK = { 
     authenticate, 
@@ -115,7 +118,8 @@ const BluedotPointSDK = {
     isTempoRunning,
     stopTempoTrackingWithCallbacks,
     getSdkVersion,
-    getZonesAndFences
+    getZonesAndFences,
+    startGeotriggeringWithAppRestartNotification
 }
 
 export default BluedotPointSDK

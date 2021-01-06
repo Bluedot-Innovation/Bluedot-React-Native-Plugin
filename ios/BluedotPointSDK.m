@@ -74,12 +74,29 @@ RCT_EXPORT_METHOD(reset:(RCTResponseSenderBlock)resetSuccessfulCallback
 RCT_EXPORT_METHOD(startGeotriggering:(RCTResponseSenderBlock)startGeotriggeringSuccessfulCallback
     startGeotriggeringFailed:(RCTResponseSenderBlock)startGeotriggeringFailedCallback)
 {
+    
     [[BDLocationManager instance] startGeoTriggeringWithCompletion:^(NSError * error)
     {
         if (error != nil) {
             startGeotriggeringFailedCallback(@[error.localizedDescription]);
         } else {
             startGeotriggeringSuccessfulCallback(@[]);
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(startGeotriggeringWithAppRestartNotification: (NSString *) notificationTitle
+                  notificationButtonText: (NSString *)buttonText
+                  startGeotriggeringTestSuccess: (RCTResponseSenderBlock)startGeotriggeringTestSuccessfulCallback
+                  startGeotriggeringTestFailed: (RCTResponseSenderBlock)startGeotriggeringTestFailedCallback)
+{
+    
+    [[BDLocationManager instance] startGeoTriggeringWithAppRestartNotificationTitle:notificationTitle notificationButtonText:buttonText completion:^(NSError * error)
+    {
+        if (error != nil) {
+            startGeotriggeringTestFailedCallback(@[error.localizedDescription]);
+        } else {
+            startGeotriggeringTestSuccessfulCallback(@[]);
         }
     }];
 }
@@ -194,7 +211,22 @@ RCT_REMAP_METHOD(getZonesAndFences,
                   getZonesAndFencesRejecter:(RCTPromiseRejectBlock)reject)
 {
     NSSet *zoneInfos = [ BDLocationManager.instance zoneInfos ];
+    NSMutableArray  *returnZones = [ NSMutableArray new ];
+    
+    NSLog(@"Zone Infos %@", zoneInfos);
+
+    for( BDZoneInfo *zone in zoneInfos )
+    {
+        [ returnZones addObject: [ self zoneToDict: zone ] ];
+    }
+    
     resolve(zoneInfos);
+}
+
+RCT_EXPORT_METHOD(setZoneDisableByApplication: (NSString *) zoneId
+                   disable:(BOOL)disable)
+{
+    [[BDLocationManager instance] setZone:zoneId disableByApplication:disable ];
 }
 
 + (BOOL)requiresMainQueueSetup
@@ -279,8 +311,12 @@ RCT_REMAP_METHOD(isBlueDotPointServiceRunning,
         @"tempoStarted",
         @"tempoStopped",
         @"tempoStartError",
+        
+        // New Events
         @"enterZone",
-        @"exitZone"
+        @"exitZone",
+        @"tempoTrackingDidExpire",
+        @"tempoTrackingStoppedWithError"
     ];
 }
 
@@ -310,6 +346,16 @@ RCT_REMAP_METHOD(isBlueDotPointServiceRunning,
         @"zoneInfo" : returnZone,
         @"date" : @(unixDate),
         @"duration" : @(exitEvent.duration)
+    }];
+}
+
+- (void)tempoTrackingDidExpire {
+    [self sendEventWithName:@"tempoTrackingDidExpire" body:@{}];
+}
+
+- (void)didStopTrackingWithError:(NSError *)error {
+    [self sendEventWithName:@"tempoTrackingStoppedWithError" body:@{
+        @"error" : error.localizedDescription
     }];
 }
 
