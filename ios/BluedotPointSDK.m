@@ -71,8 +71,8 @@ RCT_EXPORT_METHOD(reset:(RCTResponseSenderBlock)resetSuccessfulCallback
     }];
 }
 
-RCT_EXPORT_METHOD(startGeotriggering:(RCTResponseSenderBlock)startGeotriggeringSuccessfulCallback
-    startGeotriggeringFailed:(RCTResponseSenderBlock)startGeotriggeringFailedCallback)
+RCT_EXPORT_METHOD(iOSStartGeotriggering:(RCTResponseSenderBlock)startGeotriggeringSuccessfulCallback
+                  startGeotriggeringFailed:(RCTResponseSenderBlock)startGeotriggeringFailedCallback)
 {
     
     [[BDLocationManager instance] startGeoTriggeringWithCompletion:^(NSError * error)
@@ -85,7 +85,7 @@ RCT_EXPORT_METHOD(startGeotriggering:(RCTResponseSenderBlock)startGeotriggeringS
     }];
 }
 
-RCT_EXPORT_METHOD(startGeotriggeringWithAppRestartNotification: (NSString *) notificationTitle
+RCT_EXPORT_METHOD(iOSStartGeotriggeringWithAppRestartNotification: (NSString *) notificationTitle
                   notificationButtonText: (NSString *)buttonText
                   startGeotriggeringTestSuccess: (RCTResponseSenderBlock)startGeotriggeringTestSuccessfulCallback
                   startGeotriggeringTestFailed: (RCTResponseSenderBlock)startGeotriggeringTestFailedCallback)
@@ -124,7 +124,7 @@ RCT_EXPORT_METHOD(stopGeotriggering:(RCTResponseSenderBlock)stopGeotriggeringSuc
     }];
 }
 
-RCT_EXPORT_METHOD(startTempoTrackingWithCallbacks: (NSString *) destinationId
+RCT_EXPORT_METHOD(iOSStartTempoTracking: (NSString *) destinationId
                   startTempoSuccess: (RCTResponseSenderBlock) startTempoSuccessCallback
                   startTempoFailed: (RCTResponseSenderBlock) startTempoFailedCallback)
 {
@@ -147,7 +147,7 @@ RCT_REMAP_METHOD(isTempoRunning,
     resolve(output);
 }
 
-RCT_EXPORT_METHOD(stopTempoTrackingWithCallbacks: (RCTResponseSenderBlock)stopTempoSuccessCallback
+RCT_EXPORT_METHOD(iOSStopTempoTracking: (RCTResponseSenderBlock)stopTempoSuccessCallback
                   stopTempoFailed: (RCTResponseSenderBlock)stopTempoFailedCallback)
 {
     NSLog( @"Stop Tempo Tracking");
@@ -213,14 +213,12 @@ RCT_REMAP_METHOD(getZonesAndFences,
     NSSet *zoneInfos = [ BDLocationManager.instance zoneInfos ];
     NSMutableArray  *returnZones = [ NSMutableArray new ];
     
-    NSLog(@"Zone Infos %@", zoneInfos);
-
     for( BDZoneInfo *zone in zoneInfos )
     {
         [ returnZones addObject: [ self zoneToDict: zone ] ];
     }
     
-    resolve(zoneInfos);
+    resolve(returnZones);
 }
 
 RCT_EXPORT_METHOD(setZoneDisableByApplication: (NSString *) zoneId
@@ -229,94 +227,47 @@ RCT_EXPORT_METHOD(setZoneDisableByApplication: (NSString *) zoneId
     [[BDLocationManager instance] setZone:zoneId disableByApplication:disable ];
 }
 
+/*
+    ANDROID METHODS
+ 
+    The following list of methods are no-op
+    to keep consistency with the Android implementation
+ */
+
+RCT_EXPORT_METHOD(androidStartGeotriggering) {
+    // NO-OP Method
+}
+
+RCT_EXPORT_METHOD(androidStartTempoTracking) {
+    // NO-OP Method
+}
+
+/* END of Android Methods */
+
 + (BOOL)requiresMainQueueSetup
 {
     return YES;
 }
 
-/* DEPRECATED METHODS */
-
-RCT_EXPORT_METHOD(authenticate:(NSString *)projectId
-    requestAuthorization:(NSString *)authorizationLevel
-    authenticationSuccessful:(RCTResponseSenderBlock)authenticationSuccessfulCallback
-    authenticationFailed: (RCTResponseSenderBlock)authenticationFailedCallback)
-{
-    BDAuthorizationLevel bdAuthorizationLevel;
-    
-    if ([authorizationLevel isEqualToString:@"WhenInUse"])
-    {
-        bdAuthorizationLevel = authorizedWhenInUse;
-    } else {
-        bdAuthorizationLevel = authorizedAlways;
-    }
-        
-    _callbackAuthenticationSuccessful = authenticationSuccessfulCallback;
-    _callbackAuthenticationFailed = authenticationFailedCallback;
-    
-    NSLog( @"%@", BDLocationManager.instance);
-
-    [[BDLocationManager instance] authenticateWithApiKey: projectId requestAuthorization: bdAuthorizationLevel];
-}
-
-RCT_EXPORT_METHOD(logOut: (RCTResponseSenderBlock)logOutSuccessfulCallback
-    logOutFailed: (RCTResponseSenderBlock)logOutFailedCallback)
-{
-    _callbackLogOutSuccessful = logOutSuccessfulCallback;
-    _callbackLogOutFailed = logOutFailedCallback;
-    [ BDLocationManager.instance logOut ];
-}
-
-RCT_EXPORT_METHOD(startTempoTracking: (NSString *) destinationId
-                  _callbackStartTempoError: (RCTResponseSenderBlock) startTempoFailedCallback)
-{
-    @try {
-        NSLog( @"Start Tempo Tracking");
-        [ BDLocationManager.instance startTempoTracking: destinationId ];
-    }
-    @catch ( NSException *e ) {
-        startTempoFailedCallback(@[e.name]);
-    }
-}
-
-RCT_EXPORT_METHOD(stopTempoTracking: (RCTResponseSenderBlock)stopTempoSuccessCallback
-                  stopTempoFailed: (RCTResponseSenderBlock)stopTempoFailedCallback)
-{
-    NSLog( @"Stop Tempo Tracking");
-    [ BDLocationManager.instance stopTempoTracking ];
-}
-
-RCT_REMAP_METHOD(isBlueDotPointServiceRunning,
-                  resolver: (RCTPromiseResolveBlock)resolve
-                  rejecter: (RCTPromiseRejectBlock)reject)
-{   
-    BOOL isAuthenticated = BDLocationManager.instance.authenticationState == BDAuthenticationStateAuthenticated;
-    NSNumber *output=[NSNumber numberWithBool:isAuthenticated]; 
-
-    resolve(output);
-}
-
-
 
 - (NSArray<NSString *> *)supportedEvents {
     return @[
         @"zoneInfoUpdate",
-        @"checkedIntoFence",
-        @"checkedOutFromFence",
         @"checkedIntoBeacon",
         @"checkedOutFromBeacon",
         @"startRequiringUserInterventionForBluetooth",
         @"stopRequiringUserInterventionForBluetooth",
         @"startRequiringUserInterventionForLocationServices",
         @"stopRequiringUserInterventionForLocationServices",
-        @"tempoStarted",
-        @"tempoStopped",
-        @"tempoStartError",
         
         // New Events
         @"enterZone",
         @"exitZone",
         @"tempoTrackingDidExpire",
-        @"tempoTrackingStoppedWithError"
+        @"tempoTrackingStoppedWithError",
+        @"lowPowerModeDidChange",
+        @"locationAuthorizationDidChange",
+        @"accuracyAuthorizationDidChange"
     ];
 }
 
@@ -350,31 +301,36 @@ RCT_REMAP_METHOD(isBlueDotPointServiceRunning,
 }
 
 - (void)tempoTrackingDidExpire {
-    [self sendEventWithName:@"tempoTrackingDidExpire" body:@{}];
+    [self sendEventWithName:@"tempoTrackingStoppedWithError" body:@{
+        @"error" : @"Tempo tracking has expired"
+    }];
 }
 
-- (void)didStopTrackingWithError:(NSError *)error {
+- (void)didStopTrackingWithError_NEW_API:(NSError *)error {
     [self sendEventWithName:@"tempoTrackingStoppedWithError" body:@{
         @"error" : error.localizedDescription
     }];
 }
 
-// END of new API
-
-- (void)didStartTracking {
-    [self sendEventWithName:@"tempoStarted" body:@{}];
-}
-
-- (void)didStopTracking {
-    [self sendEventWithName:@"tempoStopped" body:@{}];
-}
-
-- (void)didStopTrackingWithError: (NSError *)error {
-    [self sendEventWithName:@"tempoStartError" body:@{
-        @"error" : error
+- (void)lowPowerModeDidChange:(bool)isLowPowerMode {
+    [self sendEventWithName:@"lowPowerModeDidChange" body:@{
+        @"isLowPowerMode": [NSNumber numberWithBool: isLowPowerMode]
     }];
 }
 
+- (void)locationAuthorizationDidChangeFromPreviousStatus:(CLAuthorizationStatus)previousAuthorizationStatus toNewStatus:(CLAuthorizationStatus)newAuthorizationStatus {
+    [self sendEventWithName:@"locationAuthorizationDidChange" body:@{
+        @"previousAuthorizationStatus": @(previousAuthorizationStatus),
+        @"newAuthorizationStatus": @(newAuthorizationStatus)
+    }];
+}
+
+- (void)accuracyAuthorizationDidChangeFromPreviousAuthorization:(CLAccuracyAuthorization)previousAccuracyAuthorization toNewAuthorization:(CLAccuracyAuthorization)newAccuracyAuthorization {
+    [self sendEventWithName:@"accuracyAuthorizationDidChange" body:@{
+        @"previousAccuracyAuthorization": @(previousAccuracyAuthorization),
+        @"newAccuracyAuthorization": @(newAccuracyAuthorization)
+    }];
+}
 
 /*
 *  This method is passed the Zone information utilised by the Bluedot SDK.
@@ -392,62 +348,6 @@ RCT_REMAP_METHOD(isBlueDotPointServiceRunning,
     [self sendEventWithName:@"zoneInfoUpdate" body:@{
         @"zoneInfos" : returnZones
     }];
-
-}
-
-
-/*
- *  A fence with a Custom Action has been checked into.
- */
-- (void)didCheckIntoFence: (BDFenceInfo *)fence
-                   inZone: (BDZoneInfo *)zone
-               atLocation: (BDLocationInfo *)location
-             willCheckOut: (BOOL)willCheckOut
-           withCustomData: (NSDictionary *)customData
-{
-    NSLog( @"You have checked into fence '%@' in zone '%@', at %@%@",
-          fence.name, zone.name, [ _dateFormatter stringFromDate: location.timestamp ],
-          ( willCheckOut == YES ) ? @" and awaiting check out" : @"" );
-
-    NSDictionary *returnFence = [ self fenceToDict: fence ];
-    NSDictionary *returnZone = [ self zoneToDict: zone ];
-    NSDictionary *returnLocation = [ self locationToDict: location ];
-
-    [self sendEventWithName:@"checkedIntoFence" body:@{
-        @"fenceInfo" : returnFence,
-        @"zoneInfo" : returnZone,
-        @"locationInfo" : returnLocation,
-        @"willCheckOut" : @(willCheckOut),
-        @"customData" : customData != nil ? customData : [NSNull null]
-    }];
-
-}
-
-/*
- *  A fence with a Custom Action has been checked out of.
- */
-- (void)didCheckOutFromFence: (BDFenceInfo *)fence
-                      inZone: (BDZoneInfo *)zone
-                      onDate: (NSDate *)date
-                withDuration: (NSUInteger)checkedInDuration
-              withCustomData: (NSDictionary *)customData
-{
-
-    NSLog( @"You left fence '%@' in zone '%@', after %u minutes",
-          fence.name, zone.name, (unsigned int)checkedInDuration );
-
-    NSDictionary  *returnFence = [ self fenceToDict: fence ];
-    NSDictionary *returnZone = [ self zoneToDict: zone ];
-    NSTimeInterval  unixDate = [ date timeIntervalSince1970 ];
-
-    [self sendEventWithName:@"checkedOutFromFence" body:@{
-        @"fenceInfo" : returnFence,
-        @"zoneInfo" : returnZone,
-        @"date" : @( unixDate ),
-        @"dwellTime" : @( checkedInDuration ),
-        @"customData" : customData != nil ? customData : [NSNull null]
-    }];
-
 }
 
 /*
