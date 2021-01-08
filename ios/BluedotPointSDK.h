@@ -3,6 +3,6 @@
 
 @import BDPointSDK;
 
-@interface BluedotPointSDK : RCTEventEmitter <RCTBridgeModule, BDPSessionDelegate, BDPLocationDelegate, BDPGeoTriggeringEventDelegate, BDPTempoTrackingDelegate>
+@interface BluedotPointSDK : RCTEventEmitter <RCTBridgeModule, BDPSessionDelegate, BDPLocationDelegate, BDPGeoTriggeringEventDelegate, BDPTempoTrackingDelegate, BDPBluedotServiceDelegate>
 
 @end
