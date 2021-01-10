@@ -335,7 +335,7 @@ RCT_EXPORT_METHOD(androidStartTempoTracking) {
 /*
 *  This method is passed the Zone information utilised by the Bluedot SDK.
 */
-- (void)didUpdateZoneInfo: (NSSet *)zoneInfos {
+- (void)onZoneInfoUpdate:(NSSet<BDZoneInfo *> *)zoneInfos {
     NSLog( @"Point sdk updated with %lu zones", (unsigned long)zoneInfos.count );
         
     NSMutableArray  *returnZones = [ NSMutableArray new ];
