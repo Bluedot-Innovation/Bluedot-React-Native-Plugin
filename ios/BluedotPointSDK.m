@@ -2,13 +2,6 @@
 @import BDPointSDK;
 
 @implementation BluedotPointSDK {
-    /*
-     *  Callback identifiers for the Bluedot Location delegates.
-     */
-    RCTResponseSenderBlock _callbackAuthenticationSuccessful;
-    RCTResponseSenderBlock _callbackAuthenticationFailed;
-    RCTResponseSenderBlock _callbackLogOutSuccessful;
-    RCTResponseSenderBlock _callbackLogOutFailed;
 
     NSDateFormatter  *_dateFormatter;
 }
@@ -20,7 +13,6 @@ RCT_EXPORT_MODULE()
     if (self) {
         
         // Deprecated
-        BDLocationManager.instance.sessionDelegate = self;
         BDLocationManager.instance.locationDelegate = self;
         
         // New APIs
