@@ -249,29 +249,24 @@ RCT_EXPORT_METHOD(androidStartTempoTracking) {
     return YES;
 }
 
-
 - (NSArray<NSString *> *)supportedEvents {
     return @[
         @"zoneInfoUpdate",
-        @"checkedIntoBeacon",
-        @"checkedOutFromBeacon",
-        @"startRequiringUserInterventionForBluetooth",
-        @"stopRequiringUserInterventionForBluetooth",
-        @"startRequiringUserInterventionForLocationServices",
-        @"stopRequiringUserInterventionForLocationServices",
-        
-        // New Events
         @"enterZone",
         @"exitZone",
         @"tempoTrackingDidExpire",
         @"tempoTrackingStoppedWithError",
         @"lowPowerModeDidChange",
         @"locationAuthorizationDidChange",
-        @"accuracyAuthorizationDidChange"
+        @"accuracyAuthorizationDidChange",
+        
+        // Old Events for beacons compatability. These will be removed in a future release.
+        @"checkedIntoBeacon",
+        @"checkedOutFromBeacon",
+        @"startRequiringUserInterventionForBluetooth",
+        @"stopRequiringUserInterventionForBluetooth"
     ];
 }
-
-// New API
 
 - (void)didEnterZone: (nonnull BDZoneEntryEvent *) enterEvent {
     NSDictionary *returnFence = [ self fenceToDict: enterEvent.fence ];
@@ -420,76 +415,6 @@ RCT_EXPORT_METHOD(androidStartTempoTracking) {
 
 }
 
-- (void)authenticationFailedWithError:(NSError *)error {
-    NSLog( @"authenticationFailedWithError");
-
-    if (_callbackAuthenticationFailed != nil)
-    {
-        _callbackAuthenticationFailed(@[error.localizedDescription]);
-    }
-
-    //  Reset the authentication callback
-    _callbackAuthenticationFailed = nil;
-    _callbackAuthenticationSuccessful = nil;
-}
-
-- (void)authenticationWasDeniedWithReason:(NSString *)reason {
-    NSLog( @"authenticationWasDeniedWithReason");
-
-    if (_callbackAuthenticationFailed != nil)
-    {
-        _callbackAuthenticationFailed(@[reason]);
-    }
-
-    //  Reset the authentication callback
-    _callbackAuthenticationFailed = nil;
-    _callbackAuthenticationSuccessful = nil;
-}
-
-- (void)authenticationWasSuccessful {
-    NSLog( @"authenticationWasSuccessful");
-
-    if (_callbackAuthenticationSuccessful != nil)
-    {
-        //  Authentication has been successful; on iOS there are no possible warning issues
-        _callbackAuthenticationSuccessful(@[]);
-    }
-
-    //  Reset the authentication callback
-    _callbackAuthenticationFailed = nil;
-    _callbackAuthenticationSuccessful = nil;
-}
-
-- (void)didEndSession {
-    NSLog( @"Logged out" );
-
-    if (_callbackLogOutSuccessful != nil)
-    {
-        _callbackLogOutSuccessful(@[]);
-    }
-
-    //  Reset the callback
-    _callbackLogOutSuccessful = nil;
-    _callbackLogOutFailed = nil;
-}
-
-- (void)didEndSessionWithError:(NSError *)error {
-    NSLog( @"didEndSessionWithError");
-    
-    if (_callbackLogOutFailed != nil)
-    {
-        _callbackLogOutFailed(@[error.localizedDescription]);
-    }
-    
-    //  Reset the callback
-    _callbackLogOutSuccessful = nil;
-    _callbackLogOutFailed = nil;
-}
-
-- (void)willAuthenticateWithApiKey:(NSString *)projectId {
-    NSLog( @"Authenticating Point service with [%@]", projectId);
-}
-
 /*
  *  This method is part of the Bluedot location delegate and is called when Bluetooth is required by the SDK but is not
  *  enabled on the device; requiring user intervention.
@@ -512,63 +437,6 @@ RCT_EXPORT_METHOD(androidStartTempoTracking) {
     NSLog( @"User intervention for Bluetooth is no longer required." );
 
     [self sendEventWithName:@"stopRequiringUserInterventionForLocationServices" body:@{}];
-}
-
-/*
- *  This method is part of the Bluedot location delegate and is called when Location Services are not enabled
- *  on the device; requiring user intervention.
- */
-- (void)didStartRequiringUserInterventionForLocationServicesAuthorizationStatus: (CLAuthorizationStatus)authorizationStatus
-{
-    NSString *authorizationString;
-    switch(authorizationStatus){
-        case kCLAuthorizationStatusDenied:
-            authorizationString = @"denied";
-        case kCLAuthorizationStatusRestricted:
-            authorizationString = @"restricted";
-        case kCLAuthorizationStatusNotDetermined:
-            authorizationString = @"notDetermined";
-        case kCLAuthorizationStatusAuthorizedAlways:
-            authorizationString = @"always";
-        case kCLAuthorizationStatusAuthorizedWhenInUse:
-            authorizationString = @"whenInUse";
-        default:
-            authorizationString = @"unknown";
-    }
-    NSLog( @"This App requires Location Services which are currently set to %@.", authorizationString );
-
-    [self sendEventWithName:@"startRequiringUserInterventionForLocationServices"
-                       body:@{@"authorizationStatus" : authorizationString}];
-
-}
-
-/*
- *  This method is part of the Bluedot location delegate; it is called if user
- *  intervention on the device had previously been required to enable Location Services
- *  and either Location Services has been enabled or the user is no longer
- *  within an authenticated session, thereby no longer requiring Location Services.
- */
-- (void)didStopRequiringUserInterventionForLocationServicesAuthorizationStatus: (CLAuthorizationStatus)authorizationStatus
-{
-    NSString *authorizationString;
-    switch(authorizationStatus){
-        case kCLAuthorizationStatusDenied:
-            authorizationString = @"denied";
-        case kCLAuthorizationStatusRestricted:
-            authorizationString = @"restricted";
-        case kCLAuthorizationStatusNotDetermined:
-            authorizationString = @"notDetermined";
-        case kCLAuthorizationStatusAuthorizedAlways:
-            authorizationString = @"always";
-        case kCLAuthorizationStatusAuthorizedWhenInUse:
-            authorizationString = @"whenInUse";
-        default:
-            authorizationString = @"unknown";
-    }
-    NSLog( @"This App requires Location Services which are currently set to %@.", authorizationString );
-
-    [self sendEventWithName:@"stopRequiringUserInterventionForLocationServices"
-                       body:@{@"authorizationStatus" : authorizationString}];
 }
 
 
