@@ -306,7 +306,7 @@ RCT_EXPORT_METHOD(androidStartTempoTracking) {
     }];
 }
 
-- (void)didStopTrackingWithError_NEW_API:(NSError *)error {
+- (void)didStopTrackingWithError:(NSError *)error {
     [self sendEventWithName:@"tempoTrackingStoppedWithError" body:@{
         @"error" : error.localizedDescription
     }];
