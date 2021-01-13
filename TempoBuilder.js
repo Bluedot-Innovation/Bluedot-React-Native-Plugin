@@ -2,6 +2,8 @@ import { NativeModules, Platform } from 'react-native'
 
 class TempoBuilder {
     constructor() {
+        this.androidNotificationChannelId = null;
+        this.androidNotificationChannelName = null;
         this.androidNotificationTitle = null;
         this.androidNotificationContent = null;
         this.androidNotificationId = null;
@@ -23,6 +25,8 @@ class TempoBuilder {
         if (Platform.OS === "android") {
             NativeModules.BluedotPointSDK.androidStartTempoTracking(
                 destinationId,
+                this.androidNotificationChannelId,
+                this.androidNotificationChannelName,
                 this.androidNotificationTitle,
                 this.androidNotificationContent,
                 this.androidNotificationId,

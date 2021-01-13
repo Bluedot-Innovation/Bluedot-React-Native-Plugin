@@ -40,10 +40,6 @@ const setNotificationIdResourceId = (resourceId) => {
     NativeModules.BluedotPointSDK.setNotificationIDResourceID(resourceId)
 }
 
-const setForegroundNotification = (channelId, channelName, title, content, targetAllApis) => {
-    NativeModules.BluedotPointSDK.setForegroundNotification(channelId, channelName, title, content, targetAllApis)
-}
-
 const on = (eventName, callback) => {
     eventEmitter.addListener(eventName, callback)
 }
@@ -64,10 +60,13 @@ const getZonesAndFences = () => {
     return NativeModules.BluedotPointSDK.getZonesAndFences()
 }
 
+const setZoneDisableByApplication = (zoneId, disable) => {
+    NativeModules.BluedotPointSDK.setZoneDisableByApplication(zoneId, disable)
+}
+
 const BluedotPointSDK = { 
     on, 
     unsubscribe, 
-    setForegroundNotification, 
     setCustomEventMetaData,
     setNotificationIdResourceId,
     getInstallRef,
@@ -83,6 +82,7 @@ const BluedotPointSDK = {
     stopTempoTracking,
     getSdkVersion,
     getZonesAndFences,
+    setZoneDisableByApplication
 }
 
 export default BluedotPointSDK

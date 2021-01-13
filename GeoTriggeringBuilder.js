@@ -3,6 +3,8 @@ import { NativeModules, Platform } from 'react-native'
 class GeotriggeringBuilder {
     constructor() {
         // Android Foreground notification parameters
+        this.androidNotificationChannelId = null;
+        this.androidNotificationChannelName = null;
         this.androidNotificationTitle = null;
         this.androidNotificationContent = null;
         this.androidNotificationId = null;
@@ -46,6 +48,8 @@ class GeotriggeringBuilder {
 
         if (Platform.OS === "android") {
             NativeModules.BluedotPointSDK.androidStartGeotriggering(
+                this.androidNotificationChannelId,
+                this.androidNotificationChannelName,
                 this.androidNotificationTitle, 
                 this.androidNotificationContent, 
                 this.androidNotificationId, 
