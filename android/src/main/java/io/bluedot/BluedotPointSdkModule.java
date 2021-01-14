@@ -305,6 +305,11 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
         serviceManager.setForegroundServiceNotification(createNotification(channelId,channelName,title,content), targetAllAPis);
     }
 
+    @ReactMethod
+    public void setZoneDisableByApplication(String zoneId, boolean disable) {
+        serviceManager.setZoneDisableByApplication(zoneId, disable);
+    }
+
     private Notification createNotification(String channelId,String channelName,String title, String content) {
 
         Intent activityIntent = new Intent(this.getCurrentActivity().getIntent());

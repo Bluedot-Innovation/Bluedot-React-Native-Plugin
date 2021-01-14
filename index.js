@@ -44,6 +44,10 @@ const setForegroundNotification = (channelId, channelName, title, content, targe
     NativeModules.BluedotPointSDK.setForegroundNotification(channelId, channelName, title, content, targetAllApis)
 }
 
+const setZoneDisableByApplication = (zoneId, disable) => {
+    NativeModules.BluedotPointSDK.setZoneDisableByApplication(zoneId, disable)
+}
+
 const on = (eventName, callback) => {
     eventEmitter.addListener(eventName, callback)
 }
@@ -83,6 +87,7 @@ const BluedotPointSDK = {
     stopTempoTracking,
     getSdkVersion,
     getZonesAndFences,
+    setZoneDisableByApplication
 }
 
 export default BluedotPointSDK
