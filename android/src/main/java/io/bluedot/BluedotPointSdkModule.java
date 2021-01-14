@@ -148,7 +148,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
                                 return;
                             }
                             serviceManager.subscribeForApplicationNotification(this);
-                            onSuccess.invoke("Success");
+                            onSuccess.invoke();
                         });
             } else {
                 //Use default notificationId set by PointSDK
@@ -160,7 +160,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
                                 return;
                             }
                             serviceManager.subscribeForApplicationNotification(this);
-                            onSuccess.invoke("Success");
+                            onSuccess.invoke();
                         });
             }
         } else {
@@ -172,7 +172,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
                             return;
                         }
                         serviceManager.subscribeForApplicationNotification(this);
-                        onSuccess.invoke("Success");
+                        onSuccess.invoke();
                     });
         }
     }
@@ -192,7 +192,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
         GeoTriggeringStatusListener statusListener = error -> {
             if (error == null) {
                 serviceManager.unsubscribeForApplicationNotification(this);
-                onSuccessCallback.invoke("Success");
+                onSuccessCallback.invoke();
                 return;
             }
             serviceManager.unsubscribeForApplicationNotification(this);
@@ -226,7 +226,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
                                    androidNotificationContent);
         TempoServiceStatusListener tempoStatusListener = error -> {
             if (error == null) {
-                onSuccess.invoke("Success");
+                onSuccess.invoke();
             } else {
                 onError.invoke("Error -" + error.getReason());
             }
@@ -260,7 +260,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
     public void stopTempoTrackingWithCallbacks(Callback onSuccessCallback, Callback onFailCallback) {
         BDError error = TempoService.stop(reactContext);
         if(error == null)
-            onSuccessCallback.invoke("Success");
+            onSuccessCallback.invoke();
         else
             onFailCallback.invoke("Error "+error.getReason());
 
@@ -354,7 +354,8 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
         //Do nothing for fence callback as its handled from onZoneEntryEvent
     }
 
-    @Override public void onCheckedOutFromFence(FenceInfo fenceInfo, ZoneInfo zoneInfo, int dwellTime,
+    @Override
+    public void onCheckedOutFromFence(FenceInfo fenceInfo, ZoneInfo zoneInfo, int dwellTime,
                                                 Map<String, String> map) {
         //Do nothing for fence callback as its handled from onZoneExitEvent
     }
