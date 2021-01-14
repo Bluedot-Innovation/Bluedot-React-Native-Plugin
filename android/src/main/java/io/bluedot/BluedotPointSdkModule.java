@@ -301,11 +301,6 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
     }
 
     @ReactMethod
-    public void setForegroundNotification(String channelId, String channelName, String title, String content, boolean targetAllAPis){
-        serviceManager.setForegroundServiceNotification(createNotification(channelId,channelName,title,content), targetAllAPis);
-    }
-
-    @ReactMethod
     public void setZoneDisableByApplication(String zoneId, boolean disable) {
         serviceManager.setZoneDisableByApplication(zoneId, disable);
     }

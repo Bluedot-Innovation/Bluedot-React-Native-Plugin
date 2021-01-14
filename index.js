@@ -40,10 +40,6 @@ const setNotificationIdResourceId = (resourceId) => {
     NativeModules.BluedotPointSDK.setNotificationIDResourceID(resourceId)
 }
 
-const setForegroundNotification = (channelId, channelName, title, content, targetAllApis) => {
-    NativeModules.BluedotPointSDK.setForegroundNotification(channelId, channelName, title, content, targetAllApis)
-}
-
 const setZoneDisableByApplication = (zoneId, disable) => {
     NativeModules.BluedotPointSDK.setZoneDisableByApplication(zoneId, disable)
 }
@@ -70,8 +66,7 @@ const getZonesAndFences = () => {
 
 const BluedotPointSDK = { 
     on, 
-    unsubscribe, 
-    setForegroundNotification, 
+    unsubscribe,
     setCustomEventMetaData,
     setNotificationIdResourceId,
     getInstallRef,
