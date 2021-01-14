@@ -1,5 +1,5 @@
 import { NativeModules, NativeEventEmitter } from 'react-native';
-import GeotriggeringBuilder from './GeoTriggeringBuilder'
+import GeoTriggeringBuilder from './GeoTriggeringBuilder'
 import TempoBuilder from './TempoBuilder'
 
 const eventEmitter = new NativeEventEmitter(NativeModules.BluedotPointSDK)
@@ -16,12 +16,12 @@ const reset = (onSuccessCallback, onFailCallback) => {
     NativeModules.BluedotPointSDK.reset(onSuccessCallback, onFailCallback)
 }
 
-const isGeotriggeringRunning = () => {
-    return NativeModules.BluedotPointSDK.isGeotriggeringRunning()
+const isGeoTriggeringRunning = () => {
+    return NativeModules.BluedotPointSDK.isGeoTriggeringRunning()
 }
 
-const stopGeotriggering = (onSuccessCallback, onFailCallback) => {
-    NativeModules.BluedotPointSDK.stopGeotriggering(onSuccessCallback, onFailCallback)
+const stopGeoTriggering = (onSuccessCallback, onFailCallback) => {
+    NativeModules.BluedotPointSDK.stopGeoTriggering(onSuccessCallback, onFailCallback)
 }
 
 const isTempoRunning = () => {
@@ -74,10 +74,10 @@ const BluedotPointSDK = {
     initialize,
     isInitialized,
     reset,
-    GeotriggeringBuilder,
+    GeoTriggeringBuilder,
     TempoBuilder,
-    isGeotriggeringRunning,
-    stopGeotriggering,
+    isGeoTriggeringRunning,
+    stopGeoTriggering,
     isTempoRunning,
     stopTempoTracking,
     getSdkVersion,
