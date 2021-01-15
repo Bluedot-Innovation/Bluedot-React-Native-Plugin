@@ -257,7 +257,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
     }
 
     @ReactMethod
-    public void stopTempoTrackingWithCallbacks(Callback onSuccessCallback, Callback onFailCallback) {
+    public void stopTempoTracking(Callback onSuccessCallback, Callback onFailCallback) {
         BDError error = TempoService.stop(reactContext);
         if(error == null)
             onSuccessCallback.invoke();

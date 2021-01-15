@@ -139,7 +139,7 @@ RCT_REMAP_METHOD(isTempoRunning,
     resolve(output);
 }
 
-RCT_EXPORT_METHOD(iOSStopTempoTracking: (RCTResponseSenderBlock)stopTempoSuccessCallback
+RCT_EXPORT_METHOD(stopTempoTracking: (RCTResponseSenderBlock)stopTempoSuccessCallback
                   stopTempoFailed: (RCTResponseSenderBlock)stopTempoFailedCallback)
 {
     NSLog( @"Stop Tempo Tracking");
