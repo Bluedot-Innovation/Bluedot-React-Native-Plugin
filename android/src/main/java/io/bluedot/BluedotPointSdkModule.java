@@ -119,7 +119,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
     }
 
     @ReactMethod
-    public void androidStartGeotriggering(String channelId,
+    public void androidStartGeoTriggering(String channelId,
                                           String channelName,
                                           String androidNotificationTitle,
                                           String androidNotificationContent,
@@ -178,17 +178,17 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
     }
 
     @ReactMethod
-    public void isGeotriggeringRunning(Promise promise) {
+    public void isGeoTriggeringRunning(Promise promise) {
         try {
             boolean isRunning = GeoTriggeringService.isRunning();
             promise.resolve(isRunning);
         } catch (Exception e) {
-            promise.reject("Error getting isGeotriggeringRunning");
+            promise.reject("Error getting isGeoTriggeringRunning");
         }
     }
 
     @ReactMethod
-    public void stopGeotriggering(Callback onSuccessCallback, Callback onFailCallback){
+    public void stopGeoTriggering(Callback onSuccessCallback, Callback onFailCallback){
         GeoTriggeringStatusListener statusListener = error -> {
             if (error == null) {
                 serviceManager.unsubscribeForApplicationNotification(this);

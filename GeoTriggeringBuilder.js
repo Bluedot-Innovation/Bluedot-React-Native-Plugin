@@ -1,6 +1,6 @@
 import { NativeModules, Platform } from 'react-native'
 
-class GeotriggeringBuilder {
+class GeoTriggeringBuilder {
     constructor() {
         // Android Foreground notification parameters
         this.channelId = null;
@@ -35,7 +35,7 @@ class GeotriggeringBuilder {
         if (Platform.OS === "ios") {
             // With App Restart Notification
             if (this.iOSAppRestartNotificationTitle !== null && this.iOSAppRestartNotificationButtonText !== null) {
-                NativeModules.BluedotPointSDK.iOSStartGeotriggeringWithAppRestartNotification(
+                NativeModules.BluedotPointSDK.iOSStartGeoTriggeringWithAppRestartNotification(
                     this.iOSAppRestartNotificationTitle,
                     this.iOSAppRestartNotificationButtonText,
                     onSuccess,
@@ -45,11 +45,11 @@ class GeotriggeringBuilder {
             } 
 
             // With Completion
-            NativeModules.BluedotPointSDK.iOSStartGeotriggering(onSuccess, onError);
+            NativeModules.BluedotPointSDK.iOSStartGeoTriggering(onSuccess, onError);
         }
 
         if (Platform.OS === "android") {
-            NativeModules.BluedotPointSDK.androidStartGeotriggering(
+            NativeModules.BluedotPointSDK.androidStartGeoTriggering(
                 this.channelId,
                 this.channelName,
                 this.androidNotificationTitle,
@@ -61,4 +61,4 @@ class GeotriggeringBuilder {
     }
 }
 
-module.exports = GeotriggeringBuilder
+module.exports = GeoTriggeringBuilder

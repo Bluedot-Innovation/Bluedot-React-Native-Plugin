@@ -63,39 +63,39 @@ RCT_EXPORT_METHOD(reset:(RCTResponseSenderBlock)resetSuccessfulCallback
     }];
 }
 
-RCT_EXPORT_METHOD(iOSStartGeotriggering:(RCTResponseSenderBlock)startGeotriggeringSuccessfulCallback
-                  startGeotriggeringFailed:(RCTResponseSenderBlock)startGeotriggeringFailedCallback)
+RCT_EXPORT_METHOD(iOSStartGeoTriggering:(RCTResponseSenderBlock)startGeoTriggeringSuccessfulCallback
+                  startGeoTriggeringFailed:(RCTResponseSenderBlock)startGeoTriggeringFailedCallback)
 {
     
     [[BDLocationManager instance] startGeoTriggeringWithCompletion:^(NSError * error)
     {
         if (error != nil) {
-            startGeotriggeringFailedCallback(@[error.localizedDescription]);
+            startGeoTriggeringFailedCallback(@[error.localizedDescription]);
         } else {
-            startGeotriggeringSuccessfulCallback(@[]);
+            startGeoTriggeringSuccessfulCallback(@[]);
         }
     }];
 }
 
-RCT_EXPORT_METHOD(iOSStartGeotriggeringWithAppRestartNotification: (NSString *) notificationTitle
+RCT_EXPORT_METHOD(iOSStartGeoTriggeringWithAppRestartNotification: (NSString *) notificationTitle
                   notificationButtonText: (NSString *)buttonText
-                  startGeotriggeringTestSuccess: (RCTResponseSenderBlock)startGeotriggeringTestSuccessfulCallback
-                  startGeotriggeringTestFailed: (RCTResponseSenderBlock)startGeotriggeringTestFailedCallback)
+                  startGeoTriggeringTestSuccess: (RCTResponseSenderBlock)startGeoTriggeringTestSuccessfulCallback
+                  startGeoTriggeringTestFailed: (RCTResponseSenderBlock)startGeoTriggeringTestFailedCallback)
 {
     
     [[BDLocationManager instance] startGeoTriggeringWithAppRestartNotificationTitle:notificationTitle notificationButtonText:buttonText completion:^(NSError * error)
     {
         if (error != nil) {
-            startGeotriggeringTestFailedCallback(@[error.localizedDescription]);
+            startGeoTriggeringTestFailedCallback(@[error.localizedDescription]);
         } else {
-            startGeotriggeringTestSuccessfulCallback(@[]);
+            startGeoTriggeringTestSuccessfulCallback(@[]);
         }
     }];
 }
 
-RCT_REMAP_METHOD(isGeotriggeringRunning,
-                 isGeotriggeringRunningWithResolver: (RCTPromiseResolveBlock)resolve
-                 isGeotriggeringRunningRejecter: (RCTPromiseRejectBlock)reject)
+RCT_REMAP_METHOD(isGeoTriggeringRunning,
+                 isGeoTriggeringRunningWithResolver: (RCTPromiseResolveBlock)resolve
+                 isGeoTriggeringRunningRejecter: (RCTPromiseRejectBlock)reject)
 {
     BOOL isGeoTriggeringRunning = [ BDLocationManager.instance isGeoTriggeringRunning ];
     NSNumber *output = [NSNumber numberWithBool: isGeoTriggeringRunning ];
@@ -103,15 +103,15 @@ RCT_REMAP_METHOD(isGeotriggeringRunning,
     resolve(output);
 }
 
-RCT_EXPORT_METHOD(stopGeotriggering:(RCTResponseSenderBlock)stopGeotriggeringSuccessfulCallback
-    stopGeotriggeringFailed:(RCTResponseSenderBlock)stopGeotriggeringFailedCallback)
+RCT_EXPORT_METHOD(stopGeoTriggering:(RCTResponseSenderBlock)stopGeoTriggeringSuccessfulCallback
+    stopGeoTriggeringFailed:(RCTResponseSenderBlock)stopGeoTriggeringFailedCallback)
 {
     [[BDLocationManager instance] stopGeoTriggeringWithCompletion:^(NSError * error)
     {
         if (error != nil) {
-            stopGeotriggeringFailedCallback(@[error.localizedDescription]);
+            stopGeoTriggeringFailedCallback(@[error.localizedDescription]);
         } else {
-            stopGeotriggeringSuccessfulCallback(@[]);
+            stopGeoTriggeringSuccessfulCallback(@[]);
         }
     }];
 }
@@ -226,7 +226,7 @@ RCT_EXPORT_METHOD(setZoneDisableByApplication: (NSString *) zoneId
     to keep consistency with the Android implementation
  */
 
-RCT_EXPORT_METHOD(androidStartGeotriggering) {
+RCT_EXPORT_METHOD(androidStartGeoTriggering) {
     // NO-OP Method
 }
 
