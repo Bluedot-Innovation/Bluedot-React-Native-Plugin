@@ -1,7 +1,6 @@
 package io.bluedot;
 
 import android.content.Context;
-import android.widget.Toast;
 import androidx.annotation.Nullable;
 import au.com.bluedot.point.net.engine.FenceInfo;
 import au.com.bluedot.point.net.engine.GeoTriggeringEventReceiver;
@@ -24,8 +23,6 @@ public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
 
     @Override public void onZoneInfoUpdate(@NotNull List<ZoneInfo> zones, @NotNull Context context) {
         ZoneInfo Zone = zones.get(0);
-        Toast.makeText(context, "Rules Updated",
-                       Toast.LENGTH_LONG).show();
         WritableArray zoneList = new WritableNativeArray();
         for (ZoneInfo zoneInfo:zones) {
             WritableMap customDataZone = new WritableNativeMap();
