@@ -29,7 +29,7 @@ const isTempoRunning = () => {
 }
 
 const stopTempoTracking = (onSuccessCallback, onFailCallback) => {
-    NativeModules.BluedotPointSDK.stopTempoTrackingWithCallbacks(onSuccessCallback, onFailCallback)
+    NativeModules.BluedotPointSDK.stopTempoTracking(onSuccessCallback, onFailCallback)
 }
 
 const setCustomEventMetaData = (eventMetaData) => {
