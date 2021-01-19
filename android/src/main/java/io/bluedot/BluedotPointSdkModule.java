@@ -1,22 +1,17 @@
 package io.bluedot;
 
-import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import au.com.bluedot.application.model.Proximity;
 import au.com.bluedot.point.ApplicationNotificationListener;
-import au.com.bluedot.point.BluetoothNotEnabledError;
-import au.com.bluedot.point.LocationServiceNotEnabledError;
-import au.com.bluedot.point.ServiceStatusListener;
 import au.com.bluedot.point.net.engine.BDError;
 import au.com.bluedot.point.net.engine.BeaconInfo;
 import au.com.bluedot.point.net.engine.FenceInfo;
@@ -28,7 +23,6 @@ import au.com.bluedot.point.net.engine.ResetResultReceiver;
 import au.com.bluedot.point.net.engine.ServiceManager;
 import au.com.bluedot.point.net.engine.TempoService;
 import au.com.bluedot.point.net.engine.TempoServiceStatusListener;
-import au.com.bluedot.point.net.engine.TempoStatusListener;
 import au.com.bluedot.point.net.engine.ZoneInfo;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
@@ -127,9 +121,9 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
                                           Callback onSuccess,
                                           Callback onError) {
         //Start as With FG Service
-        if (androidNotificationTitle != null && androidNotificationContent != null) {
+        if (!androidNotificationTitle.isEmpty() && !androidNotificationContent.isEmpty()) {
 
-            if((channelId==null) || (channelName == null)){
+            if ((channelId.isEmpty()) || (channelName.isEmpty())) {
                 onError.invoke("Missing channelId and channelName for Notification");
                 return;
             }
@@ -137,7 +131,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
             Notification fgNotification =
                     createNotification(channelId, channelName, androidNotificationTitle,
                                        androidNotificationContent);
-            if (androidNotificationId != null) {
+            if (androidNotificationId != -1) {
                 //Set notificationId for GeoTriggerService
                 GeoTriggeringService.builder()
                         .notification(fgNotification)
@@ -211,12 +205,12 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
                                           Callback onSuccess,
                                           Callback onError) {
 
-        if (destinationId == null) {
+        if (destinationId.isEmpty()) {
             onError.invoke("destinationId is null");
             return;
         }
 
-        if ((channelId == null) || (channelName == null) || (androidNotificationTitle == null) || (androidNotificationContent == null)) {
+        if ((channelId.isEmpty()) || (channelName.isEmpty()) || (androidNotificationTitle.isEmpty()) || (androidNotificationContent.isEmpty())) {
             onError.invoke("Missing param from channelId/channelName/androidNotificationTitle/androidNotificationContent");
             return;
         }
@@ -232,7 +226,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
             }
         };
 
-        if (androidNotificationId != null) {
+        if (androidNotificationId != -1) {
             TempoService.builder()
                     .notificationId(androidNotificationId)
                     .notification(fgNotification)
