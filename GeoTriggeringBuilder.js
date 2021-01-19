@@ -3,18 +3,18 @@ import { NativeModules, Platform } from 'react-native'
 class GeoTriggeringBuilder {
     constructor() {
         // Android Foreground notification parameters
-        this.channelId = null;
-        this.channelName = null;
-        this.androidNotificationTitle = null;
-        this.androidNotificationContent = null;
-        this.androidNotificationId = null;
+        this.channelId = "";
+        this.channelName = "";
+        this.androidNotificationTitle = "";
+        this.androidNotificationContent = "";
+        this.androidNotificationId = -1;
         
         // iOS App Restart notification parameters
         this.iOSAppRestartNotificationTitle = null;
         this.iOSAppRestartNotificationButtonText = null;
     }
 
-    androidNotification = (channelId, channelName, title, content, id) => {
+    androidNotification = (channelId = "", channelName = "", title = "", content= "", id= -1) => {
         this.channelId = channelId;
         this.channelName = channelName;
         this.androidNotificationTitle = title;
