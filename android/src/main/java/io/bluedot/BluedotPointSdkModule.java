@@ -40,6 +40,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static android.app.Notification.PRIORITY_MAX;
 
@@ -182,11 +183,21 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
     }
 
     @ReactMethod
-    public void stopGeoTriggering(Callback onSuccessCallback, Callback onFailCallback){
+    public void stopGeoTriggering(Callback onSuccessCallback, Callback onFailCallback) {
+        //triggered variable used to avoid crash caused by double invocation of success callback
+        //due to GeoTriggeringStatusListener being invoked twice from SDK when stopping in background mode.
+        //TODO: Remove it when SDK fixes this issue
+        AtomicBoolean triggered = new AtomicBoolean(false);
+
         GeoTriggeringStatusListener statusListener = error -> {
+            if (triggered.get()) {
+                return;
+            }
+
             if (error == null) {
                 serviceManager.unsubscribeForApplicationNotification(this);
                 onSuccessCallback.invoke();
+                triggered.set(true);
                 return;
             }
             serviceManager.unsubscribeForApplicationNotification(this);
