@@ -187,67 +187,6 @@ componentDidMount = async () => {
 }
 ```
 
-#### checkedIntoBeacon
-```javascript
-{
-    "zoneInfo": {
-        "ID": "zone-UUID-here",
-        "name": "Your zone name here"
-    },
-    "beaconInfo": {
-        "ID": "zone-UUID-here",
-        "name": "Your zone name here",
-        "macAddress": "AA:BB:CC:DD:EE:FF", // Mac address here
-        "proximityUuid": "beacon-UUID-here",
-        "major": 1, // As set on backend
-        "minor": 2, // As set on backend
-        "latitude": "Latitude of beacon",
-        "longitude": "Longitude of beacon",
-    },
-    "locationInfo": {
-        "unixDate": "Timestamp of triggering location update",
-        "latitude": "Latitude of triggering location update",
-        "longitude": "Longitude of triggering location update",
-        "bearing": "Bearing of triggering location update (if available)",
-        "speed": "speed of triggering location update (if available)",
-    },
-    "customData": {
-        "custom-field-name": "Custom zone data field value"
-    },
-    "willCheckout": false // True if the zone has checkout enabled.
-}
-```
-#### checkedOutFromBeacon
-```javascript
-{
-    "zoneInfo": {
-        "ID": "zone-UUID-here",
-        "name": "Your zone name here"
-    },
-    "beaconInfo": {
-        "ID": "zone-UUID-here",
-        "name": "Your zone name here",
-        "macAddress": "AA:BB:CC:DD:EE:FF", // Mac address here
-        "proximityUuid": "beacon-UUID-here",
-        "major": 1, // As set on backend
-        "minor": 2, // As set on backend
-        "latitude": "Latitude of beacon",
-        "longitude": "Longitude of beacon",
-    },
-    "locationInfo": {
-        "unixDate": "Timestamp of triggering location update",
-        "latitude": "Latitude of triggering location update",
-        "longitude": "Longitude of triggering location update",
-        "bearing": "Bearing of triggering location update (if available)",
-        "speed": "speed of triggering location update (if available)",
-    },
-    "customData": {
-        "custom-field-name": "Custom zone data field value"
-    },
-    "dwellTime": 5 // Number of minutes the device dwelled in the zone
-}
-```
-
 #### startRequiringUserInterventionForBluetooth
 ```javascript
 {}
