@@ -3,6 +3,7 @@ import GeoTriggeringBuilder from './GeoTriggeringBuilder'
 import TempoBuilder from './TempoBuilder'
 
 const eventEmitter = new NativeEventEmitter(NativeModules.BluedotPointSDK)
+const subscriptionsList = new Set();
 
 const initialize = (projectId, onSucessCallback, onFailCallback) => {
     NativeModules.BluedotPointSDK.initialize(projectId, onSucessCallback, onFailCallback)
@@ -48,8 +49,14 @@ const on = (eventName, callback) => {
     eventEmitter.addListener(eventName, callback)
 }
 
-const unsubscribe = (eventName, callback) => {
-    eventEmitter.removeListener(eventName, callback)
+const unsubscribe = (eventName) => {
+    eventEmitter.removeAllListeners(eventName)
+    subscriptionsList.delete(eventName)
+}
+
+const unsubscribeAll = () => {
+    subscriptionsList.forEach(eventEmitter.removeAllListeners)
+    subscriptionsList.clear()
 }
 
 const getInstallRef = () => {
@@ -67,6 +74,7 @@ const getZonesAndFences = () => {
 const BluedotPointSDK = { 
     on, 
     unsubscribe,
+    unsubscribeAll,
     setCustomEventMetaData,
     setNotificationIdResourceId,
     getInstallRef,
