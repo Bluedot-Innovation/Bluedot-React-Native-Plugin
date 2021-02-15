@@ -250,13 +250,7 @@ RCT_EXPORT_METHOD(androidStartTempoTracking) {
         @"tempoTrackingStoppedWithError",
         @"lowPowerModeDidChange",
         @"locationAuthorizationDidChange",
-        @"accuracyAuthorizationDidChange",
-        
-        // Old Events for beacons compatability. These will be removed in a future release.
-        @"checkedIntoBeacon",
-        @"checkedOutFromBeacon",
-        @"startRequiringUserInterventionForBluetooth",
-        @"stopRequiringUserInterventionForBluetooth"
+        @"accuracyAuthorizationDidChange"
     ];
 }
 
@@ -338,101 +332,6 @@ RCT_EXPORT_METHOD(androidStartTempoTracking) {
 }
 
 /*
- *  A beacon with a Custom Action has been checked into.
- *  Proximity of check-in to beacon (Integer)
- *          0 = Unknown
- *          1 = Immediate
- *          2 = Near
- *          3 = Far
- */
-- (void)didCheckIntoBeacon: (BDBeaconInfo *)beacon
-                    inZone: (BDZoneInfo *)zone
-                atLocation: (BDLocationInfo *)location
-             withProximity: (CLProximity)proximity
-              willCheckOut: (BOOL)willCheckOut
-            withCustomData: (NSDictionary *)customData
-{
-
-    NSLog( @"You have checked into beacon '%@' in zone '%@' with proximity %d at %@%@",
-          beacon.name, zone.name, (int)proximity, [ _dateFormatter stringFromDate: location.timestamp ],
-          ( willCheckOut == YES ) ? @" and awaiting check out" : @"" );
-    
-    NSDictionary *returnBeacon = [ self beaconToDict: beacon ];
-    NSDictionary *returnZone = [ self zoneToDict: zone ];
-    NSDictionary *returnLocation = [ self locationToDict: location ];
-    
-    [self sendEventWithName:@"checkedIntoBeacon" body:@{
-        @"beaconInfo" : returnBeacon,
-        @"zoneInfo" : returnZone,
-        @"locationInfo" : returnLocation,
-        @"proximity" : @(proximity),
-        @"willCheckOut" : @(willCheckOut),
-        @"customData" : customData != nil ? customData : [NSNull null]
-    }];
-
-}
-
-/*
- *  A beacon with a Custom Action has been checked out of.
- *  Proximity of check-in to beacon (Integer)
- *          0 = Unknown
- *          1 = Immediate
- *          2 = Near
- *          3 = Far
- */
-- (void)didCheckOutFromBeacon: (BDBeaconInfo *)beacon
-                       inZone: (BDZoneInfo *)zone
-                withProximity: (CLProximity)proximity
-                       onDate: (NSDate *)date
-                 withDuration: (NSUInteger)checkedInDuration
-               withCustomData: (NSDictionary *)customData
-{
-
-    NSLog( @"You have left beacon '%@' in zone '%@' with proximity %d at %@ after %u minutes",
-          beacon.name, zone.name, (int)proximity, [ _dateFormatter stringFromDate: date ],
-          (unsigned int)checkedInDuration );
-
-    NSDictionary *returnBeacon = [ self beaconToDict: beacon ];
-    NSDictionary *returnZone = [ self zoneToDict: zone ];
-    NSTimeInterval  unixDate = [ date timeIntervalSince1970 ];
-
-    [self sendEventWithName:@"checkedOutFromBeacon" body:@{
-        @"fenceInfo" : returnBeacon,
-        @"zoneInfo" : returnZone,
-        @"proximity" : @(proximity),
-        @"date" : @(unixDate),
-        @"dwellTime" : @(checkedInDuration),
-        @"customData" : customData != nil ? customData : [NSNull null]
-    }];
-
-}
-
-/*
- *  This method is part of the Bluedot location delegate and is called when Bluetooth is required by the SDK but is not
- *  enabled on the device; requiring user intervention.
- */
-- (void)didStartRequiringUserInterventionForBluetooth
-{
-    NSLog( @"There are nearby Beacons which cannot be detected because Bluetooth is disabled."
-          "Re-enable Bluetooth to restore full functionality." );
-
-    [self sendEventWithName:@"startRequiringUserInterventionForBluetooth" body:@{}];
-}
-
-/*
- *  This method is part of the Bluedot location delegate; it is called if user intervention on the device had previously
- *  been required to enable Bluetooth and either user intervention has enabled Bluetooth or the Bluetooth service is
- *  no longer required.
- */
-- (void)didStopRequiringUserInterventionForBluetooth
-{
-    NSLog( @"User intervention for Bluetooth is no longer required." );
-
-    [self sendEventWithName:@"stopRequiringUserInterventionForLocationServices" body:@{}];
-}
-
-
-/*
  *  Return an NSDictionary with extrapolated zone details
  */
 - (NSDictionary *)zoneToDict: (BDZoneInfo *)zone
@@ -454,25 +353,6 @@ RCT_EXPORT_METHOD(androidStartTempoTracking) {
 
     [ dict setObject:fence.name forKey:@"name"];
     [ dict setObject:fence.ID forKey:@"ID"];
-
-    return dict;
-}
-
-/*
- *  Return an NSDictionary with extrapolated beacon details into
- */
-- (NSDictionary *)beaconToDict: (BDBeaconInfo *)beacon
-{
-    NSMutableDictionary  *dict = [ NSMutableDictionary new ];
-
-    [ dict setObject:beacon.name forKey:@"name"];
-    [ dict setObject:beacon.ID forKey:@"ID"];
-    [ dict setObject:beacon.proximityUuid forKey:@"proximityUUID"];
-    [ dict setObject:@( beacon.major ) forKey:@"major"];
-    [ dict setObject:@( beacon.minor ) forKey:@"minor"];
-    [ dict setObject:[ NSNull null ] forKey:@"macAddress"];
-    [ dict setObject:@( beacon.location.latitude ) forKey:@"latitude"];
-    [ dict setObject:@( beacon.location.longitude ) forKey:@"longitude"];
 
     return dict;
 }
