@@ -13,7 +13,6 @@ import androidx.core.app.NotificationCompat;
 import au.com.bluedot.application.model.Proximity;
 import au.com.bluedot.point.ApplicationNotificationListener;
 import au.com.bluedot.point.net.engine.BDError;
-import au.com.bluedot.point.net.engine.BeaconInfo;
 import au.com.bluedot.point.net.engine.FenceInfo;
 import au.com.bluedot.point.net.engine.GeoTriggeringService;
 import au.com.bluedot.point.net.engine.GeoTriggeringStatusListener;
@@ -40,6 +39,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static android.app.Notification.PRIORITY_MAX;
 
@@ -182,11 +182,21 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
     }
 
     @ReactMethod
-    public void stopGeoTriggering(Callback onSuccessCallback, Callback onFailCallback){
+    public void stopGeoTriggering(Callback onSuccessCallback, Callback onFailCallback) {
+        //triggered variable used to avoid crash caused by double invocation of success callback
+        //due to GeoTriggeringStatusListener being invoked twice from SDK when stopping in background mode.
+        //TODO: Remove it when SDK fixes this issue
+        AtomicBoolean triggered = new AtomicBoolean(false);
+
         GeoTriggeringStatusListener statusListener = error -> {
+            if (triggered.get()) {
+                return;
+            }
+
             if (error == null) {
                 serviceManager.unsubscribeForApplicationNotification(this);
                 onSuccessCallback.invoke();
+                triggered.set(true);
                 return;
             }
             serviceManager.unsubscribeForApplicationNotification(this);
@@ -352,73 +362,6 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
     public void onCheckedOutFromFence(FenceInfo fenceInfo, ZoneInfo zoneInfo, int dwellTime,
                                                 Map<String, String> map) {
         //Do nothing for fence callback as its handled from onZoneExitEvent
-    }
-
-    @Override public void onCheckIntoBeacon(BeaconInfo beaconInfo, ZoneInfo zoneInfo,
-                                            LocationInfo locationInfo, Proximity proximity, Map<String, String> map, boolean isCheckout) {
-        WritableMap beaconDetails = new WritableNativeMap();
-        beaconDetails.putString("ID",beaconInfo.getId());
-        beaconDetails.putString("name",beaconInfo.getName());
-        beaconDetails.putString("macAddress",beaconInfo.getMacAddress());
-        beaconDetails.putDouble("latitude",beaconInfo.getLocation().getLatitude());
-        beaconDetails.putDouble("longitude",beaconInfo.getLocation().getLongitude());
-
-        WritableMap zoneDetails = new WritableNativeMap();
-        zoneDetails.putString("ID",zoneInfo.getZoneId());
-        zoneDetails.putString("name",zoneInfo.getZoneName());
-
-        WritableMap locationDetails = new WritableNativeMap();
-        locationDetails.putDouble("unixDate", locationInfo.getTimeStamp());
-        locationDetails.putDouble("latitude", locationInfo.getLatitude());
-        locationDetails.putDouble("longitude", locationInfo.getLongitude());
-        locationDetails.putDouble("bearing", locationInfo.getBearing());
-        locationDetails.putDouble("speed", locationInfo.getSpeed());
-
-        WritableMap customData = new WritableNativeMap();
-        if(map != null) {
-            for (String entry : map.keySet()) {
-                customData.putString(entry, map.get(entry));
-            }
-        }
-
-        WritableMap writableMap = new WritableNativeMap();
-        writableMap.putMap("beaconInfo",beaconDetails);
-        writableMap.putMap("zoneInfo",zoneDetails);
-        writableMap.putMap("locationInfo", locationDetails);
-        writableMap.putMap("customData",customData);
-        writableMap.putInt("proximity",getIntForProximity(proximity));
-        writableMap.putBoolean("willCheckout",isCheckout);
-
-        sendEvent(reactContext, "checkedIntoBeacon",writableMap);
-    }
-
-    @Override public void onCheckedOutFromBeacon(BeaconInfo beaconInfo, ZoneInfo zoneInfo, int dwellTime,
-                                                 Map<String, String> map) {
-
-        WritableMap beaconDetails = new WritableNativeMap();
-        beaconDetails.putString("ID",beaconInfo.getId());
-        beaconDetails.putString("name",beaconInfo.getName());
-        beaconDetails.putString("macAddress",beaconInfo.getMacAddress());
-        beaconDetails.putDouble("latitude",beaconInfo.getLocation().getLatitude());
-        beaconDetails.putDouble("longitude",beaconInfo.getLocation().getLongitude());
-
-        WritableMap zoneDetails = new WritableNativeMap();
-        zoneDetails.putString("ID",zoneInfo.getZoneId());
-        zoneDetails.putString("name",zoneInfo.getZoneName());
-
-        WritableMap customData = new WritableNativeMap();
-        if(map != null) {
-            for (String entry : map.keySet()) {
-                customData.putString(entry, map.get(entry));
-            }
-        }
-
-        WritableMap writableMap = new WritableNativeMap();
-        writableMap.putMap("beaconInfo",beaconDetails);
-        writableMap.putMap("zoneInfo",zoneDetails);
-        writableMap.putMap("customData",customData);
-        writableMap.putInt("dwellTime",dwellTime);
-        sendEvent(reactContext, "checkedOutFromBeacon",writableMap);
     }
 
     @ReactMethod
