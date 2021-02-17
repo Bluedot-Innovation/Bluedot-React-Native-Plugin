@@ -1,7 +1,7 @@
 {
   "name": "bluedot-react-native",
   "title": "React Native Bluedot Point SDK",
-  "version": "2.0.0-beta.3",
+  "version": "2.0.0",
   "description": "Bluedot Point SDK React Native SDK; integrates the Android and iOS Point SDK libraries",
   "main": "index.js",
   "scripts": {
@@ -12,6 +12,7 @@
     "url": "git+https://github.com/Bluedot-Innovation/Bluedot-React-Native-Plugin.git",
     "baseUrl": "https://github.com/Bluedot-Innovation/Bluedot-React-Native-Plugin"
   },
+  "homepage": "https://bluedot.io",
   "keywords": [
     "react-native",
     "pointsdk",
