@@ -11,7 +11,6 @@ import android.os.Build;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import au.com.bluedot.application.model.Proximity;
-import au.com.bluedot.point.ApplicationNotificationListener;
 import au.com.bluedot.point.net.engine.BDError;
 import au.com.bluedot.point.net.engine.FenceInfo;
 import au.com.bluedot.point.net.engine.GeoTriggeringService;
@@ -43,8 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static android.app.Notification.PRIORITY_MAX;
 
-public class BluedotPointSdkModule extends ReactContextBaseJavaModule
-        implements ApplicationNotificationListener {
+public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
 
     private final ReactApplicationContext reactContext;
     ServiceManager serviceManager;
@@ -107,7 +105,6 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
                 text = text + "Success ";
                 onSucessCallback.invoke(text);
             }
-            serviceManager.unsubscribeForApplicationNotification(this);
         };
         serviceManager.reset(resetResultReceiver);
     }
@@ -141,7 +138,6 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
                                 onError.invoke("Error " + geoTriggerError.getReason());
                                 return;
                             }
-                            serviceManager.subscribeForApplicationNotification(this);
                             onSuccess.invoke();
                         });
             } else {
@@ -153,7 +149,6 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
                                 onError.invoke("Error " + geoTriggerError.getReason());
                                 return;
                             }
-                            serviceManager.subscribeForApplicationNotification(this);
                             onSuccess.invoke();
                         });
             }
@@ -165,7 +160,6 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
                             onError.invoke("Error " + geoTriggerError.getReason());
                             return;
                         }
-                        serviceManager.subscribeForApplicationNotification(this);
                         onSuccess.invoke();
                     });
         }
@@ -194,12 +188,10 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
             }
 
             if (error == null) {
-                serviceManager.unsubscribeForApplicationNotification(this);
                 onSuccessCallback.invoke();
                 triggered.set(true);
                 return;
             }
-            serviceManager.unsubscribeForApplicationNotification(this);
             onFailCallback.invoke(error.getReason());
         };
         GeoTriggeringService.stop(reactContext, statusListener);
@@ -352,18 +344,6 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
         }
     }
 
-    @Override
-    public void onCheckIntoFence(FenceInfo fenceInfo, ZoneInfo zoneInfo, LocationInfo locationInfo,
-                                 Map<String, String> map, boolean isCheckout) {
-        //Do nothing for fence callback as its handled from onZoneEntryEvent
-    }
-
-    @Override
-    public void onCheckedOutFromFence(FenceInfo fenceInfo, ZoneInfo zoneInfo, int dwellTime,
-                                                Map<String, String> map) {
-        //Do nothing for fence callback as its handled from onZoneExitEvent
-    }
-
     @ReactMethod
     public void setCustomEventMetaData(ReadableMap metaData){
         if(metaData != null) {
@@ -391,24 +371,5 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule
         } catch (Exception e) {
             promise.reject("Error getting the Installation Reference");
         }
-    }
-
-    private int getIntForProximity(Proximity value) {
-        int result = 0;
-        switch (value) {
-            case Unknown:
-                result = 0;
-                break;
-            case Immediate:
-                result = 1;
-                break;
-            case Near:
-                result = 2;
-                break;
-            case Far:
-                result = 3;
-                break;
-        }
-        return result;
     }
 }
