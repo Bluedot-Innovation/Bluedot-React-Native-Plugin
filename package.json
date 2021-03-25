@@ -1,5 +1,5 @@
 {
-  "name": "@bluedot-innovation/bluedot-react-native",
+  "name": "bluedot-react-native",
   "title": "React Native Bluedot Point SDK",
   "version": "2.0.2",
   "description": "Bluedot Point SDK React Native SDK; integrates the Android and iOS Point SDK libraries",
