@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import au.com.bluedot.point.net.engine.BDError;
 import au.com.bluedot.point.net.engine.TempoTrackingReceiver;
 import com.facebook.react.ReactApplication;
+import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
@@ -36,8 +37,23 @@ public class AppTempoReceiver extends TempoTrackingReceiver {
         ReactApplication reactApplication = (ReactApplication) context.getApplicationContext();
         ReactContext reactContext = reactApplication.getReactNativeHost().getReactInstanceManager()
                 .getCurrentReactContext();
-        reactContext
-                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                .emit(eventName, params);
+        ReactInstanceManager reactInstanceManager =
+                reactApplication.getReactNativeHost().getReactInstanceManager();
+
+        if (reactContext != null) {
+            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                    .emit(eventName, params);
+        } else {
+            reactInstanceManager.addReactInstanceEventListener(
+                    new ReactInstanceManager.ReactInstanceEventListener() {
+                        @Override
+                        public void onReactContextInitialized(ReactContext context) {
+                            context.getJSModule(
+                                    DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                    .emit(eventName, params);
+                            reactInstanceManager.removeReactInstanceEventListener(this);
+                        }
+                    });
+        }
     }
 }
