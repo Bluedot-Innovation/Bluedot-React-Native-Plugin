@@ -1,21 +1,20 @@
 package io.bluedot;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.widget.Toast;
+
 import androidx.annotation.Nullable;
-import au.com.bluedot.point.net.engine.BDError;
-import au.com.bluedot.point.net.engine.BluedotServiceReceiver;
+
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
-import com.facebook.react.bridge.WritableArray;
-import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+
 import org.jetbrains.annotations.NotNull;
+
+import au.com.bluedot.point.net.engine.BDError;
+import au.com.bluedot.point.net.engine.BluedotServiceReceiver;
 
 
 public class BluedotErrorReceiver extends BluedotServiceReceiver {

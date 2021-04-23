@@ -8,20 +8,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
+
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import au.com.bluedot.application.model.Proximity;
-import au.com.bluedot.point.net.engine.BDError;
-import au.com.bluedot.point.net.engine.FenceInfo;
-import au.com.bluedot.point.net.engine.GeoTriggeringService;
-import au.com.bluedot.point.net.engine.GeoTriggeringStatusListener;
-import au.com.bluedot.point.net.engine.InitializationResultListener;
-import au.com.bluedot.point.net.engine.LocationInfo;
-import au.com.bluedot.point.net.engine.ResetResultReceiver;
-import au.com.bluedot.point.net.engine.ServiceManager;
-import au.com.bluedot.point.net.engine.TempoService;
-import au.com.bluedot.point.net.engine.TempoServiceStatusListener;
-import au.com.bluedot.point.net.engine.ZoneInfo;
+
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -35,10 +25,20 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import au.com.bluedot.point.net.engine.BDError;
+import au.com.bluedot.point.net.engine.GeoTriggeringService;
+import au.com.bluedot.point.net.engine.GeoTriggeringStatusListener;
+import au.com.bluedot.point.net.engine.InitializationResultListener;
+import au.com.bluedot.point.net.engine.ResetResultReceiver;
+import au.com.bluedot.point.net.engine.ServiceManager;
+import au.com.bluedot.point.net.engine.TempoService;
+import au.com.bluedot.point.net.engine.TempoServiceStatusListener;
+import au.com.bluedot.point.net.engine.ZoneInfo;
 
 import static android.app.Notification.PRIORITY_MAX;
 
