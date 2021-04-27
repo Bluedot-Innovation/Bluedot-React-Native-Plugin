@@ -1,9 +1,13 @@
 package io.bluedot;
 
 import android.content.Context;
-
 import androidx.annotation.Nullable;
-
+import au.com.bluedot.point.net.engine.FenceInfo;
+import au.com.bluedot.point.net.engine.GeoTriggeringEventReceiver;
+import au.com.bluedot.point.net.engine.LocationInfo;
+import au.com.bluedot.point.net.engine.ZoneEntryEvent;
+import au.com.bluedot.point.net.engine.ZoneExitEvent;
+import au.com.bluedot.point.net.engine.ZoneInfo;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.ReactContext;
@@ -12,18 +16,9 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
-
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
 import java.util.Map;
-
-import au.com.bluedot.point.net.engine.FenceInfo;
-import au.com.bluedot.point.net.engine.GeoTriggeringEventReceiver;
-import au.com.bluedot.point.net.engine.LocationInfo;
-import au.com.bluedot.point.net.engine.ZoneEntryEvent;
-import au.com.bluedot.point.net.engine.ZoneExitEvent;
-import au.com.bluedot.point.net.engine.ZoneInfo;
+import org.jetbrains.annotations.NotNull;
 
 public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
 

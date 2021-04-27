@@ -1,20 +1,16 @@
 package io.bluedot;
 
 import android.content.Context;
-
 import androidx.annotation.Nullable;
-
+import au.com.bluedot.point.net.engine.BDError;
+import au.com.bluedot.point.net.engine.TempoTrackingReceiver;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
-
 import org.jetbrains.annotations.NotNull;
-
-import au.com.bluedot.point.net.engine.BDError;
-import au.com.bluedot.point.net.engine.TempoTrackingReceiver;
 
 public class AppTempoReceiver extends TempoTrackingReceiver {
     /**
