@@ -1,3 +1,5 @@
+import groovy.json.JsonSlurper
+
 // android/build.gradle
 
 // based on:
@@ -33,7 +35,7 @@ buildscript {
             jcenter()
         }
         dependencies {
-            classpath 'com.android.tools.build:gradle:3.4.1'
+            classpath 'com.android.tools.build:gradle:4.1.3'
         }
     }
 }
@@ -86,11 +88,11 @@ repositories {
 dependencies {
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'  // From node_modules
-    implementation 'com.gitlab.bluedotio.android:point_sdk_android:15.3.2'
+    implementation 'com.gitlab.bluedotio.android:point_sdk_android:15.3.3'
 }
 
 def configureReactNativePom(def pom) {
-    def packageJson = new groovy.json.JsonSlurper().parseText(file('../package.json').text)
+    def packageJson = new JsonSlurper().parseText(file('../package.json').text)
 
     pom.project {
         name packageJson.title
