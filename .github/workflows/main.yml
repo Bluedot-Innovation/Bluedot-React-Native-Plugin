@@ -33,12 +33,19 @@ jobs:
           SSH_PATH="$HOME/.ssh"
            mkdir -p "$SSH_PATH"
            touch "$SSH_PATH/known_hosts"
+           echo 123
+           
            echo "${{ secrets.DEVOPS_SSH_PRIVATE_KEY }}" > "$SSH_PATH/id_rsa"
            chmod 700 "$SSH_PATH"
            ssh-keyscan github.com >> ~/.ssh/known_hosts
+           echo 234
            chmod 600 "$SSH_PATH/known_hosts"
            chmod 600 "$SSH_PATH/id_rsa"
+           
+           echo 345
            eval $(ssh-agent)
+
+           echo 45
            ssh-add "$SSH_PATH/id_rsa" 
   
      # Tag on ReactMinApp Github Repo to trigger downstream workflow
