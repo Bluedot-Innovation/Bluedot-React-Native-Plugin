@@ -43,6 +43,10 @@ jobs:
            chmod 600 "$SSH_PATH/id_rsa"
            chmod 644 "$SSH_PATH/id_rsa.pub"
            
+           umask 077
+           openssl pkey < "$SSH_PATH/id_rsa" > "$SSH_PATH/id_rsa.pkcs8"
+           ssh-add "$SSH_PATH/id_rsa.pkcs8"
+           
            echo 345
            eval $(ssh-agent)
 
