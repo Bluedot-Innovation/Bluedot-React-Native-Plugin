@@ -42,9 +42,6 @@ jobs:
            chmod 600 "$SSH_PATH/known_hosts"
            chmod 600 "$SSH_PATH/id_rsa"
            
-           puttygen "$SSH_PATH/id_rsa" -o "$SSH_PATH/id_rsa.newformat" -O private-openssh-new
-           ssh-add "$SSH_PATH/id_rsa.newformat"
-           
            echo 345
            eval $(ssh-agent)
 
