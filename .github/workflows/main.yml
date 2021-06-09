@@ -46,7 +46,7 @@ jobs:
            eval $(ssh-agent)
 
            echo 45
-           ssh-add "$SSH_PATH/id_rsa" 
+           ssh-add -L "$SSH_PATH/id_rsa" 
   
      # Tag on ReactMinApp Github Repo to trigger downstream workflow
       - name: Tagging ReactMin App Repo to trigger downstream workflow 
