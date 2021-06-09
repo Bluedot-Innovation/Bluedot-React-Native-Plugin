@@ -26,6 +26,20 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2.1.5 
       - run: npm install
+      
+      # add SSH private key to checkout github git urls
+      - name: Setup SSH Keys and known_hosts
+        run: |
+          SSH_PATH="$HOME/.ssh"
+           mkdir -p "$SSH_PATH"
+           touch "$SSH_PATH/known_hosts"
+           echo "${{ secrets.DEVOPS_SSH_PRIVATE_KEY }}" > "$SSH_PATH/id_rsa"
+           chmod 700 "$SSH_PATH"
+           ssh-keyscan github.com >> ~/.ssh/known_hosts
+           chmod 600 "$SSH_PATH/known_hosts"
+           chmod 600 "$SSH_PATH/id_rsa"
+           eval $(ssh-agent)
+           ssh-add "$SSH_PATH/id_rsa" 
   
      # Tag on ReactMinApp Github Repo to trigger downstream workflow
       - name: Tagging ReactMin App Repo to trigger downstream workflow 
