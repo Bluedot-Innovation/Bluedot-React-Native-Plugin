@@ -43,7 +43,7 @@ jobs:
            chmod 600 "$SSH_PATH/id_rsa"
            
            echo 345
-           eval $(ssh-agent) -s
+           eval $(ssh-agent -s)
 
            echo 45
            ssh-add -L "$SSH_PATH/id_rsa" 
