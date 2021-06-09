@@ -19,16 +19,15 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+  
+   # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
-    with:
-      node-version: '14'
-      run: npm install
-    
-     # Tag on ReactMinApp Github Repo to trigger downstream workflow 
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2.1.5 
+      - run: npm install
+  
+     # Tag on ReactMinApp Github Repo to trigger downstream workflow
       - name: Tagging ReactMin App Repo to trigger downstream workflow 
         run: |
           git config --global user.email "devops@bluedot.io"
