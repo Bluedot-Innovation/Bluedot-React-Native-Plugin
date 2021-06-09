@@ -41,7 +41,6 @@ jobs:
            echo 234
            chmod 600 "$SSH_PATH/known_hosts"
            chmod 600 "$SSH_PATH/id_rsa"
-           chmod 644 "$SSH_PATH/id_rsa.pub"
            
            umask 077
            openssl pkey < "$SSH_PATH/id_rsa" > "$SSH_PATH/id_rsa.pkcs8"
