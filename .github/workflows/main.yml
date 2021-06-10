@@ -33,19 +33,15 @@ jobs:
           SSH_PATH="$HOME/.ssh"
            mkdir -p "$SSH_PATH"
            touch "$SSH_PATH/known_hosts"
-           echo 123
            
            echo "${{ secrets.DEVOPS_SSH_PRIVATE_KEY }}" > "$SSH_PATH/id_rsa"
            chmod 700 "$SSH_PATH"
            ssh-keyscan github.com >> ~/.ssh/known_hosts
-           echo 234
            chmod 600 "$SSH_PATH/known_hosts"
            chmod 600 "$SSH_PATH/id_rsa"
            
-           echo 345
            eval $(ssh-agent)
 
-           echo 45
            ssh-add "$SSH_PATH/id_rsa"
   
      # Tag on ReactMinApp Github Repo to trigger downstream workflow
@@ -55,12 +51,7 @@ jobs:
           git config --global user.name "devops"
           git remote add remote-origin git@github.com:Bluedot-Innovation/Bluedot-React-Native-Minimal-Integration.git
           git fetch remote-origin
-          git stash
-          oldAPI="123-oldAPI"
-          echo $oldAPI
         
-          git checkout -b remote-downstream remote-origin/downstream
+          git checkout -b remote-master remote-origin/master
           git tag "123"
-          git checkout -b old-api-downstream remote-origin/old_api
-          git tag $oldAPI
-          git push remote-origin "123" $oldAPI
+          git push remote-origin "123"
