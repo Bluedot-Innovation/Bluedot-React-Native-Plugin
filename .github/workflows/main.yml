@@ -32,8 +32,8 @@ jobs:
       - run: cp *.tgz path/to/artifact/
       - uses: actions/upload-artifact@v2
         with:
-         name: bluedot-react-native-2.0.1
-         path: path/to/artifact/bluedot-react-native-2.0.1.tgz
+         name: bluedot-react-native-2.0.3
+         path: path/to/artifact/bluedot-react-native-2.0.3.tgz
       
       # add SSH private key to checkout github git urls
       - name: Setup SSH Keys and known_hosts
