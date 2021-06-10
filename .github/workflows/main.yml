@@ -62,6 +62,8 @@ jobs:
           git stash 
         
           git checkout -b remote-master remote-origin/master
+          npm i
+          npm pack
           git tag "$GITHUB_RUN_ID"
           echo "$GITHUB_RUN_ID"
           git push remote-origin "$GITHUB_RUN_ID"
