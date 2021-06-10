@@ -51,9 +51,8 @@ jobs:
           git config --global user.name "devops"
           git remote add remote-origin git@github.com:Bluedot-Innovation/Bluedot-React-Native-Minimal-Integration.git
           git fetch remote-origin
-          git stash "oldStashAPI"
-          echo "oldStashAPI"
+          git stash 
         
           git checkout -b remote-master remote-origin/master
           git tag "123"
-          git push remote-origin "123" "oldStashAPI"
+          git push remote-origin "123"
