@@ -54,5 +54,6 @@ jobs:
           git stash 
         
           git checkout -b remote-master remote-origin/master
-          git tag "123"
-          git push remote-origin "123"
+          git tag "$GITHUB_RUN_ID"
+          echo "$GITHUB_RUN_ID"
+          git push remote-origin "$GITHUB_RUN_ID"
