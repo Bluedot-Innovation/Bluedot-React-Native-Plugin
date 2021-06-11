@@ -6,9 +6,9 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ nehabluedot-patch-1 ]
+    branches: [ master ]
   pull_request:
-    branches: [ nehabluedot-patch-1 ]
+    branches: [ master ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -24,22 +24,26 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+      
+      # Install Node dependency
       - uses: actions/setup-node@v2.1.5  
       - run: npm install
-      - run: npm pack
-      - run: mkdir -p path/to/artifact
-      - run: cp *.tgz path/to/artifact/
-      - uses: actions/upload-artifact@v2
-        with:
-         name: bluedot-react-native-2.0.3
-         path: path/to/artifact/bluedot-react-native-2.0.3.tgz
       
-      #Get version
+      # Get version
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@master
-      - run: echo "${{ steps.package-version.outputs.current-version}}" 
-      
+      - run: echo "${{steps.package-version.outputs.current-version}}" 
+     
+     # Package the plugin and upload artifact
+      - run: npm pack
+      - run: mkdir -p output/artifact
+      - run: cp *.tgz output/artifact/
+      - uses: actions/upload-artifact@v2
+        with:
+         name: bluedot-react-native-${{steps.package-version.outputs.current-version}}
+         path: output/artifact/bluedot-react-native-${{steps.package-version.outputs.current-version}}.tgz
+       
       # add SSH private key to checkout github git urls
       - name: Setup SSH Keys and known_hosts
         run: |
