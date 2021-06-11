@@ -25,11 +25,6 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
      
-     
-      # Install Node dependency
-      - uses: actions/setup-node@v2.1.5  
-      - run: npm install
-    
      # Cache node modules
       - name: Cache node modules
         uses: actions/cache@v2
@@ -43,7 +38,11 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
-      
+     
+      # Install Node dependency
+      - uses: actions/setup-node@v2.1.5  
+      - run: npm install
+     
       # Get version
       - name: get-npm-version
         id: package-version
