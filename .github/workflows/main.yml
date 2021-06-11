@@ -6,7 +6,7 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    branches: [ master,ni/bd-2692-build-ci ]
   pull_request:
     branches: [ master ]
 
@@ -57,6 +57,7 @@ jobs:
         with:
          name: bluedot-react-native-${{steps.package-version.outputs.current-version}}
          path: output/artifact/bluedot-react-native-${{steps.package-version.outputs.current-version}}.tgz
+         retention-days: 5
        
       # add SSH private key to checkout github git urls
       - name: Setup SSH Keys and known_hosts
