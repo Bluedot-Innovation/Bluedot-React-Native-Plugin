@@ -84,6 +84,6 @@ jobs:
           git stash 
         
           git checkout -b remote-master remote-origin/master
-          git tag "${{steps.package-version.outputs.current-version}}.$GITHUB_RUN_ID"
-          echo "${{steps.package-version.outputs.current-version}}.$GITHUB_RUN_ID"
-          git push remote-origin "${{steps.package-version.outputs.current-version}}.$GITHUB_RUN_ID"
+          git tag "${{steps.package-version.outputs.current-version}}+$GITHUB_RUN_ID"
+          echo "${{steps.package-version.outputs.current-version}}+$GITHUB_RUN_ID"
+          git push remote-origin "${{steps.package-version.outputs.current-version}}+$GITHUB_RUN_ID"
