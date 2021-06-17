@@ -1,0 +1,87 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ release/* ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+  
+   # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+     
+     # Cache node modules
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+              ${{ runner.os }}-node-
+     
+      # Install Node dependency
+      - uses: actions/setup-node@v2.1.5  
+      - run: npm install
+     
+      # Get version
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@master
+      - run: echo "${{steps.package-version.outputs.current-version}}" 
+     
+     # Package the plugin and upload artifact
+      - run: npm pack
+      - run: mkdir -p output/artifact
+      - run: cp *.tgz output/artifact/
+      - uses: actions/upload-artifact@v2
+        with:
+         name: bluedot-react-native-${{steps.package-version.outputs.current-version}}
+         path: output/artifact/bluedot-react-native-${{steps.package-version.outputs.current-version}}.tgz
+         retention-days: 5
+       
+      # add SSH private key to checkout github git urls
+      - name: Setup SSH Keys and known_hosts
+        run: |
+          SSH_PATH="$HOME/.ssh"
+           mkdir -p "$SSH_PATH"
+           touch "$SSH_PATH/known_hosts"
+           
+           echo "${{ secrets.DEVOPS_SSH_PRIVATE_KEY }}" > "$SSH_PATH/id_rsa"
+           chmod 700 "$SSH_PATH"
+           ssh-keyscan github.com >> ~/.ssh/known_hosts
+           chmod 600 "$SSH_PATH/known_hosts"
+           chmod 600 "$SSH_PATH/id_rsa"
+           
+           eval $(ssh-agent)
+
+           ssh-add "$SSH_PATH/id_rsa"
+  
+     # Tag on ReactMinApp Github Repo to trigger downstream workflow
+      - name: Tagging ReactMin App Repo to trigger downstream workflow 
+        run: |
+          git config --global user.email "devops@bluedot.io"
+          git config --global user.name "devops"
+          git remote add remote-origin git@github.com:Bluedot-Innovation/Bluedot-React-Native-Minimal-Integration.git
+          git fetch remote-origin
+          git stash 
+        
+          git checkout -b remote-master remote-origin/master
+          git tag "${{steps.package-version.outputs.current-version}}+$GITHUB_RUN_ID"
+          echo "${{steps.package-version.outputs.current-version}}+$GITHUB_RUN_ID"
+          git push remote-origin "${{steps.package-version.outputs.current-version}}+$GITHUB_RUN_ID"
