@@ -53,17 +53,11 @@ jobs:
           mkdir -p output/artifact
           cp *.tgz output/artifact/
 
-      - uses: actions/upload-artifact@v2
-        with:
-         name: bluedot-react-native-${{ steps.package-version.outputs.current-version }}
-         path: output/artifact/bluedot-react-native-${{ steps.package-version.outputs.current-version }}.tgz
-         retention-days: 5
-
       - name: create prerelease
         uses: softprops/action-gh-release@v1
         with:
           body_path: ReleaseNotes.md
-          tag_name: "v${{ steps.package-version.outputs.current-version }}-pre+${{ github.run_id }}"
+          tag_name: "v${{ steps.package-version.outputs.current-version }}-pre+build.${{ github.run_id }}"
           prerelease: true
           files: |
             *.tgz
@@ -97,6 +91,5 @@ jobs:
           git stash 
         
           git checkout -b remote-master remote-origin/master
-          git tag "v${{ steps.package-version.outputs.current-version }}-pre+${{ github.run_id }}"
-          echo "v${{ steps.package-version.outputs.current-version }}-pre+${{ github.run_id }}"
-          git push remote-origin "v${{ steps.package-version.outputs.current-version }}-pre+${{ github.run_id }}"
+          git tag "v${{ steps.package-version.outputs.current-version }}-pre+build.${{ github.run_id }}"
+          git push remote-origin "v${{ steps.package-version.outputs.current-version }}-pre+build.${{ github.run_id }}"
