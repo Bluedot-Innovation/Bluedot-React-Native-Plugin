@@ -1,12 +1,13 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: prerelease CI
 
 # Controls when the action will run. 
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ release/* ]
+    branches: 
+      - release/*
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -37,23 +38,30 @@ jobs:
      
       # Install Node dependency
       - uses: actions/setup-node@v2.1.5  
-      - run: npm install
+      - run: npm ci
      
       # Get version
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@master
-      - run: echo "${{steps.package-version.outputs.current-version}}" 
      
      # Package the plugin and upload artifact
-      - run: npm pack
-      - run: mkdir -p output/artifact
-      - run: cp *.tgz output/artifact/
-      - uses: actions/upload-artifact@v2
+      - name: pack wrapper
+        run: |
+          npm pack
+          mkdir -p output/artifact
+          cp *.tgz output/artifact/
+
+      - name: create prerelease
+        uses: softprops/action-gh-release@v1
         with:
-         name: bluedot-react-native-${{steps.package-version.outputs.current-version}}
-         path: output/artifact/bluedot-react-native-${{steps.package-version.outputs.current-version}}.tgz
-         retention-days: 5
+          body_path: ReleaseNotes.md
+          tag_name: "v${{ steps.package-version.outputs.current-version }}-pre+build.${{ github.run_id }}"
+          prerelease: true
+          files: |
+            *.tgz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
        
       # add SSH private key to checkout github git urls
       - name: Setup SSH Keys and known_hosts
@@ -82,6 +90,5 @@ jobs:
           git stash 
         
           git checkout -b remote-master remote-origin/master
-          git tag "${{steps.package-version.outputs.current-version}}+$GITHUB_RUN_ID"
-          echo "${{steps.package-version.outputs.current-version}}+$GITHUB_RUN_ID"
-          git push remote-origin "${{steps.package-version.outputs.current-version}}+$GITHUB_RUN_ID"
+          git tag "v${{ steps.package-version.outputs.current-version }}-pre+build.${{ github.run_id }}"
+          git push remote-origin "v${{ steps.package-version.outputs.current-version }}-pre+build.${{ github.run_id }}"
