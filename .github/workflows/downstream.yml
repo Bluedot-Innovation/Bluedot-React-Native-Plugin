@@ -51,7 +51,7 @@ jobs:
         run: |
           npm pack
           mkdir -p output/artifact
-          cp *.tgz output/artifact/
+          cp *.tgz output/artifact/bluedot-react-native.tgz
 
       - name: create prerelease
         uses: softprops/action-gh-release@v1
