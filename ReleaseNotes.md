@@ -1,2 +1,2 @@
 # Bluedot React Native Plugin release notes
-* Xcode 12.5 support
+* Update Android SDK to 15.3.5
