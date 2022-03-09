@@ -88,7 +88,7 @@ repositories {
 dependencies {
     //noinspection GradleDynamicVersion
     implementation 'com.facebook.react:react-native:+'  // From node_modules
-    implementation 'com.gitlab.bluedotio.android:point_sdk_android:15.4.0'
+    implementation 'com.gitlab.bluedotio.android:point_sdk_android:15.4.1'
 }
 
 def configureReactNativePom(def pom) {
