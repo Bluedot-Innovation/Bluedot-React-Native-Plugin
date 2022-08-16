@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
   s.author        = { "Bluedot Innovation" => "https://www.bluedot.io" }
   s.platform      = :ios, '10.0'
   s.swift_version = '5.0'
-  s.source       = { :git => "https://github.com/Bluedot-Innovation/Bluedot-React-Native-Plugin.git" }
+  s.source       = { :git => "https://github.com/Bluedot-Innovation/Bluedot-React-Native-Plugin.git", :branch => 'dn/react-native-0.69'}
 
   s.source_files  = "ios/**/*.{h,m,swift}"
   s.requires_arc  = true
