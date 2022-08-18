@@ -84,7 +84,6 @@ repositories {
 
 dependencies {
     //noinspection GradleDynamicVersion
-    implementation 'com.facebook.react:react-native:+'  // From node_modules
     implementation 'com.gitlab.bluedotio.android:point_sdk_android:15.4.2'
 }
 
@@ -123,7 +122,7 @@ afterEvaluate { project ->
         source = android.sourceSets.main.java.srcDirs
         classpath += files(android.bootClasspath)
         project.getConfigurations().getByName('implementation').setCanBeResolved(true)
-//        classpath += files(project.getConfigurations().getByName('implementation').asList())
+        classpath += files(project.getConfigurations().getByName('implementation').asList())
         include '**/*.java'
     }
 
