@@ -84,6 +84,7 @@ repositories {
 
 dependencies {
     //noinspection GradleDynamicVersion
+    releaseImplementation 'com.facebook.react:react-native:+'  // From node_modules
     implementation 'com.gitlab.bluedotio.android:point_sdk_android:15.4.2'
 }
 
@@ -127,20 +128,21 @@ afterEvaluate { project ->
     }
 
     task androidJavadocJar(type: Jar, dependsOn: androidJavadoc) {
-        classifier = 'javadoc'
+        archiveClassifier.set("javadoc")
         from androidJavadoc.destinationDir
     }
 
     task androidSourcesJar(type: Jar) {
-        classifier = 'sources'
+        archiveClassifier.set("sources")
         from android.sourceSets.main.java.srcDirs
         include '**/*.java'
     }
 
     android.libraryVariants.all { variant ->
         def name = variant.name.capitalize()
-        task "jar${name}"(type: Jar, dependsOn: variant.javaCompileProvider.get()) {
-            from variant.javaCompileProvider.get().destinationDirectory
+        def javaCompileTask = variant.javaCompileProvider.get()
+        task "jar${name}"(type: Jar, dependsOn: javaCompileTask) {
+            from javaCompileTask.destinationDirectory
         }
     }
 
