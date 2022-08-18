@@ -27,11 +27,11 @@
   "license": "ISC",
   "readmeFilename": "README.md",
   "peerDependencies": {
-    "react": "^18.0.0",
-    "react-native": "~0.69.x"
+    "react": ">=18.0.0",
+    "react-native": ">=0.69.0"
   },
   "devDependencies": {
-    "react": "18.0.0",
-    "react-native": "0.69.4"
+    "react": "^18.0.0",
+    "react-native": "^0.69.4"
   }
 }
