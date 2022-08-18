@@ -57,6 +57,22 @@ android {
         versionCode 1
         versionName "1.0"
     }
+    buildTypes {
+        debug {
+            debuggable true
+            dependencies {
+                //noinspection GradleDynamicVersion
+                debugImplementation 'com.facebook.react:react-native:+'  // From node_modules
+            }
+        }
+        release {
+            debuggable false
+            dependencies {
+                //noinspection GradleDynamicVersion
+                releaseImplementation 'com.facebook.react:react-native:+'  // From node_modules
+            }
+        }
+    }
     lintOptions {
         abortOnError false
     }
@@ -83,8 +99,6 @@ repositories {
 }
 
 dependencies {
-    //noinspection GradleDynamicVersion
-    releaseImplementation 'com.facebook.react:react-native:+'  // From node_modules
     implementation 'com.gitlab.bluedotio.android:point_sdk_android:15.4.2'
 }
 
