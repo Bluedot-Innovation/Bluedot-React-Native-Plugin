@@ -63,7 +63,6 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
                 .emit(eventName, params);
     }
 
-
     @ReactMethod
     public void initialize(String projectId, Callback onSucessCallback, Callback onFailCallback) {
 
@@ -81,7 +80,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void isInitialized(Promise promise){
+    public void isInitialized(Promise promise) {
         try {
             boolean isInitialized = serviceManager.isBluedotServiceInitialized();
             promise.resolve(isInitialized);
@@ -107,13 +106,13 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void androidStartGeoTriggering(String channelId,
-                                          String channelName,
-                                          String androidNotificationTitle,
-                                          String androidNotificationContent,
-                                          Integer androidNotificationId,
-                                          Callback onSuccess,
-                                          Callback onError) {
-        //Start as With FG Service
+            String channelName,
+            String androidNotificationTitle,
+            String androidNotificationContent,
+            Integer androidNotificationId,
+            Callback onSuccess,
+            Callback onError) {
+        // Start as With FG Service
         if (!androidNotificationTitle.isEmpty() && !androidNotificationContent.isEmpty()) {
 
             if ((channelId.isEmpty()) || (channelName.isEmpty())) {
@@ -121,11 +120,10 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
                 return;
             }
 
-            Notification fgNotification =
-                    createNotification(channelId, channelName, androidNotificationTitle,
-                                       androidNotificationContent);
+            Notification fgNotification = createNotification(channelId, channelName, androidNotificationTitle,
+                    androidNotificationContent);
             if (androidNotificationId != -1) {
-                //Set notificationId for GeoTriggerService
+                // Set notificationId for GeoTriggerService
                 GeoTriggeringService.builder()
                         .notification(fgNotification)
                         .notificationId(androidNotificationId)
@@ -137,7 +135,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
                             onSuccess.invoke();
                         });
             } else {
-                //Use default notificationId set by PointSDK
+                // Use default notificationId set by PointSDK
                 GeoTriggeringService.builder()
                         .notification(fgNotification)
                         .start(reactContext, geoTriggerError -> {
@@ -149,7 +147,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
                         });
             }
         } else {
-            //Start as No FG Service
+            // Start as No FG Service
             GeoTriggeringService.builder()
                     .start(reactContext, geoTriggerError -> {
                         if (geoTriggerError != null) {
@@ -173,9 +171,11 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void stopGeoTriggering(Callback onSuccessCallback, Callback onFailCallback) {
-        //triggered variable used to avoid crash caused by double invocation of success callback
-        //due to GeoTriggeringStatusListener being invoked twice from SDK when stopping in background mode.
-        //TODO: Remove it when SDK fixes this issue
+        // triggered variable used to avoid crash caused by double invocation of success
+        // callback
+        // due to GeoTriggeringStatusListener being invoked twice from SDK when stopping
+        // in background mode.
+        // TODO: Remove it when SDK fixes this issue
         AtomicBoolean triggered = new AtomicBoolean(false);
 
         GeoTriggeringStatusListener statusListener = error -> {
@@ -195,27 +195,28 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void androidStartTempoTracking(String destinationId,
-                                          String channelId,
-                                          String channelName,
-                                          String androidNotificationTitle,
-                                          String androidNotificationContent,
-                                          Integer androidNotificationId,
-                                          Callback onSuccess,
-                                          Callback onError) {
+            String channelId,
+            String channelName,
+            String androidNotificationTitle,
+            String androidNotificationContent,
+            Integer androidNotificationId,
+            Callback onSuccess,
+            Callback onError) {
 
         if (destinationId.isEmpty()) {
             onError.invoke("destinationId is null");
             return;
         }
 
-        if ((channelId.isEmpty()) || (channelName.isEmpty()) || (androidNotificationTitle.isEmpty()) || (androidNotificationContent.isEmpty())) {
-            onError.invoke("Missing param from channelId/channelName/androidNotificationTitle/androidNotificationContent");
+        if ((channelId.isEmpty()) || (channelName.isEmpty()) || (androidNotificationTitle.isEmpty())
+                || (androidNotificationContent.isEmpty())) {
+            onError.invoke(
+                    "Missing param from channelId/channelName/androidNotificationTitle/androidNotificationContent");
             return;
         }
 
-        Notification fgNotification =
-                createNotification(channelId, channelName, androidNotificationTitle,
-                                   androidNotificationContent);
+        Notification fgNotification = createNotification(channelId, channelName, androidNotificationTitle,
+                androidNotificationContent);
         TempoServiceStatusListener tempoStatusListener = error -> {
             if (error == null) {
                 onSuccess.invoke();
@@ -239,7 +240,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void isTempoRunning(Promise promise){
+    public void isTempoRunning(Promise promise) {
         try {
             boolean isRunning = TempoService.isRunning(reactContext);
             promise.resolve(isRunning);
@@ -251,15 +252,15 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void stopTempoTracking(Callback onSuccessCallback, Callback onFailCallback) {
         BDError error = TempoService.stop(reactContext);
-        if(error == null)
+        if (error == null)
             onSuccessCallback.invoke();
         else
-            onFailCallback.invoke("Error "+error.getReason());
+            onFailCallback.invoke("Error " + error.getReason());
 
     }
 
     @ReactMethod
-    public void getSdkVersion(Promise promise){
+    public void getSdkVersion(Promise promise) {
         try {
             String sdkVersion = serviceManager.getSdkVersion();
             promise.resolve(sdkVersion);
@@ -272,20 +273,19 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
     public void getZonesAndFences(Promise promise) {
         try {
 
+            List<ZoneInfo> list = serviceManager.getZonesAndFences();
 
-        List<ZoneInfo> list = serviceManager.getZonesAndFences();
-
-        WritableArray zoneList = new WritableNativeArray();
-        if(list != null) {
-            for (int i = 0; i < list.size(); i++) {
-                WritableMap zone = new WritableNativeMap();
-                zone.putString("name",list.get(i).getZoneName());
-                zone.putString("id",list.get(i).getZoneId());
-                zoneList.pushMap(zone);
+            WritableArray zoneList = new WritableNativeArray();
+            if (list != null) {
+                for (int i = 0; i < list.size(); i++) {
+                    WritableMap zone = new WritableNativeMap();
+                    zone.putString("name", list.get(i).getZoneName());
+                    zone.putString("id", list.get(i).getZoneId());
+                    zoneList.pushMap(zone);
+                }
             }
-        }
-        WritableMap map = new WritableNativeMap();
-        map.putArray("zoneInfo",zoneList);
+            WritableMap map = new WritableNativeMap();
+            map.putArray("zoneInfo", zoneList);
             promise.resolve(map);
         } catch (Exception e) {
             promise.reject("Error getting the ZoneInfo");
@@ -297,21 +297,20 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
         serviceManager.setZoneDisableByApplication(zoneId, disable);
     }
 
-    private Notification createNotification(String channelId,String channelName,String title, String content) {
+    private Notification createNotification(String channelId, String channelName, String title, String content) {
 
         Intent activityIntent = new Intent(this.getCurrentActivity().getIntent());
         activityIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(reactContext, 0,
                 activityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationManager notificationManager =
-                (NotificationManager) reactContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) reactContext
+                .getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (notificationManager.getNotificationChannel(channelId) == null) {
-                NotificationChannel notificationChannel =
-                        new NotificationChannel(channelId, channelName,
-                                NotificationManager.IMPORTANCE_HIGH);
+                NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName,
+                        NotificationManager.IMPORTANCE_HIGH);
                 notificationChannel.enableLights(false);
                 notificationChannel.setLightColor(Color.RED);
                 notificationChannel.enableVibration(false);
@@ -341,8 +340,8 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void setCustomEventMetaData(ReadableMap metaData){
-        if(metaData != null) {
+    public void setCustomEventMetaData(ReadableMap metaData) {
+        if (metaData != null) {
             ReadableMapKeySetIterator mapKeySetIterator = metaData.keySetIterator();
             HashMap<String, String> metaDataMap = new HashMap<>();
             while (mapKeySetIterator.hasNextKey()) {
@@ -354,18 +353,28 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void setNotificationIDResourceID(String resourceID){
-        // the setNotificationIDResourceID method is added to keep consistency with the iOS implementation
+    public void setNotificationIDResourceID(String resourceID) {
+        // the setNotificationIDResourceID method is added to keep consistency with the
+        // iOS implementation
     }
 
-
     @ReactMethod
-    public void getInstallRef(Promise promise){
+    public void getInstallRef(Promise promise) {
         try {
             String installRef = serviceManager.getInstallRef();
             promise.resolve(installRef);
         } catch (Exception e) {
             promise.reject("Error getting the Installation Reference");
         }
+    }
+
+    @ReactMethod
+    public void addListener(String eventName) {
+        // Keep: Required for RN built in Event Emitter Calls.
+    }
+
+    @ReactMethod
+    public void removeListeners(Integer count) {
+        // Keep: Required for RN built in Event Emitter Calls.
     }
 }
