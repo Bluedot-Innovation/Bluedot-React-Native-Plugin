@@ -302,7 +302,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
         Intent activityIntent = new Intent(this.getCurrentActivity().getIntent());
         activityIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(reactContext, 0,
-                activityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                activityIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         NotificationManager notificationManager = (NotificationManager) reactContext
                 .getSystemService(Context.NOTIFICATION_SERVICE);
