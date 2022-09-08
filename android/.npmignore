@@ -1,0 +1,23 @@
+# OSX
+#
+.DS_Store
+
+# Android/IntelliJ
+#
+build/
+.idea
+.gradle
+.project
+local.properties
+*.iml
+.classpath
+.core.prefs
+.expo/
+
+# BUCK
+buck-out/
+\.buckd/
+*.keystore
+
+# Visual Studio Code
+.vscode
