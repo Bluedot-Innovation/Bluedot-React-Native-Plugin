@@ -219,6 +219,11 @@ RCT_EXPORT_METHOD(setZoneDisableByApplication: (NSString *) zoneId
     [[BDLocationManager instance] setZone:zoneId disableByApplication:disable ];
 }
 
+RCT_EXPORT_METHOD(allowBackgroundLocationUpdates: (BOOL) enable)
+{
+    [[BDLocationManager instance] allowBackgroundLocationUpdates = enable ];
+}
+
 /*
     ANDROID METHODS
  

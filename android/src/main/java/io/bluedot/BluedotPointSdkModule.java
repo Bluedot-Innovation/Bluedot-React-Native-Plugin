@@ -359,6 +359,12 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void allowBackgroundLocationUpdates(boolean enable) {
+        // the setNotificationIDResourceID method is added to keep consistency with the
+        // iOS implementation
+    }
+
+    @ReactMethod
     public void getInstallRef(Promise promise) {
         try {
             String installRef = serviceManager.getInstallRef();
