@@ -45,8 +45,8 @@ const setZoneDisableByApplication = (zoneId, disable) => {
     NativeModules.BluedotPointSDK.setZoneDisableByApplication(zoneId, disable)
 }
 
-const allowBackgroundLocationUpdates = (enable) => {
-    NativeModules.BluedotPointSDK.allowBackgroundLocationUpdates(enable)
+const allowsBackgroundLocationUpdates = (enable) => {
+    NativeModules.BluedotPointSDK.allowsBackgroundLocationUpdates(enable)
 }
 
 const on = (eventName, callback) => {
@@ -95,7 +95,7 @@ const BluedotPointSDK = {
     getSdkVersion,
     getZonesAndFences,
     setZoneDisableByApplication,
-    allowBackgroundLocationUpdates
+    allowsBackgroundLocationUpdates
 }
 
 export default BluedotPointSDK
