@@ -360,7 +360,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void allowsBackgroundLocationUpdates(boolean enable) {
-        // the setNotificationIDResourceID method is added to keep consistency with the
+        // the allowsBackgroundLocationUpdates method is added to keep consistency with the
         // iOS implementation
     }
 
