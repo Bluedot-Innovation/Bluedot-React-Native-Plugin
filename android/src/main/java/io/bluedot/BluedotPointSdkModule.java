@@ -359,6 +359,12 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void allowsBackgroundLocationUpdates(boolean enable) {
+        // the allowsBackgroundLocationUpdates method is added to keep consistency with the
+        // iOS implementation
+    }
+
+    @ReactMethod
     public void getInstallRef(Promise promise) {
         try {
             String installRef = serviceManager.getInstallRef();
