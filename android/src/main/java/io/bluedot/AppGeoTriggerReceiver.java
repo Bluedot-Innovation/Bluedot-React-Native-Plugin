@@ -24,7 +24,6 @@ public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
 
     @Override
     public void onZoneInfoUpdate(@NotNull List<ZoneInfo> zones, @NotNull Context context) {
-        ZoneInfo Zone = zones.get(0);
         WritableArray zoneList = new WritableNativeArray();
         for (ZoneInfo zoneInfo : zones) {
             WritableMap customDataZone = new WritableNativeMap();
