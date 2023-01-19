@@ -6,3 +6,4 @@
 - Updated to Point iOS SDK v15.6.5
 - Fix `"new NativeEventEmitter()" was called with a non-null argument without the required "some" method` warnings which appear with using react-native versions `0.65.0` or higher.
 - Fix issue when OnZoneInfoUpdate return empty ZoneInfo list
+- Remove Javadoc to fix expo run issue.
