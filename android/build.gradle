@@ -12,10 +12,10 @@ import groovy.json.JsonSlurper
 //   original location:
 //   - https://github.com/facebook/react-native/blob/0.58-stable/local-cli/templates/HelloWorld/android/app/build.gradle
 
-def DEFAULT_COMPILE_SDK_VERSION = 29
+def DEFAULT_COMPILE_SDK_VERSION = 31
 def DEFAULT_BUILD_TOOLS_VERSION = '30.0.2'
-def DEFAULT_MIN_SDK_VERSION = 16
-def DEFAULT_TARGET_SDK_VERSION = 29
+def DEFAULT_MIN_SDK_VERSION = 21
+def DEFAULT_TARGET_SDK_VERSION = 31
 
 def safeExtGet(prop, fallback) {
     rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
@@ -32,7 +32,7 @@ buildscript {
             mavenCentral()
         }
         dependencies {
-            classpath 'com.android.tools.build:gradle:7.0.4'
+            classpath 'com.android.tools.build:gradle:7.0.2'
         }
     }
 }
@@ -99,7 +99,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.gitlab.bluedotio.android:point_sdk_android:15.4.2'
+    implementation 'com.gitlab.bluedotio.android:point_sdk_android:15.5.1'
 }
 
 def configureReactNativePom(def pom) {
@@ -133,18 +133,6 @@ def configureReactNativePom(def pom) {
 afterEvaluate { project ->
     // some Gradle build hooks ref:
     // https://www.oreilly.com/library/view/gradle-beyond-the/9781449373801/ch03.html
-    task androidJavadoc(type: Javadoc) {
-        source = android.sourceSets.main.java.srcDirs
-        classpath += files(android.bootClasspath)
-        project.getConfigurations().getByName('implementation').setCanBeResolved(true)
-        classpath += files(project.getConfigurations().getByName('implementation').asList())
-        include '**/*.java'
-    }
-
-    task androidJavadocJar(type: Jar, dependsOn: androidJavadoc) {
-        archiveClassifier.set("javadoc")
-        from androidJavadoc.destinationDir
-    }
 
     task androidSourcesJar(type: Jar) {
         archiveClassifier.set("sources")
@@ -162,7 +150,6 @@ afterEvaluate { project ->
 
     artifacts {
         archives androidSourcesJar
-        archives androidJavadocJar
     }
 
     publishing {
