@@ -356,7 +356,6 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void setNotificationIDResourceID(String resourceName) {
-        // the setNotificationIDResourceID method is added to keep consistency with the
         // find the resourceID int from the resourceIDString passed in
         String packageName = reactContext.getPackageName();
         int resourceID = reactContext.getResources().getIdentifier(resourceName, "drawable", packageName);
