@@ -43,6 +43,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
     private final ReactApplicationContext reactContext;
     ServiceManager serviceManager;
     private Callback logOutCallback;
+    private int notificationResourceId = 0;
 
     public BluedotPointSdkModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -307,6 +308,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
         NotificationManager notificationManager = (NotificationManager) reactContext
                 .getSystemService(Context.NOTIFICATION_SERVICE);
 
+        int iconResourceId = notificationResourceId != 0 ? notificationResourceId : R.mipmap.ic_launcher;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (notificationManager.getNotificationChannel(channelId) == null) {
                 NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName,
@@ -323,7 +325,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
                     .setOngoing(true)
                     .setCategory(Notification.CATEGORY_SERVICE)
                     .setContentIntent(pendingIntent)
-                    .setSmallIcon(R.drawable.ic_notification);
+                    .setSmallIcon(iconResourceId);
             return notification.build();
         } else {
             NotificationCompat.Builder notification = new NotificationCompat.Builder(reactContext)
@@ -334,7 +336,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
                     .setCategory(Notification.CATEGORY_SERVICE)
                     .setPriority(PRIORITY_MAX)
                     .setContentIntent(pendingIntent)
-                    .setSmallIcon(R.drawable.ic_notification);
+                    .setSmallIcon(iconResourceId);
             return notification.build();
         }
     }
@@ -353,10 +355,21 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void setNotificationIDResourceID(String resourceID) {
+    public void setNotificationIDResourceID(String resourceName) {
         // the setNotificationIDResourceID method is added to keep consistency with the
-        // iOS implementation
+        // find the resourceID int from the resourceIDString passed in
+        String packageName = reactContext.getPackageName();
+        int resourceID = reactContext.getResources().getIdentifier(resourceName, "drawable", packageName);
+        if (resourceID == 0) {
+            // not found in drawble, try mipmap
+            resourceID = reactContext.getResources().getIdentifier(resourceName, "mipmap", packageName);
+        }
 
+        if (resourceID != 0) {
+            // valid resource found, save it
+            notificationResourceId = resourceID;
+            serviceManager.setNotificationIDResourceID(resourceID);
+        }
     }
 
     @ReactMethod
