@@ -323,7 +323,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
                     .setOngoing(true)
                     .setCategory(Notification.CATEGORY_SERVICE)
                     .setContentIntent(pendingIntent)
-                    .setSmallIcon(R.mipmap.ic_launcher);
+                    .setSmallIcon(R.mipmap.ic_notification);
             return notification.build();
         } else {
             NotificationCompat.Builder notification = new NotificationCompat.Builder(reactContext)
@@ -334,7 +334,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
                     .setCategory(Notification.CATEGORY_SERVICE)
                     .setPriority(PRIORITY_MAX)
                     .setContentIntent(pendingIntent)
-                    .setSmallIcon(R.mipmap.ic_launcher);
+                    .setSmallIcon(R.mipmap.ic_notification);
             return notification.build();
         }
     }
@@ -356,6 +356,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
     public void setNotificationIDResourceID(String resourceID) {
         // the setNotificationIDResourceID method is added to keep consistency with the
         // iOS implementation
+        
     }
 
     @ReactMethod
