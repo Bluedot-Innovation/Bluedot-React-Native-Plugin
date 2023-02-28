@@ -169,6 +169,10 @@ RCT_EXPORT_METHOD(setNotificationIDResourceID: (NSString *) resourceID){
     NSLog( @"Note: setNotificationIDResourceID is applicable to Android only");
 }
 
+RCT_EXPORT_METHOD(setNotificationTintColor: (NSString *) resourceID){
+    NSLog( @"Note: setNotificationTintColor is applicable to Android only");
+}
+
 RCT_EXPORT_METHOD(notifyPushUpdateWithData: (NSDictionary *) data) {
     [[ BDLocationManager instance] notifyPushUpdateWithData:data];
 }

@@ -44,6 +44,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
     ServiceManager serviceManager;
     private Callback logOutCallback;
     private int notificationResourceId = 0;
+    private int notificationColorResourceId = 0;
 
     public BluedotPointSdkModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -326,6 +327,9 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
                     .setCategory(Notification.CATEGORY_SERVICE)
                     .setContentIntent(pendingIntent)
                     .setSmallIcon(iconResourceId);
+            if (notificationColorResourceId != 0) {
+                notification.setColor(notificationColorResourceId);
+            }
             return notification.build();
         } else {
             NotificationCompat.Builder notification = new NotificationCompat.Builder(reactContext)
@@ -337,6 +341,9 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
                     .setPriority(PRIORITY_MAX)
                     .setContentIntent(pendingIntent)
                     .setSmallIcon(iconResourceId);
+            if (notificationColorResourceId != 0) {
+                notification.setColor(notificationColorResourceId);
+            }
             return notification.build();
         }
     }
@@ -356,7 +363,6 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void setNotificationIDResourceID(String resourceName) {
-        // the setNotificationIDResourceID method is added to keep consistency with the
         // find the resourceID int from the resourceIDString passed in
         String packageName = reactContext.getPackageName();
         int resourceID = reactContext.getResources().getIdentifier(resourceName, "drawable", packageName);
@@ -371,6 +377,16 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
         if (resourceID != 0) {
             serviceManager.setNotificationIDResourceID(resourceID);
         }
+    }
+
+    @ReactMethod
+    public void setNotificationTintColor(String colorString) {
+        // find the resourceID int from the resourceIDString passed in
+        String packageName = reactContext.getPackageName();
+        int resourceID = reactContext.getResources().getIdentifier(colorString, "color", packageName);
+
+        // save the resourceId
+        notificationColorResourceId = resourceID;
     }
 
     @ReactMethod

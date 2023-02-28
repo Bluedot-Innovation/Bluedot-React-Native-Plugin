@@ -41,6 +41,10 @@ const setNotificationIdResourceId = (resourceId) => {
     NativeModules.BluedotPointSDK.setNotificationIDResourceID(resourceId)
 }
 
+const setNotificationTintColor = (color) => {
+    NativeModules.BluedotPointSDK.setNotificationTintColor(color)
+}
+
 const setZoneDisableByApplication = (zoneId, disable) => {
     NativeModules.BluedotPointSDK.setZoneDisableByApplication(zoneId, disable)
 }
@@ -81,6 +85,7 @@ const BluedotPointSDK = {
     unsubscribeAll,
     setCustomEventMetaData,
     setNotificationIdResourceId,
+    setNotificationTintColor,
     getInstallRef,
     // New APIs
     initialize,
