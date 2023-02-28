@@ -365,9 +365,10 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
             resourceID = reactContext.getResources().getIdentifier(resourceName, "mipmap", packageName);
         }
 
+        // save the resourceId
+        notificationResourceId = resourceID;
+
         if (resourceID != 0) {
-            // valid resource found, save it
-            notificationResourceId = resourceID;
             serviceManager.setNotificationIDResourceID(resourceID);
         }
     }
