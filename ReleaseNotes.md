@@ -1,6 +1,7 @@
-# Bluedot React Native Plugin release notes v2.2.0
+# Bluedot React Native Plugin release notes
 
-- Upgraded to react 18.0.0 and react-native 0.69.4
-- Updated to Point Android SDK v15.4.2
-- Updated to Point iOS SDK v15.6.4
-- Fix `"new NativeEventEmitter()" was called with a non-null argument without the required "some" method` warnings which appear with using react-native versions `0.65.0` or higher.
+- Now supporting react-native@>=0.69.0
+- Fixed an issue with `setNotificationIDResourceID(resourceName)` function. Please use this method to set notification icon in Android, e.g. `setNotificationIDResourceID("ic_notification")`.
+- Added function to enable/disable background location updates. (iOS only)
+- Updated to Point Android SDK v15.5.1
+- Updated to Point iOS SDK v15.6.5
