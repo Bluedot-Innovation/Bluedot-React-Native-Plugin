@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.os.Build;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import au.com.bluedot.model.geo.Point;
 import au.com.bluedot.point.net.engine.BDError;
 import au.com.bluedot.point.net.engine.GeoTriggeringService;
 import au.com.bluedot.point.net.engine.GeoTriggeringStatusListener;
@@ -19,6 +20,7 @@ import au.com.bluedot.point.net.engine.ServiceManager;
 import au.com.bluedot.point.net.engine.TempoService;
 import au.com.bluedot.point.net.engine.TempoServiceStatusListener;
 import au.com.bluedot.point.net.engine.ZoneInfo;
+import au.com.bluedot.ruleEngine.model.rule.Destination;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -57,8 +59,8 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
     }
 
     private void sendEvent(ReactContext reactContext,
-            String eventName,
-            @Nullable WritableMap params) {
+                           String eventName,
+                           @Nullable WritableMap params) {
         reactContext
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                 .emit(eventName, params);
@@ -107,12 +109,12 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void androidStartGeoTriggering(String channelId,
-            String channelName,
-            String androidNotificationTitle,
-            String androidNotificationContent,
-            Integer androidNotificationId,
-            Callback onSuccess,
-            Callback onError) {
+                                          String channelName,
+                                          String androidNotificationTitle,
+                                          String androidNotificationContent,
+                                          Integer androidNotificationId,
+                                          Callback onSuccess,
+                                          Callback onError) {
         // Start as With FG Service
         if (!androidNotificationTitle.isEmpty() && !androidNotificationContent.isEmpty()) {
 
@@ -121,8 +123,9 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
                 return;
             }
 
-            Notification fgNotification = createNotification(channelId, channelName, androidNotificationTitle,
-                    androidNotificationContent);
+            Notification fgNotification =
+                    createNotification(channelId, channelName, androidNotificationTitle,
+                                       androidNotificationContent);
             if (androidNotificationId != -1) {
                 // Set notificationId for GeoTriggerService
                 GeoTriggeringService.builder()
@@ -196,13 +199,13 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void androidStartTempoTracking(String destinationId,
-            String channelId,
-            String channelName,
-            String androidNotificationTitle,
-            String androidNotificationContent,
-            Integer androidNotificationId,
-            Callback onSuccess,
-            Callback onError) {
+                                          String channelId,
+                                          String channelName,
+                                          String androidNotificationTitle,
+                                          String androidNotificationContent,
+                                          Integer androidNotificationId,
+                                          Callback onSuccess,
+                                          Callback onError) {
 
         if (destinationId.isEmpty()) {
             onError.invoke("destinationId is null");
@@ -216,8 +219,9 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
             return;
         }
 
-        Notification fgNotification = createNotification(channelId, channelName, androidNotificationTitle,
-                androidNotificationContent);
+        Notification fgNotification =
+                createNotification(channelId, channelName, androidNotificationTitle,
+                                   androidNotificationContent);
         TempoServiceStatusListener tempoStatusListener = error -> {
             if (error == null) {
                 onSuccess.invoke();
@@ -279,9 +283,34 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
             WritableArray zoneList = new WritableNativeArray();
             if (list != null) {
                 for (int i = 0; i < list.size(); i++) {
+                    ZoneInfo zoneInfo = list.get(i);
                     WritableMap zone = new WritableNativeMap();
-                    zone.putString("name", list.get(i).getZoneName());
-                    zone.putString("id", list.get(i).getZoneId());
+                    if (zoneInfo.getZoneName() != null) {
+                        zone.putString("name", zoneInfo.getZoneName());
+                    }
+
+                    if (zoneInfo.getZoneId() != null) {
+                        zone.putString("id", zoneInfo.getZoneId());
+                    }
+
+                    if (zoneInfo.getDestination() != null) {
+                        Destination destinationObj = zoneInfo.getDestination();
+
+                        WritableMap destination = new WritableNativeMap();
+                        destination.putString("name", destinationObj.getName());
+                        destination.putString("destinationId", destinationObj.getDestinationId());
+                        if (destinationObj.getAddress() != null) {
+                            destination.putString("address", destinationObj.getAddress());
+                        }
+
+                        Point loc = destinationObj.getLocation();
+                        WritableMap location = new WritableNativeMap();
+                        location.putDouble("latitude", loc.getLatitude());
+                        location.putDouble("longitude", loc.getLongitude());
+
+                        destination.putMap("location", location);
+                        zone.putMap("destination", destination);
+                    }
                     zoneList.pushMap(zone);
                 }
             }
@@ -303,7 +332,9 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
         Intent activityIntent = new Intent(this.getCurrentActivity().getIntent());
         activityIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(reactContext, 0,
-                activityIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                                                                activityIntent,
+                                                                PendingIntent.FLAG_UPDATE_CURRENT
+                                                                        | PendingIntent.FLAG_IMMUTABLE);
 
         NotificationManager notificationManager = (NotificationManager) reactContext
                 .getSystemService(Context.NOTIFICATION_SERVICE);
@@ -311,8 +342,9 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
         int iconResourceId = notificationResourceId != 0 ? notificationResourceId : R.mipmap.ic_launcher;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (notificationManager.getNotificationChannel(channelId) == null) {
-                NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName,
-                        NotificationManager.IMPORTANCE_HIGH);
+                NotificationChannel notificationChannel =
+                        new NotificationChannel(channelId, channelName,
+                                                NotificationManager.IMPORTANCE_HIGH);
                 notificationChannel.enableLights(false);
                 notificationChannel.setLightColor(Color.RED);
                 notificationChannel.enableVibration(false);

@@ -2,8 +2,11 @@ package io.bluedot;
 
 import android.content.Context;
 import androidx.annotation.Nullable;
+import au.com.bluedot.model.geo.Point;
 import au.com.bluedot.point.net.engine.BDError;
 import au.com.bluedot.point.net.engine.TempoTrackingReceiver;
+import au.com.bluedot.point.net.engine.event.TempoTrackingUpdate;
+import au.com.bluedot.ruleEngine.model.rule.Destination;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.ReactContext;
@@ -13,6 +16,33 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import org.jetbrains.annotations.NotNull;
 
 public class AppTempoReceiver extends TempoTrackingReceiver {
+
+    @Override
+    public void onTempoTrackingUpdate(@NotNull TempoTrackingUpdate tempoTrackingUpdate,
+                                      @NotNull Context context) {
+        WritableMap tempoUpdate = new WritableNativeMap();
+        tempoUpdate.putString("triggerChainId", tempoTrackingUpdate.getTriggerChainId());
+        tempoUpdate.putString("eta", tempoTrackingUpdate.getEta().toString());
+        tempoUpdate.putString("etaDirection", tempoTrackingUpdate.getEtaDirection());
+
+        WritableMap destination = new WritableNativeMap();
+        Destination dest = tempoTrackingUpdate.getDestination();
+        destination.putString("name", dest.getName());
+        destination.putString("destinationId", dest.getDestinationId());
+
+        if (dest.getAddress() != null) {
+            destination.putString("address", dest.getAddress());
+        }
+
+        Point loc = dest.getLocation();
+        WritableMap location = new WritableNativeMap();
+        location.putDouble("latitude", loc.getLatitude());
+        location.putDouble("longitude", loc.getLongitude());
+        destination.putMap("location", location);
+        tempoUpdate.putMap("destination", destination);
+        sendEvent(context, "tempoTrackingUpdate", tempoUpdate);
+    }
+
     /**
      * Called when there is an error that has caused Tempo to stop.
      *
@@ -47,7 +77,7 @@ public class AppTempoReceiver extends TempoTrackingReceiver {
                         @Override
                         public void onReactContextInitialized(ReactContext context) {
                             context.getJSModule(
-                                    DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                            DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                                     .emit(eventName, params);
                             reactInstanceManager.removeReactInstanceEventListener(this);
                         }
