@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.os.Build;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import au.com.bluedot.model.geo.Point;
 import au.com.bluedot.point.net.engine.BDError;
 import au.com.bluedot.point.net.engine.GeoTriggeringService;
 import au.com.bluedot.point.net.engine.GeoTriggeringStatusListener;
@@ -19,6 +20,7 @@ import au.com.bluedot.point.net.engine.ServiceManager;
 import au.com.bluedot.point.net.engine.TempoService;
 import au.com.bluedot.point.net.engine.TempoServiceStatusListener;
 import au.com.bluedot.point.net.engine.ZoneInfo;
+import au.com.bluedot.ruleEngine.model.rule.Destination;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -279,9 +281,34 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
             WritableArray zoneList = new WritableNativeArray();
             if (list != null) {
                 for (int i = 0; i < list.size(); i++) {
+                    ZoneInfo zoneInfo = list.get(i);
                     WritableMap zone = new WritableNativeMap();
-                    zone.putString("name", list.get(i).getZoneName());
-                    zone.putString("id", list.get(i).getZoneId());
+                    if (zoneInfo.getZoneName() != null) {
+                        zone.putString("name", zoneInfo.getZoneName());
+                    }
+
+                    if (zoneInfo.getZoneId() != null) {
+                        zone.putString("id", zoneInfo.getZoneId());
+                    }
+
+                    if (zoneInfo.getDestination() != null) {
+                        Destination destinationObj = zoneInfo.getDestination();
+
+                        WritableMap destination = new WritableNativeMap();
+                        destination.putString("name", destinationObj.getName());
+                        destination.putString("destinationId", destinationObj.getDestinationId());
+                        if (destinationObj.getAddress() != null) {
+                            destination.putString("address", destinationObj.getAddress());
+                        }
+
+                        Point loc = destinationObj.getLocation();
+                        WritableMap location = new WritableNativeMap();
+                        location.putDouble("latitude", loc.getLatitude());
+                        location.putDouble("longitude", loc.getLongitude());
+
+                        destination.putMap("location", location);
+                        zone.putMap("destination", destination);
+                    }
                     zoneList.pushMap(zone);
                 }
             }

@@ -48,7 +48,7 @@ apply plugin: 'maven-publish'
 
 android {
     compileSdkVersion safeExtGet('compileSdkVersion', DEFAULT_COMPILE_SDK_VERSION)
-    
+
     defaultConfig {
         minSdkVersion safeExtGet('minSdkVersion', DEFAULT_MIN_SDK_VERSION)
         versionCode 1
@@ -96,7 +96,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.gitlab.bluedotio.android:point_sdk_android:15.6.2'
+    implementation 'com.gitlab.bluedotio.android:point_sdk_android:16.0.0'
 }
 
 def configureReactNativePom(def pom) {
