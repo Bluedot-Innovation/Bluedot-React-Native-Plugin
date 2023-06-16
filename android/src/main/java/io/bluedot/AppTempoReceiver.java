@@ -11,8 +11,28 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
+import java.util.Map;
 
 public class AppTempoReceiver extends TempoTrackingReceiver {
+
+    @Override
+    public void onTempoTrackingUpdate(@NotNull TempoTrackingUpdate tempoTrackingUpdate,
+                                      @NotNull Context context) {
+        JSONObject jsonObject = null;
+        WritableMap tempoUpdate = null;
+        try {
+
+            jsonObject = new JSONObject(tempoTrackingUpdate.toJson());
+            Map<String, Object> mapEvent = MapUtil.toMap(jsonObject);
+            tempoUpdate = MapUtil.toWritableMap(mapEvent);
+            sendEvent(context, "tempoTrackingUpdate", tempoUpdate);
+        } catch (JSONException exp) {
+            System.out.println("Exception occurred during conversion of ExitEvent" + exp);
+        }
+    }
+
     /**
      * Called when there is an error that has caused Tempo to stop.
      *
