@@ -36,6 +36,7 @@ import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static android.app.Notification.PRIORITY_MAX;
@@ -384,7 +385,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void getCustomEventMetaData(Promise promise) {
         try {
-            Map<String, String> metaDataMap = serviceManager.getCustomEventMetaData();
+            Map<String, Object> metaDataMap = new HashMap<>(serviceManager.getCustomEventMetaData());
             WritableMap writableMap = MapUtil.toWritableMap(metaDataMap);
             promise.resolve(writableMap);
         } catch (Exception e) {
