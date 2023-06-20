@@ -384,7 +384,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void getCustomEventMetaData(Promise promise) {
         try {
-            HashMap<String, String> metaDataMap = serviceManager.getCustomEventMetaData();
+            Map<String, String> metaDataMap = serviceManager.getCustomEventMetaData();
             WritableMap writableMap = MapUtil.toWritableMap(metaDataMap);
             promise.resolve(writableMap);
         } catch (Exception e) {
