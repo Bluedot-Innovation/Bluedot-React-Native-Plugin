@@ -4,6 +4,7 @@ import android.content.Context;
 import androidx.annotation.Nullable;
 import au.com.bluedot.point.net.engine.BDError;
 import au.com.bluedot.point.net.engine.TempoTrackingReceiver;
+import au.com.bluedot.point.net.engine.event.TempoTrackingUpdate;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.ReactContext;
