@@ -31,7 +31,7 @@ Pod::Spec.new do |s|
   s.requires_arc  = true
 
   # s.dependency "BluedotPointSDK", "15.6.5"
-  s.vendored_frameworks = '/Users/danny/Documents/Bluedot/Code/public/PointSDK-iOS/PointSDK/BDPointSDK.xcframework'
+  s.vendored_frameworks = '../../public/PointSDK-iOS/PointSDK/BDPointSDK.xcframework'
 
   s.dependency "React"
 end
