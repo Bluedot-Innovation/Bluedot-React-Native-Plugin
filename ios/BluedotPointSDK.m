@@ -204,6 +204,7 @@ RCT_REMAP_METHOD(getZonesAndFences,
                  getZonesAndFencesResolver: (RCTPromiseResolveBlock)resolve
                  getZonesAndFencesRejecter:(RCTPromiseRejectBlock)reject)
 {
+    #warning Update to match new payload in SDK 16 ( + Android)
     NSSet *zoneInfos = [ BDLocationManager.instance zoneInfos ];
     NSMutableArray  *returnZones = [ NSMutableArray new ];
     
