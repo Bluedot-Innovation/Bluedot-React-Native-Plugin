@@ -37,7 +37,7 @@ const setCustomEventMetaData = (eventMetaData) => {
     NativeModules.BluedotPointSDK.setCustomEventMetaData(eventMetaData)
 }
 
-const getCustomEventMetaData = {
+const getCustomEventMetaData = () => {
     return NativeModules.BluedotPointSDK.getCustomEventMetaData()
 }
 
