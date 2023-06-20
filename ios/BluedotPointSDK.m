@@ -262,6 +262,12 @@ RCT_EXPORT_METHOD(androidStartTempoTracking) {
     ];
 }
 
+/*
+ *  This method is passed the Zone information utilised by the Bluedot SDK.
+ */
+- (void)didUpdateZoneInfo {
+    [self sendEventWithName:@"zoneInfoUpdate" body:nil];
+}
 
 - (void)didEnterZone:(nonnull GeoTriggerEvent *)enterEvent {
     NSDictionary *enterEventMap = @{};
@@ -334,24 +340,6 @@ RCT_EXPORT_METHOD(androidStartTempoTracking) {
     [self sendEventWithName:@"accuracyAuthorizationDidChange" body:@{
         @"previousAccuracyAuthorization": @(previousAccuracyAuthorization),
         @"newAccuracyAuthorization": @(newAccuracyAuthorization)
-    }];
-}
-
-/*
-*  This method is passed the Zone information utilised by the Bluedot SDK.
-*/
-- (void)onZoneInfoUpdate:(NSSet<BDZoneInfo *> *)zoneInfos {
-    NSLog( @"Point sdk updated with %lu zones", (unsigned long)zoneInfos.count );
-        
-    NSMutableArray  *returnZones = [ NSMutableArray new ];
-
-    for( BDZoneInfo *zone in zoneInfos )
-    {
-        [ returnZones addObject: [ self zoneToDict: zone ] ];
-    }
-    
-    [self sendEventWithName:@"zoneInfoUpdate" body:@{
-        @"zoneInfos" : returnZones
     }];
 }
 
