@@ -23,3 +23,7 @@ For questions and support please use our [Help Desk](https://bluedotinnovation.z
 ## Mirgrating to 2.0.0
 
 The Bluedot React Native wrapper version `2.0.0` is a major rewrite of our APIs. It includes breaking changes if you're still on versions `1.1.x`. Please check our Migration guide to `2.0.0` [here](https://docs.bluedot.io/react-native-library/react-native-migrating-to-2-0-0-guide/).
+
+## Mirgrating to 3.0.0
+
+The Bluedot React Native wrapper version `3.0.0` includes breaking changes if you're still on versions `2.x.x`. Please check our Migration guide to `3.0.0` [here](https://docs.bluedot.io/react-native-library/react-native-migrating-to-3-0-0-guide/).

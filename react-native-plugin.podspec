@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
     LICENSE
   }
   s.author        = { "Bluedot Innovation" => "https://www.bluedot.io" }
-  s.platform      = :ios, '10.0'
+  s.platform      = :ios, '11.0'
   s.swift_version = '5.0'
   s.source       = { :git => "https://github.com/Bluedot-Innovation/Bluedot-React-Native-Plugin.git"}
 
@@ -31,7 +31,7 @@ Pod::Spec.new do |s|
   s.requires_arc  = true
 
   # s.dependency "BluedotPointSDK", "15.6.5"
-  s.vendored_frameworks = 'ios/Carthage/Build/BDPointSDK.xcframework'
+  s.vendored_frameworks = '/Users/danny/Documents/Bluedot/Code/public/PointSDK-iOS/PointSDK/BDPointSDK.xcframework'
 
   s.dependency "React"
 end
