@@ -382,6 +382,17 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void getCustomEventMetaData(Promise promise) {
+        try {
+            HashMap<String, String> metaDataMap = serviceManager.getCustomEventMetaData();
+            WritableMap writableMap = MapUtil.toWritableMap(metaDataMap);
+            promise.resolve(writableMap);
+        } catch (Exception e) {
+            promise.reject("Error getting the customEventMetaData");
+        }
+    }
+
+    @ReactMethod
     public void setNotificationIDResourceID(String resourceName) {
         // find the resourceID int from the resourceIDString passed in
         String packageName = reactContext.getPackageName();
@@ -400,8 +411,8 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void allowsBackgroundLocationUpdates(boolean enable) {
-        // the allowsBackgroundLocationUpdates method is added to keep consistency with the
+    public void backgroundLocationAccessForWhileUsing(boolean enable) {
+        // the backgroundLocationAccessForWhileUsing method is added to keep consistency with the
         // iOS implementation
     }
 
