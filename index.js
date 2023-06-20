@@ -87,7 +87,6 @@ const BluedotPointSDK = {
     getCustomEventMetaData,
     setNotificationIdResourceId,
     getInstallRef,
-    // New APIs
     initialize,
     isInitialized,
     reset,
