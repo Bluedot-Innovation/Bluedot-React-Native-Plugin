@@ -37,6 +37,10 @@ const setCustomEventMetaData = (eventMetaData) => {
     NativeModules.BluedotPointSDK.setCustomEventMetaData(eventMetaData)
 }
 
+const getCustomEventMetaData = () => {
+    return NativeModules.BluedotPointSDK.getCustomEventMetaData()
+}
+
 const setNotificationIdResourceId = (resourceId) => {
     NativeModules.BluedotPointSDK.setNotificationIDResourceID(resourceId)
 }
@@ -45,8 +49,8 @@ const setZoneDisableByApplication = (zoneId, disable) => {
     NativeModules.BluedotPointSDK.setZoneDisableByApplication(zoneId, disable)
 }
 
-const allowsBackgroundLocationUpdates = (enable) => {
-    NativeModules.BluedotPointSDK.allowsBackgroundLocationUpdates(enable)
+const backgroundLocationAccessForWhileUsing = (enable) => {
+    NativeModules.BluedotPointSDK.backgroundLocationAccessForWhileUsing(enable)
 }
 
 const on = (eventName, callback) => {
@@ -80,9 +84,9 @@ const BluedotPointSDK = {
     unsubscribe,
     unsubscribeAll,
     setCustomEventMetaData,
+    getCustomEventMetaData,
     setNotificationIdResourceId,
     getInstallRef,
-    // New APIs
     initialize,
     isInitialized,
     reset,
@@ -95,7 +99,7 @@ const BluedotPointSDK = {
     getSdkVersion,
     getZonesAndFences,
     setZoneDisableByApplication,
-    allowsBackgroundLocationUpdates
+    backgroundLocationAccessForWhileUsing
 }
 
 export default BluedotPointSDK
