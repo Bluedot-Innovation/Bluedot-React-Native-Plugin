@@ -285,11 +285,15 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
                     ZoneInfo zoneInfo = list.get(i);
                     WritableMap zone = new WritableNativeMap();
                     if (zoneInfo.getZoneName() != null) {
-                        zone.putString("name", zoneInfo.getZoneName());
+                        zone.putString("zoneName", zoneInfo.getZoneName());
                     }
 
                     if (zoneInfo.getZoneId() != null) {
-                        zone.putString("id", zoneInfo.getZoneId());
+                        zone.putString("zoneId", zoneInfo.getZoneId());
+                    }
+
+                    if (zoneInfo.isCheckOut() != null) {
+                        zone.putBoolean("isCheckOut", zoneInfo.isCheckOut());
                     }
 
                     if (zoneInfo.getDestination() != null) {
