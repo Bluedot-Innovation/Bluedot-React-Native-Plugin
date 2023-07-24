@@ -82,7 +82,7 @@ RCT_EXPORT_METHOD(iOSStartGeoTriggeringWithAppRestartNotification: (NSString *) 
                   startGeoTriggeringTestSuccess: (RCTResponseSenderBlock)startGeoTriggeringTestSuccessfulCallback
                   startGeoTriggeringTestFailed: (RCTResponseSenderBlock)startGeoTriggeringTestFailedCallback)
 {
-    
+  dispatch_async(dispatch_get_main_queue(),^(void) {
     [[BDLocationManager instance] startGeoTriggeringWithAppRestartNotificationTitle:notificationTitle notificationButtonText:buttonText completion:^(NSError * error)
     {
         if (error != nil) {
@@ -91,6 +91,7 @@ RCT_EXPORT_METHOD(iOSStartGeoTriggeringWithAppRestartNotification: (NSString *) 
             startGeoTriggeringTestSuccessfulCallback(@[]);
         }
     }];
+  });
 }
 
 RCT_REMAP_METHOD(isGeoTriggeringRunning,
