@@ -82,7 +82,7 @@ RCT_EXPORT_METHOD(iOSStartGeoTriggeringWithAppRestartNotification: (NSString *) 
                   startGeoTriggeringTestSuccess: (RCTResponseSenderBlock)startGeoTriggeringTestSuccessfulCallback
                   startGeoTriggeringTestFailed: (RCTResponseSenderBlock)startGeoTriggeringTestFailedCallback)
 {
-    
+  dispatch_async(dispatch_get_main_queue(),^(void) {
     [[BDLocationManager instance] startGeoTriggeringWithAppRestartNotificationTitle:notificationTitle notificationButtonText:buttonText completion:^(NSError * error)
     {
         if (error != nil) {
@@ -91,6 +91,7 @@ RCT_EXPORT_METHOD(iOSStartGeoTriggeringWithAppRestartNotification: (NSString *) 
             startGeoTriggeringTestSuccessfulCallback(@[]);
         }
     }];
+  });
 }
 
 RCT_REMAP_METHOD(isGeoTriggeringRunning,
@@ -263,13 +264,13 @@ RCT_EXPORT_METHOD(androidStartTempoTracking) {
     NSDictionary *returnFence = [ self fenceToDict: enterEvent.fence ];
     NSDictionary *returnZone = [ self zoneToDict: enterEvent.zone ];
     NSDictionary *returnLocation = [ self locationToDict: enterEvent.location ];
-    
+
     [self sendEventWithName:@"enterZone" body:@{
         @"fenceInfo" : returnFence,
         @"zoneInfo" : returnZone,
         @"locationInfo" : returnLocation,
         @"isExitEnabled" : [NSNumber numberWithBool: enterEvent.isExitEnabled],
-        @"customData" : enterEvent.customData != nil ? enterEvent.customData : [NSNull null]
+        @"customData" : enterEvent.zone.customData != nil ? enterEvent.zone.customData : [NSNull null]
     }];
 }
 
@@ -345,6 +346,7 @@ RCT_EXPORT_METHOD(androidStartTempoTracking) {
 
     [ dict setObject:zone.name forKey:@"name"];
     [ dict setObject:zone.ID forKey:@"ID"];
+    [ dict setObject:zone.customData forKey:@"customData"];
 
     return dict;
 }
