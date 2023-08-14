@@ -1,3 +1,3 @@
 # Bluedot React Native Plugin release notes
 
-- Fixed null CustomData in enterZone for iOS
+- Integrated with Bluedot iOS SDk v15.6.8
