@@ -1,7 +1,7 @@
 {
   "name": "bluedot-react-native",
   "title": "React Native Bluedot Point SDK",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "description": "Bluedot Point SDK React Native SDK; integrates the Android and iOS Point SDK libraries",
   "main": "index.js",
   "scripts": {
@@ -31,6 +31,6 @@
   },
   "devDependencies": {
     "react": "18.2.0",
-    "react-native": "0.71.3"
+    "react-native": "0.72.5"
   }
 }
