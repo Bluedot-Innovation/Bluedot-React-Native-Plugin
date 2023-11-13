@@ -98,7 +98,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.gitlab.bluedotio.android:point_sdk_android:dev~15.6.0-15.5.2-geacd895-4'
+    implementation 'com.gitlab.bluedotio.android:point_sdk_android:dev~15.6.0-SNAPSHOT'
 }
 
 def configureReactNativePom(def pom) {
