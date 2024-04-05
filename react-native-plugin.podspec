@@ -14,8 +14,8 @@ Pod::Spec.new do |s|
     :type => 'Copyright',
     :text => <<-LICENSE
     Point SDK
-    Created by Bluedot Innovation in 2023.
-    Copyright © 2023 Bluedot Innovation. All rights reserved.
+    Created by Bluedot Innovation in 2024.
+    Copyright © 2024 Bluedot Innovation. All rights reserved.
     By downloading or using the Bluedot Point SDK for iOS, You agree to the Bluedot Terms and Conditions
     https://bluedot.io/agreements/#terms and Privacy Policy https://bluedot.io/agreements/#privacy
     and Billing Policy https://bluedot.io/agreements/#billing
@@ -23,13 +23,13 @@ Pod::Spec.new do |s|
     LICENSE
   }
   s.author        = { "Bluedot Innovation" => "https://www.bluedot.io" }
-  s.platform      = :ios, '11.0'
+  s.platform      = :ios, '12.0'
   s.swift_version = '5.0'
   s.source       = { :git => "https://github.com/Bluedot-Innovation/Bluedot-React-Native-Plugin.git"}
 
   s.source_files  = "ios/**/*.{h,m,swift}"
   s.requires_arc  = true
 
-  s.dependency "BluedotPointSDK", "15.6.8"
+  s.dependency "BluedotPointSDK", "16.0.0-rc12"
   s.dependency "React"
 end
