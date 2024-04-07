@@ -59,6 +59,7 @@ const unsubscribe = (eventName) => {
 }
 
 const unsubscribeAll = () => {
+    eventEmitter.removeAllListeners()
     subscriptionsList.forEach(event => eventEmitter.removeAllListeners(event))
     subscriptionsList.clear()
 }
