@@ -12,8 +12,8 @@ import groovy.json.JsonSlurper
 //   original location:
 //   - https://github.com/facebook/react-native/blob/0.58-stable/local-cli/templates/HelloWorld/android/app/build.gradle
 
-def DEFAULT_COMPILE_SDK_VERSION = 33
-def DEFAULT_MIN_SDK_VERSION = 16
+def DEFAULT_COMPILE_SDK_VERSION = 34
+def DEFAULT_MIN_SDK_VERSION = 19
 
 def safeExtGet(prop, fallback) {
     rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
@@ -30,7 +30,7 @@ buildscript {
             mavenCentral()
         }
         dependencies {
-            classpath 'com.android.tools.build:gradle:7.0.4'
+            classpath 'com.android.tools.build:gradle:8.2.2'
         }
     }
 }
@@ -49,6 +49,7 @@ apply plugin: 'maven-publish'
 android {
     compileSdkVersion safeExtGet('compileSdkVersion', DEFAULT_COMPILE_SDK_VERSION)
 
+    namespace "io.bluedot"
     defaultConfig {
         minSdkVersion safeExtGet('minSdkVersion', DEFAULT_MIN_SDK_VERSION)
         versionCode 1
@@ -73,9 +74,11 @@ android {
     lintOptions {
         abortOnError false
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
     }
 
 }
@@ -96,7 +99,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.gitlab.bluedotio.android:point_sdk_android:release~16.0.0-RC2-SNAPSHOT'
+    implementation 'com.gitlab.bluedotio.android:point_sdk_android:dev~16.0.0-SNAPSHOT'
 }
 
 def configureReactNativePom(def pom) {
