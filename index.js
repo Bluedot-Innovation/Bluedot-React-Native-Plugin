@@ -3,7 +3,7 @@ import GeoTriggeringBuilder from './GeoTriggeringBuilder'
 import TempoBuilder from './TempoBuilder'
 
 const eventEmitter = new NativeEventEmitter(NativeModules.BluedotPointSDK)
-const subscriptionsList = new Set();
+const subscriptionsList = new Set(); // Set of strings - eventNames
 
 const initialize = (projectId, onSucessCallback, onFailCallback) => {
     NativeModules.BluedotPointSDK.initialize(projectId, onSucessCallback, onFailCallback)
@@ -55,6 +55,7 @@ const backgroundLocationAccessForWhileUsing = (enable) => {
 
 const on = (eventName, callback) => {
     eventEmitter.addListener(eventName, callback)
+    subscriptionsList.add(eventName)
 }
 
 const unsubscribe = (eventName) => {
@@ -63,7 +64,7 @@ const unsubscribe = (eventName) => {
 }
 
 const unsubscribeAll = () => {
-    subscriptionsList.forEach(event => eventEmitter.removeAllListeners(event))
+    subscriptionsList.forEach(eventName => eventEmitter.removeAllListeners(eventName))
     subscriptionsList.clear()
 }
 
