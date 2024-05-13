@@ -28,7 +28,7 @@ public class AppTempoReceiver extends TempoTrackingReceiver {
             jsonObject = new JSONObject(tempoTrackingUpdate.toJson());
             Map<String, Object> mapEvent = MapUtil.toMap(jsonObject);
             tempoUpdate = MapUtil.toWritableMap(mapEvent);
-            sendEvent(context, "onTempoTrackingUpdate", tempoUpdate);
+            sendEvent(context, "tempoTrackingDidUpdate", tempoUpdate);
         } catch (JSONException exp) {
             System.out.println("Exception occurred during conversion of ExitEvent" + exp);
         }
