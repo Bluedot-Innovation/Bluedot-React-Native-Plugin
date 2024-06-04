@@ -96,14 +96,14 @@ public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
         writableMap.putBoolean("isExitEnabled", entryEvent.isExitEnabled());
         //Added a wait for 1 sec for 1st trigger to give App listeners time to register for callback
         if (firstTrigger) {
-            Log.i("Plugin","ABCD Wait for 1 secs for first Entry");
+            Log.d("Plugin","Wait for 1 secs for first Entry");
             try {
                 TimeUnit.SECONDS.sleep(1);
             } catch (InterruptedException e) {
                 Log.i("Plugin","Exception"+e.getLocalizedMessage());
                 e.printStackTrace();
             }
-            Log.i("Plugin","ABCD Wait is Over");
+            Log.d("Plugin","Wait is Over");
             firstTrigger = false;
         }
         sendEvent(context, "enterZone", writableMap);

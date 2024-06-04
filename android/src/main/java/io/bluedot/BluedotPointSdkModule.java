@@ -404,16 +404,16 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
 
     @Override
     public void onHostResume() {
-       Log.i("SessionLog", "Plugin onHostResume()");
+       Log.d("Plugin", "onHostResume()");
     }
 
     @Override
     public void onHostPause() {
-        Log.i("SessionLog", "Plugin onHostPause()");
+        Log.d("Plugin", "onHostPause()");
     }
 
     @Override
     public void onHostDestroy() {
-        Log.i("SessionLog", "Plugin onHostDestroy()");
+        Log.d("Plugin", "onHostDestroy()");
     }
 }
