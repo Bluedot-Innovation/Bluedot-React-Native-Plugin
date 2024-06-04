@@ -1,6 +1,8 @@
 package io.bluedot;
 
 import android.content.Context;
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 import au.com.bluedot.point.net.engine.FenceInfo;
 import au.com.bluedot.point.net.engine.GeoTriggeringEventReceiver;
@@ -16,12 +18,17 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 
 public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
 
+    private static boolean firstTrigger = true;
     @Override
     public void onZoneInfoUpdate(@NotNull List<ZoneInfo> zones, @NotNull Context context) {
         WritableArray zoneList = new WritableNativeArray();
@@ -87,7 +94,18 @@ public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
         writableMap.putMap("zoneInfo", zoneDetails);
         writableMap.putMap("locationInfo", locationDetails);
         writableMap.putBoolean("isExitEnabled", entryEvent.isExitEnabled());
-
+        //Added a wait for 1 sec for 1st trigger to give App listeners time to register for callback
+        if (firstTrigger) {
+            Log.d("Plugin", "Wait for 1 secs for first Entry");
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                Log.i("Plugin", "Exception"+e.getLocalizedMessage());
+                e.printStackTrace();
+            }
+            Log.d("Plugin", "Wait is Over");
+            firstTrigger = false;
+        }
         sendEvent(context, "enterZone", writableMap);
     }
 

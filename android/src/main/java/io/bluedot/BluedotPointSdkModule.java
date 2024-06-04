@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
+import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import au.com.bluedot.point.net.engine.BDError;
@@ -31,6 +32,7 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
+import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static android.app.Notification.PRIORITY_MAX;
 
-public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
+public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
 
     private final ReactApplicationContext reactContext;
     ServiceManager serviceManager;
@@ -48,6 +50,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
     public BluedotPointSdkModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
+        this.reactContext.addLifecycleEventListener(this);
         serviceManager = ServiceManager.getInstance(reactContext);
     }
 
@@ -396,5 +399,21 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void removeListeners(Integer count) {
         // Keep: Required for RN built in Event Emitter Calls.
+    }
+
+
+    @Override
+    public void onHostResume() {
+       Log.d("Plugin", "onHostResume()");
+    }
+
+    @Override
+    public void onHostPause() {
+        Log.d("Plugin", "onHostPause()");
+    }
+
+    @Override
+    public void onHostDestroy() {
+        Log.d("Plugin", "onHostDestroy()");
     }
 }
