@@ -4,12 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import au.com.bluedot.point.net.engine.FenceInfo;
 import au.com.bluedot.point.net.engine.GeoTriggeringEventReceiver;
-import au.com.bluedot.point.net.engine.LocationInfo;
-import au.com.bluedot.point.net.engine.ZoneEntryEvent;
-import au.com.bluedot.point.net.engine.ZoneExitEvent;
-import au.com.bluedot.point.net.engine.ZoneInfo;
+import au.com.bluedot.point.net.engine.event.GeoTriggerEvent;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.bridge.ReactContext;
@@ -25,88 +21,44 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
 
     private static boolean firstTrigger = true;
     @Override
-    public void onZoneInfoUpdate(@NotNull List<ZoneInfo> zones, @NotNull Context context) {
-        WritableArray zoneList = new WritableNativeArray();
-        for (ZoneInfo zoneInfo : zones) {
-            WritableMap customDataZone = new WritableNativeMap();
-            Map<String, String> customDataMap = zoneInfo.getCustomData();
-            if (customDataMap != null) {
-                for (String entry : customDataMap.keySet()) {
-                    customDataZone.putString(entry, customDataMap.get(entry));
-                }
-            }
-
-            WritableMap zone = new WritableNativeMap();
-            zone.putString("id", zoneInfo.getZoneId());
-            zone.putString("name", zoneInfo.getZoneName());
-            zone.putMap("customData", customDataZone);
-            zoneList.pushMap(zone);
-
-        }
-
-        WritableMap map = new WritableNativeMap();
-        map.putArray("zoneInfo", zoneList);
-        sendEvent(context, "zoneInfoUpdate", map);
+    public void onZoneInfoUpdate(@NotNull Context context) {
+        sendEvent(context, "zoneInfoUpdate", null);
     }
 
     @Override
-    public void onZoneEntryEvent(@NotNull ZoneEntryEvent entryEvent, @NotNull Context context) {
-        String entryDetails = "Entered zone " + entryEvent.getZoneInfo().getZoneName() + " via fence "
-                + entryEvent.getFenceInfo().getName();
-        String customData = "";
-        if (entryEvent.getZoneInfo().getCustomData() != null)
-            customData = entryEvent.getZoneInfo().getCustomData().toString();
+    public void onZoneEntryEvent(@NotNull GeoTriggerEvent entryEvent, @NotNull Context context) {
+        JSONObject jsonObject = null;
+        WritableMap writableMap = null;
+        try {
 
-        FenceInfo fenceInfo = entryEvent.getFenceInfo();
-        WritableMap fenceDetails = new WritableNativeMap();
-        fenceDetails.putString("fenceId", fenceInfo.getId());
-        fenceDetails.putString("fenceName", fenceInfo.getName());
+            jsonObject = new JSONObject(entryEvent.toJson());
+            Map<String, Object> mapEvent = MapUtil.toMap(jsonObject);
+            writableMap = MapUtil.toWritableMap(mapEvent);
 
-        ZoneInfo zoneInfo = entryEvent.getZoneInfo();
-        WritableMap customDataZone = new WritableNativeMap();
-        Map<String, String> customDataMap = zoneInfo.getCustomData();
-        if (customDataMap != null) {
-            for (String entry : customDataMap.keySet()) {
-                customDataZone.putString(entry, customDataMap.get(entry));
+            //Added a wait for 1 sec for 1st trigger to give App listeners time to register for callback
+            if (firstTrigger) {
+                Log.d("Plugin", "Wait for 1 secs for first Entry");
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    Log.i("Plugin", "Exception"+e.getLocalizedMessage());
+                    e.printStackTrace();
+                }
+                Log.d("Plugin", "Wait is Over");
+                firstTrigger = false;
             }
+
+            sendEvent(context, "enterZone", writableMap);
+        } catch (JSONException exp) {
+            System.out.println("Exception occurred during conversion of EntryEvent" + exp);
         }
-
-        WritableMap zoneDetails = new WritableNativeMap();
-        zoneDetails.putString("id", zoneInfo.getZoneId());
-        zoneDetails.putString("name", zoneInfo.getZoneName());
-        zoneDetails.putMap("customData", customDataZone);
-
-        LocationInfo locationInfo = entryEvent.getLocationInfo();
-        WritableMap locationDetails = new WritableNativeMap();
-        locationDetails.putDouble("latitude", locationInfo.getLatitude());
-        locationDetails.putDouble("longitude", locationInfo.getLongitude());
-        locationDetails.putDouble("speed", locationInfo.getSpeed());
-        locationDetails.putDouble("bearing", locationInfo.getBearing());
-        locationDetails.putDouble("timeStamp", locationInfo.getTimeStamp());
-
-        WritableMap writableMap = new WritableNativeMap();
-        writableMap.putMap("fenceInfo", fenceDetails);
-        writableMap.putMap("zoneInfo", zoneDetails);
-        writableMap.putMap("locationInfo", locationDetails);
-        writableMap.putBoolean("isExitEnabled", entryEvent.isExitEnabled());
-        //Added a wait for 1 sec for 1st trigger to give App listeners time to register for callback
-        if (firstTrigger) {
-            Log.d("Plugin", "Wait for 1 secs for first Entry");
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                Log.i("Plugin", "Exception"+e.getLocalizedMessage());
-                e.printStackTrace();
-            }
-            Log.d("Plugin", "Wait is Over");
-            firstTrigger = false;
-        }
-        sendEvent(context, "enterZone", writableMap);
     }
 
     public void sendEvent(Context context,
@@ -136,35 +88,19 @@ public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
     }
 
     @Override
-    public void onZoneExitEvent(@NotNull ZoneExitEvent exitEvent, @NotNull Context context) {
-        String exitDetails = "Exited zone" + exitEvent.getZoneInfo().getZoneName();
-        String dwellT = "Dwell time: " + exitEvent.getDwellTime() + " minutes";
+    public void onZoneExitEvent(@NotNull GeoTriggerEvent exitEvent, @NotNull Context context) {
 
-        FenceInfo fenceInfo = exitEvent.getFenceInfo();
-        WritableMap fenceDetails = new WritableNativeMap();
-        fenceDetails.putString("id", fenceInfo.getId());
-        fenceDetails.putString("name", fenceInfo.getName());
+        JSONObject jsonObject = null;
+        WritableMap writableMap = null;
+        try {
 
-        ZoneInfo zoneInfo = exitEvent.getZoneInfo();
-        WritableMap customDataZone = new WritableNativeMap();
-        Map<String, String> customDataMap = zoneInfo.getCustomData();
-        if (customDataMap != null) {
-            for (String entry : customDataMap.keySet()) {
-                customDataZone.putString(entry, customDataMap.get(entry));
-            }
+            jsonObject = new JSONObject(exitEvent.toJson());
+            Map<String, Object> mapEvent = MapUtil.toMap(jsonObject);
+            writableMap = MapUtil.toWritableMap(mapEvent);
+            sendEvent(context, "exitZone", writableMap);
+        } catch (JSONException exp) {
+            System.out.println("Exception occurred during conversion of ExitEvent" + exp);
         }
-
-        WritableMap zoneDetails = new WritableNativeMap();
-        zoneDetails.putString("id", zoneInfo.getZoneId());
-        zoneDetails.putString("name", zoneInfo.getZoneName());
-        zoneDetails.putMap("customData", customDataZone);
-
-        WritableMap writableMap = new WritableNativeMap();
-        writableMap.putMap("fenceInfo", fenceDetails);
-        writableMap.putMap("zoneInfo", zoneDetails);
-        writableMap.putInt("dwellTime", exitEvent.getDwellTime());
-
-        sendEvent(context, "exitZone", writableMap);
     }
 
 }

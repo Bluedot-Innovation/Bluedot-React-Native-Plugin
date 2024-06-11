@@ -11,6 +11,7 @@ import android.os.Build;
 import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import au.com.bluedot.model.geo.Point;
 import au.com.bluedot.point.net.engine.BDError;
 import au.com.bluedot.point.net.engine.GeoTriggeringService;
 import au.com.bluedot.point.net.engine.GeoTriggeringStatusListener;
@@ -20,6 +21,7 @@ import au.com.bluedot.point.net.engine.ServiceManager;
 import au.com.bluedot.point.net.engine.TempoService;
 import au.com.bluedot.point.net.engine.TempoServiceStatusListener;
 import au.com.bluedot.point.net.engine.ZoneInfo;
+import au.com.bluedot.ruleEngine.model.rule.Destination;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -36,6 +38,7 @@ import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static android.app.Notification.PRIORITY_MAX;
@@ -282,9 +285,38 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
             WritableArray zoneList = new WritableNativeArray();
             if (list != null) {
                 for (int i = 0; i < list.size(); i++) {
+                    ZoneInfo zoneInfo = list.get(i);
                     WritableMap zone = new WritableNativeMap();
-                    zone.putString("name", list.get(i).getZoneName());
-                    zone.putString("id", list.get(i).getZoneId());
+                    if (zoneInfo.getZoneName() != null) {
+                        zone.putString("zoneName", zoneInfo.getZoneName());
+                    }
+
+                    if (zoneInfo.getZoneId() != null) {
+                        zone.putString("zoneId", zoneInfo.getZoneId());
+                    }
+
+                    if (zoneInfo.isCheckOut() != null) {
+                        zone.putBoolean("isCheckOut", zoneInfo.isCheckOut());
+                    }
+
+                    if (zoneInfo.getDestination() != null) {
+                        Destination destinationObj = zoneInfo.getDestination();
+
+                        WritableMap destination = new WritableNativeMap();
+                        destination.putString("name", destinationObj.getName());
+                        destination.putString("destinationId", destinationObj.getDestinationId());
+                        if (destinationObj.getAddress() != null) {
+                            destination.putString("address", destinationObj.getAddress());
+                        }
+
+                        Point loc = destinationObj.getLocation();
+                        WritableMap location = new WritableNativeMap();
+                        location.putDouble("latitude", loc.getLatitude());
+                        location.putDouble("longitude", loc.getLongitude());
+
+                        destination.putMap("location", location);
+                        zone.putMap("destination", destination);
+                    }
                     zoneList.pushMap(zone);
                 }
             }
@@ -358,6 +390,17 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
     }
 
     @ReactMethod
+    public void getCustomEventMetaData(Promise promise) {
+        try {
+            Map<String, Object> metaDataMap = new HashMap<>(serviceManager.getCustomEventMetaData());
+            WritableMap writableMap = MapUtil.toWritableMap(metaDataMap);
+            promise.resolve(writableMap);
+        } catch (Exception e) {
+            promise.reject("Error getting the customEventMetaData");
+        }
+    }
+
+    @ReactMethod
     public void setNotificationIDResourceID(String resourceName) {
         // find the resourceID int from the resourceIDString passed in
         String packageName = reactContext.getPackageName();
@@ -376,8 +419,8 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
     }
 
     @ReactMethod
-    public void allowsBackgroundLocationUpdates(boolean enable) {
-        // the allowsBackgroundLocationUpdates method is added to keep consistency with the
+    public void backgroundLocationAccessForWhileUsing(boolean enable) {
+        // the backgroundLocationAccessForWhileUsing method is added to keep consistency with the
         // iOS implementation
     }
 
