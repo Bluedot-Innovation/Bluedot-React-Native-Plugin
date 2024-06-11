@@ -26,4 +26,4 @@ The Bluedot React Native wrapper version `2.0.0` is a major rewrite of our APIs.
 
 ## Mirgrating to 3.0.0
 
-The Bluedot React Native wrapper version `3.0.0` includes breaking changes if you're still on versions `2.x.x`. Please check our Migration guide to `3.0.0` [here](https://docs.bluedot.io/react-native-library/react-native-migrating-to-3-0-0-guide/).
+The Bluedot React Native wrapper version `3.0.0` includes breaking changes if you're still on versions `2.x.x`. Please check our Migration guide to `3.0.0` [here](https://docs.bluedot.io/Point%20SDK/React%20Native/Migration%20Guides/Migration%20guide%20to%203.0.0).
