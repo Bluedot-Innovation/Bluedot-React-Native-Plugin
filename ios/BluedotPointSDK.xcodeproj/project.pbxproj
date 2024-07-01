@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -147,7 +147,7 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libBluedotPointSDK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libBluedotPointSDK.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		3046C7862A41314500B1078D /* BDPointSDK.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = BDPointSDK.xcframework; path = Carthage/Build/BDPointSDK.xcframework; sourceTree = "<group>"; };
+		3046C7862A41314500B1078D /* BDPointSDK.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:9H7C75E224:Bluedot Innovation Pty Ltd"; lastKnownFileType = wrapper.xcframework; name = BDPointSDK.xcframework; path = Carthage/Build/BDPointSDK.xcframework; sourceTree = "<group>"; };
 		78F37D4F238F86FC005517BB /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "../node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
 		B3E7B5881CC2AC0600A0062D /* BluedotPointSDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BluedotPointSDK.h; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* BluedotPointSDK.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BluedotPointSDK.m; sourceTree = "<group>"; };
