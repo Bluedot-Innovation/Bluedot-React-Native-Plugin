@@ -169,7 +169,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
     @ReactMethod
     public void isGeoTriggeringRunning(Promise promise) {
         try {
-            boolean isRunning = GeoTriggeringService.isRunning();
+            boolean isRunning = GeoTriggeringService.isRunning(reactContext);
             promise.resolve(isRunning);
         } catch (Exception e) {
             promise.reject("Error getting isGeoTriggeringRunning");
