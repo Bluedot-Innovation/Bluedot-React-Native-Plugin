@@ -6,7 +6,8 @@ import au.com.bluedot.point.net.engine.BDError;
 import au.com.bluedot.point.net.engine.TempoTrackingReceiver;
 import au.com.bluedot.point.net.engine.event.TempoTrackingUpdate;
 import com.facebook.react.ReactApplication;
-import com.facebook.react.ReactInstanceManager;
+import com.facebook.react.ReactHost;
+import com.facebook.react.ReactInstanceEventListener;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
@@ -54,23 +55,21 @@ public class AppTempoReceiver extends TempoTrackingReceiver {
                           @Nullable WritableMap params) {
 
         ReactApplication reactApplication = (ReactApplication) context.getApplicationContext();
-        ReactContext reactContext = reactApplication.getReactNativeHost().getReactInstanceManager()
-                .getCurrentReactContext();
-        ReactInstanceManager reactInstanceManager =
-                reactApplication.getReactNativeHost().getReactInstanceManager();
+        ReactHost reactHost = reactApplication.getReactHost();
+        ReactContext reactContext = reactHost.getCurrentReactContext();
 
         if (reactContext != null) {
             reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                     .emit(eventName, params);
         } else {
-            reactInstanceManager.addReactInstanceEventListener(
-                    new ReactInstanceManager.ReactInstanceEventListener() {
+            reactHost.addReactInstanceEventListener(
+                    new ReactInstanceEventListener() {
                         @Override
                         public void onReactContextInitialized(ReactContext context) {
                             context.getJSModule(
                                     DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                                     .emit(eventName, params);
-                            reactInstanceManager.removeReactInstanceEventListener(this);
+                            reactHost.removeReactInstanceEventListener(this);
                         }
                     });
         }
