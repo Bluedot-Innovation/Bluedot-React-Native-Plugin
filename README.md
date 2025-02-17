@@ -12,7 +12,7 @@ Functionality is provided through one single npm package so you can use it for b
 
 - Android API 21+
 - iOS 12.4+
-- Compatible with React Native 0.73.6
+- Compatible with React Native 0.77.0
 
 Native support levels are based on [React Native requirements](https://github.com/facebook/react-native#-requirements).
 
@@ -20,10 +20,10 @@ Native support levels are based on [React Native requirements](https://github.co
 
 For questions and support please use our [Help Desk](https://bluedotinnovation.zendesk.com/)
 
-## Mirgrating to 2.0.0
+## Migrating to 2.0.0
 
 The Bluedot React Native wrapper version `2.0.0` is a major rewrite of our APIs. It includes breaking changes if you're still on versions `1.1.x`. Please check our Migration guide to `2.0.0` [here](https://docs.bluedot.io/react-native-library/react-native-migrating-to-2-0-0-guide/).
 
-## Mirgrating to 3.0.0
+## Migrating to 3.0.0
 
 The Bluedot React Native wrapper version `3.0.0` includes breaking changes if you're still on versions `2.x.x`. Please check our Migration guide to `3.0.0` [here](https://docs.bluedot.io/Point%20SDK/React%20Native/Migration%20Guides/Migration%20guide%20to%203.0.0).
