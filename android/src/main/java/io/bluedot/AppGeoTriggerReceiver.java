@@ -3,6 +3,7 @@ package io.bluedot;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import au.com.bluedot.point.net.engine.GeoTriggeringEventReceiver;
 import au.com.bluedot.point.net.engine.event.GeoTriggerEvent;
@@ -10,18 +11,13 @@ import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactHost;
 import com.facebook.react.ReactInstanceEventListener;
 import com.facebook.react.bridge.ReactContext;
-import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.bridge.WritableNativeArray;
-import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -77,7 +73,7 @@ public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
             reactHost.addReactInstanceEventListener(
                     new ReactInstanceEventListener() {
                         @Override
-                        public void onReactContextInitialized(ReactContext context) {
+                        public void onReactContextInitialized(@NonNull ReactContext context) {
                             context.getJSModule(
                                     DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                                     .emit(eventName, params);
