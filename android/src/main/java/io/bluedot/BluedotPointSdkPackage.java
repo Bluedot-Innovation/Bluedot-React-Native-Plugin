@@ -16,7 +16,7 @@ public class BluedotPointSdkPackage implements ReactPackage {
     public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext) {
         return Arrays.<NativeModule>asList(
             new BluedotPointSdkModule(reactContext),
-            new RezolveBrainAiSdkModule(reactContext)
+            new BrainAiSdkModule(reactContext)
         );
     }
 

@@ -13,7 +13,7 @@ import groovy.json.JsonSlurper
 //   - https://github.com/facebook/react-native/blob/0.58-stable/local-cli/templates/HelloWorld/android/app/build.gradle
 
 def DEFAULT_COMPILE_SDK_VERSION = 34
-def DEFAULT_MIN_SDK_VERSION = 19
+def DEFAULT_MIN_SDK_VERSION = 24
 
 def safeExtGet(prop, fallback) {
     rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
@@ -25,12 +25,16 @@ buildscript {
     // module dependency in an application project.
     // ref: https://docs.gradle.org/current/userguide/tutorial_using_tasks.html#sec:build_script_external_dependencies
     if (project == rootProject) {
+        ext {
+            kotlinVersion = "2.0.21"
+        }
         repositories {
             google()
             mavenCentral()
         }
         dependencies {
             classpath 'com.android.tools.build:gradle:8.2.2'
+            classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${project.ext.kotlinVersion}"
         }
     }
 }
@@ -45,6 +49,7 @@ allprojects {
 
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion safeExtGet('compileSdkVersion', DEFAULT_COMPILE_SDK_VERSION)
@@ -72,6 +77,9 @@ android {
             languageVersion = JavaLanguageVersion.of(17)
         }
     }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
 
 }
 
@@ -85,6 +93,7 @@ repositories {
 dependencies {
     implementation 'com.gitlab.bluedotio.android:point_sdk_android:17.0.0'
     implementation 'com.facebook.react:react-android:0.77.0'
+    implementation 'androidx.core:core-ktx:1.15.0'
 }
 
 def configureReactNativePom(def pom) {

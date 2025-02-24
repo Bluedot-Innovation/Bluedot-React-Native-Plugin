@@ -65,14 +65,6 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
         return "BluedotPointSDK";
     }
 
-    private void sendEvent(ReactContext reactContext,
-            String eventName,
-            @Nullable WritableMap params) {
-        reactContext
-                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                .emit(eventName, params);
-    }
-
     @ReactMethod
     public void initialize(String projectId, Callback onSucessCallback, Callback onFailCallback) {
 

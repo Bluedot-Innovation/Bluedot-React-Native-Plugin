@@ -1,18 +1,13 @@
 package io.bluedot;
 
+import static io.bluedot.EventUtil.sendEvent;
+
 import android.content.Context;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import au.com.bluedot.point.net.engine.GeoTriggeringEventReceiver;
 import au.com.bluedot.point.net.engine.event.GeoTriggerEvent;
-import com.facebook.react.ReactApplication;
-import com.facebook.react.ReactHost;
-import com.facebook.react.ReactInstanceEventListener;
-import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -58,31 +53,6 @@ public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
         }
     }
 
-    public void sendEvent(Context context,
-            String eventName,
-            @Nullable WritableMap params) {
-
-        ReactApplication reactApplication = (ReactApplication) context.getApplicationContext();
-        ReactHost reactHost = reactApplication.getReactHost();
-        ReactContext reactContext = reactHost.getCurrentReactContext();
-
-        if (reactContext != null) {
-            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                    .emit(eventName, params);
-        } else {
-            reactHost.addReactInstanceEventListener(
-                    new ReactInstanceEventListener() {
-                        @Override
-                        public void onReactContextInitialized(@NonNull ReactContext context) {
-                            context.getJSModule(
-                                    DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                                    .emit(eventName, params);
-                            reactHost.removeReactInstanceEventListener(this);
-                        }
-                    });
-        }
-    }
-
     @Override
     public void onZoneExitEvent(@NotNull GeoTriggerEvent exitEvent, @NotNull Context context) {
 
@@ -98,5 +68,4 @@ public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
             System.out.println("Exception occurred during conversion of ExitEvent" + exp);
         }
     }
-
 }
