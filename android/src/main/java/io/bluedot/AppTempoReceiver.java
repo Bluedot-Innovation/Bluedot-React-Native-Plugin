@@ -21,7 +21,6 @@ public class AppTempoReceiver extends TempoTrackingReceiver {
         JSONObject jsonObject = null;
         WritableMap tempoUpdate = null;
         try {
-
             jsonObject = new JSONObject(tempoTrackingUpdate.toJson());
             Map<String, Object> mapEvent = MapUtil.toMap(jsonObject);
             tempoUpdate = MapUtil.toWritableMap(mapEvent);

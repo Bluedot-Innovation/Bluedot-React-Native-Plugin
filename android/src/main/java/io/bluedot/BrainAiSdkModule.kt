@@ -12,6 +12,9 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.WritableArray
 import com.facebook.react.bridge.WritableNativeArray
 import io.bluedot.EventUtil.Companion.sendEvent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.json.simple.JSONObject
 
 class BrainAiSdkModule(val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
@@ -51,36 +54,41 @@ class BrainAiSdkModule(val reactContext: ReactApplicationContext) : ReactContext
 
     @ReactMethod
     fun androidSendMessage(sessionId: String, message: String) {
-
-        val chat = brainAI.getChatWithSessionID(sessionId)
-        if (chat == null) {
-            val mapEvent: Map<String, String> = mapOf(
-                Pair(BRAIN_EVENT_ERROR, BrainError.CHAT_NOT_FOUND.value)
-            )
-            sendEvent(reactContext, BRAIN_EVENT_ERROR, MapUtil.toWritableMap(mapEvent))
-        } else {
-            chat.sendMessage(message).forEach { res ->
-                if (res.stream_type == StreamType.RESPONSE_TEXT) {
-                    Log.d("rzlv", "Response RESPONSE_TEXT: ${res.response}")
-                    val mapEvent: Map<String, String> = mapOf(
-                        Pair(BRAIN_EVENT_TEXT_RESPONSE, res.response)
-                    )
-                    sendEvent(reactContext, BRAIN_EVENT_TEXT_RESPONSE, MapUtil.toWritableMap(mapEvent))
-                }
-
-                if (res.stream_type == StreamType.CONTEXT) {
-                    Log.d("rzlv", "Response CONTEXT: ${res.contexts.size}")
-                    if (res.contexts.isNotEmpty()) {
-
-                        // TODO
-//                        sendEvent(reactContext, BRAIN_EVENT_CONTEXT_RESPONSE, MapUtil.toWritableMap(mapEvent))
+        CoroutineScope(Dispatchers.IO).launch {
+            val chat = brainAI.getChatWithSessionID(sessionId)
+            if (chat == null) {
+                val mapEvent = mapOf(
+                    Pair(BRAIN_EVENT_ERROR, BrainError.CHAT_NOT_FOUND.value)
+                )
+                sendEvent(reactContext, BRAIN_EVENT_ERROR, MapUtil.toWritableMap(mapEvent))
+            } else {
+                chat.sendMessage(message).forEach { res ->
+                    if (res.stream_type == StreamType.RESPONSE_TEXT) {
+                        Log.d("rzlv", "Response RESPONSE_TEXT: ${res.response}")
+                        val mapEvent: Map<String, String> = mapOf(
+                            Pair(BRAIN_EVENT_TEXT_RESPONSE, res.response)
+                        )
+                        sendEvent(reactContext, BRAIN_EVENT_TEXT_RESPONSE, MapUtil.toWritableMap(mapEvent))
                     }
-                }
-                if (res.stream_type == StreamType.RESPONSE_IDENTIFIER) {
-                    val responseId = res.response_id
-                    // TODO
-                    Log.d("rzlv", "RESPONSE_IDENTIFIER: ${responseId}")
-                    return@forEach
+
+                    if (res.stream_type == StreamType.CONTEXT) {
+                        Log.d("rzlv", "Response CONTEXT: ${res.contexts.size}")
+                        if (res.contexts.isNotEmpty()) {
+                            val listOfMaps = res.contexts.map { it.toMap() }
+                            val mapEvent = mapOf(
+                                Pair(BRAIN_EVENT_CONTEXT_RESPONSE, MapUtil.toWritableArray(listOfMaps))
+                            )
+                            sendEvent(reactContext, BRAIN_EVENT_CONTEXT_RESPONSE, MapUtil.toWritableMap(mapEvent))
+                        }
+                    }
+                    if (res.stream_type == StreamType.RESPONSE_IDENTIFIER) {
+                        Log.d("rzlv", "RESPONSE_IDENTIFIER: ${res.response_id}")
+                        val mapEvent: Map<String, String> = mapOf(
+                            Pair(BRAIN_EVENT_IDENTIFIER_RESPONSE, res.response_id)
+                        )
+                        sendEvent(reactContext, BRAIN_EVENT_IDENTIFIER_RESPONSE, MapUtil.toWritableMap(mapEvent))
+                        return@forEach
+                    }
                 }
             }
         }
