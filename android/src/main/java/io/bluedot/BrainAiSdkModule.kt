@@ -10,7 +10,9 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.WritableArray
+import com.facebook.react.bridge.WritableMap
 import com.facebook.react.bridge.WritableNativeArray
+import com.facebook.react.bridge.WritableNativeMap
 import io.bluedot.EventUtil.Companion.sendEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -65,28 +67,32 @@ class BrainAiSdkModule(val reactContext: ReactApplicationContext) : ReactContext
                 chat.sendMessage(message).forEach { res ->
                     if (res.stream_type == StreamType.RESPONSE_TEXT) {
                         Log.d("rzlv", "Response RESPONSE_TEXT: ${res.response}")
-                        val mapEvent: Map<String, String> = mapOf(
-                            Pair(BRAIN_EVENT_TEXT_RESPONSE, res.response)
-                        )
-                        sendEvent(reactContext, BRAIN_EVENT_TEXT_RESPONSE, MapUtil.toWritableMap(mapEvent))
+                        val map = WritableNativeMap().apply {
+                            putString(BRAIN_EVENT_TEXT_RESPONSE, res.response)
+                        }
+                        sendEvent(reactContext, BRAIN_EVENT_TEXT_RESPONSE, map)
                     }
 
                     if (res.stream_type == StreamType.CONTEXT) {
                         Log.d("rzlv", "Response CONTEXT: ${res.contexts.size}")
                         if (res.contexts.isNotEmpty()) {
-                            val listOfMaps = res.contexts.map { it.toMap() }
-                            val mapEvent = mapOf(
-                                Pair(BRAIN_EVENT_CONTEXT_RESPONSE, MapUtil.toWritableArray(listOfMaps))
-                            )
-                            sendEvent(reactContext, BRAIN_EVENT_CONTEXT_RESPONSE, MapUtil.toWritableMap(mapEvent))
+                            val array = WritableNativeArray().apply {
+                                for (item in res.contexts) {
+                                    pushMap(item.toWritableMap())
+                                }
+                            }
+                            val map = WritableNativeMap().apply {
+                                putArray(BRAIN_EVENT_CONTEXT_RESPONSE, array)
+                            }
+                            sendEvent(reactContext, BRAIN_EVENT_CONTEXT_RESPONSE, map)
                         }
                     }
                     if (res.stream_type == StreamType.RESPONSE_IDENTIFIER) {
                         Log.d("rzlv", "RESPONSE_IDENTIFIER: ${res.response_id}")
-                        val mapEvent: Map<String, String> = mapOf(
-                            Pair(BRAIN_EVENT_IDENTIFIER_RESPONSE, res.response_id)
-                        )
-                        sendEvent(reactContext, BRAIN_EVENT_IDENTIFIER_RESPONSE, MapUtil.toWritableMap(mapEvent))
+                        val map = WritableNativeMap().apply {
+                            putString(BRAIN_EVENT_IDENTIFIER_RESPONSE, res.response_id)
+                        }
+                        sendEvent(reactContext, BRAIN_EVENT_IDENTIFIER_RESPONSE, map)
                         return@forEach
                     }
                 }
@@ -99,16 +105,24 @@ class BrainAiSdkModule(val reactContext: ReactApplicationContext) : ReactContext
         Log.d("rzlv", text)
     }
 
-    private fun BDStreamingResponseDtoContext.toMap() : Map<String, Any> {
-        val mappedContext = mutableMapOf<String, Any>()
-        title?.let { mappedContext["title"] = it }
-        price?.let { mappedContext["price"] = it }
-        description?.let { mappedContext["description"] = it }
-        merchant_id?.let { mappedContext["merchantId"] = it }
-        category_id?.let { mappedContext["categoryId"] = it }
-        product_id?.let { mappedContext["productId"] = it }
-        image_links?.let { mappedContext["imageLinks"] = it }
-        return mappedContext
+    private fun BDStreamingResponseDtoContext.toWritableMap() : WritableMap {
+        val map = WritableNativeMap().apply {
+            title?.let { putString("title", it) }
+            price?.let { putDouble("price", it) }
+            description?.let { putString("description", it) }
+            merchant_id?.let { putInt("merchant_id", it) }
+            category_id?.let { putInt("category_id", it) }
+            product_id?.let { putInt("product_id", it) }
+            image_links?.let {
+                val imageArray = WritableNativeArray()
+                for (item in it) {
+                    imageArray.pushString(item)
+                }
+                putArray("image_links", imageArray)
+            }
+        }
+
+        return map
     }
 
     enum class BrainError(val value: String) {
