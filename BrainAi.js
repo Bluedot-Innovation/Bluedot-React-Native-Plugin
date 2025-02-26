@@ -5,18 +5,8 @@ class BrainAi {
 
     BRAIN_EVENT_TEXT_RESPONSE = "brainEventTextResponse";
     BRAIN_EVENT_CONTEXT_RESPONSE = "brainEventContextResponse";
-    BRAIN_EVENT_IDENTIFIER_RESPONSE = "brainEventIdentifierResponse";
+    BRAIN_EVENT_RESPONSE_ID = "brainEventResponseID";
     BRAIN_EVENT_ERROR = "brainEventError";
-
-    testLog = (onSuccess, onError) => {
-        if (Platform.OS === "ios") {
-            
-        }
-
-        if (Platform.OS === "android") {
-            NativeModules.BrainAiSdk.testLog("hejka");
-        }
-    }
 
     createNewChat = () => {
         if (Platform.OS === "ios") {
@@ -24,8 +14,27 @@ class BrainAi {
         }
 
         if (Platform.OS === "android") {
-            NativeModules.BrainAiSdk.testLog("BrainAiSdkModule: create new chat");
             return NativeModules.BrainAiSdk.androidCreateNewChat();
+        }
+    }
+
+    closeChat = (chatSessionId) => {
+        if (Platform.OS === "ios") {
+            
+        }
+
+        if (Platform.OS === "android") {
+            NativeModules.BrainAiSdk.androidCloseChatWithSessionID(chatSessionId);
+        }
+    }
+
+    getChatSessionIDs = () => {
+        if (Platform.OS === "ios") {
+            
+        }
+
+        if (Platform.OS === "android") {
+            return NativeModules.BrainAiSdk.androidGetChatSessionIds();
         }
     }
 
@@ -35,8 +44,17 @@ class BrainAi {
         }
 
         if (Platform.OS === "android") {
-            NativeModules.BrainAiSdk.testLog("BrainAiSdkModule: sendMessage: "+message);
-            return NativeModules.BrainAiSdk.androidSendMessage(chatSessionId, message);
+            NativeModules.BrainAiSdk.androidSendMessage(chatSessionId, message);
+        }
+    }
+
+    submitFeedback = (chatSessionId, responseId, liked) => {
+        if (Platform.OS === "ios") {
+            
+        }
+
+        if (Platform.OS === "android") {
+            NativeModules.BrainAiSdk.androidSubmitFeedback(chatSessionId, responseId, liked);
         }
     }
 }

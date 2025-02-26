@@ -2,6 +2,7 @@ package io.bluedot
 
 import android.util.Log
 import au.com.bluedot.point.net.engine.BDStreamingResponseDtoContext
+import au.com.bluedot.point.net.engine.Chat
 import au.com.bluedot.point.net.engine.ServiceManager
 import au.com.bluedot.point.net.engine.StreamType
 import com.facebook.react.bridge.Callback
@@ -47,6 +48,7 @@ class BrainAiSdkModule(val reactContext: ReactApplicationContext) : ReactContext
 
     @ReactMethod
     fun androidGetChatSessionIds(promise: Promise) {
+        Log.d("rzlv", "androidGetChatSessionIds")
         val sessionIds: WritableArray = WritableNativeArray()
         brainAI.chats.forEach {
             sessionIds.pushString(it.sessionID)
@@ -56,21 +58,23 @@ class BrainAiSdkModule(val reactContext: ReactApplicationContext) : ReactContext
 
     @ReactMethod
     fun androidSendMessage(sessionId: String, message: String) {
+        Log.d("rzlv", "androidSendMessage: $sessionId: $message")
         CoroutineScope(Dispatchers.IO).launch {
             val chat = brainAI.getChatWithSessionID(sessionId)
             if (chat == null) {
                 val mapEvent = mapOf(
                     Pair(BRAIN_EVENT_ERROR, BrainError.CHAT_NOT_FOUND.value)
                 )
-                sendEvent(reactContext, BRAIN_EVENT_ERROR, MapUtil.toWritableMap(mapEvent))
+                sendEvent(reactContext, "$BRAIN_EVENT_ERROR$sessionId", MapUtil.toWritableMap(mapEvent))
             } else {
                 chat.sendMessage(message).forEach { res ->
                     if (res.stream_type == StreamType.RESPONSE_TEXT) {
                         Log.d("rzlv", "Response RESPONSE_TEXT: ${res.response}")
                         val map = WritableNativeMap().apply {
                             putString(BRAIN_EVENT_TEXT_RESPONSE, res.response)
+                            putString(BRAIN_EVENT_RESPONSE_ID, res.response_id)
                         }
-                        sendEvent(reactContext, BRAIN_EVENT_TEXT_RESPONSE, map)
+                        sendEvent(reactContext, "$BRAIN_EVENT_TEXT_RESPONSE$sessionId", map)
                     }
 
                     if (res.stream_type == StreamType.CONTEXT) {
@@ -83,16 +87,17 @@ class BrainAiSdkModule(val reactContext: ReactApplicationContext) : ReactContext
                             }
                             val map = WritableNativeMap().apply {
                                 putArray(BRAIN_EVENT_CONTEXT_RESPONSE, array)
+                                putString(BRAIN_EVENT_RESPONSE_ID, res.response_id)
                             }
-                            sendEvent(reactContext, BRAIN_EVENT_CONTEXT_RESPONSE, map)
+                            sendEvent(reactContext, "$BRAIN_EVENT_CONTEXT_RESPONSE$sessionId", map)
                         }
                     }
                     if (res.stream_type == StreamType.RESPONSE_IDENTIFIER) {
                         Log.d("rzlv", "RESPONSE_IDENTIFIER: ${res.response_id}")
                         val map = WritableNativeMap().apply {
-                            putString(BRAIN_EVENT_IDENTIFIER_RESPONSE, res.response_id)
+                            putString(BRAIN_EVENT_RESPONSE_ID, res.response_id)
                         }
-                        sendEvent(reactContext, BRAIN_EVENT_IDENTIFIER_RESPONSE, map)
+                        sendEvent(reactContext, "$BRAIN_EVENT_RESPONSE_ID$sessionId", map)
                         return@forEach
                     }
                 }
@@ -101,8 +106,19 @@ class BrainAiSdkModule(val reactContext: ReactApplicationContext) : ReactContext
     }
 
     @ReactMethod
-    fun testLog(text: String) {
-        Log.d("rzlv", text)
+    fun androidSubmitFeedback(sessionId: String, responseId: String, liked: Boolean) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val chat = brainAI.getChatWithSessionID(sessionId)
+            val feedback = if (liked) Chat.ChatFeedback.LIKED else Chat.ChatFeedback.DISLIKED
+            if (chat == null) {
+                val mapEvent = mapOf(
+                    Pair(BRAIN_EVENT_ERROR, BrainError.CHAT_NOT_FOUND.value)
+                )
+                sendEvent(reactContext, "$BRAIN_EVENT_ERROR$sessionId", MapUtil.toWritableMap(mapEvent))
+            } else {
+                chat.submitFeedback(responseId, feedback)
+            }
+        }
     }
 
     private fun BDStreamingResponseDtoContext.toWritableMap() : WritableMap {
@@ -134,8 +150,8 @@ class BrainAiSdkModule(val reactContext: ReactApplicationContext) : ReactContext
         // Events are also defined in the plugin for easier integration on the client app.
         const val BRAIN_EVENT_TEXT_RESPONSE = "brainEventTextResponse"
         const val BRAIN_EVENT_CONTEXT_RESPONSE = "brainEventContextResponse"
-        const val BRAIN_EVENT_IDENTIFIER_RESPONSE = "brainEventIdentifierResponse"
         const val BRAIN_EVENT_ERROR = "brainEventError"
+        const val BRAIN_EVENT_RESPONSE_ID = "brainEventResponseID"
 
         const val BRAIN_EVENT_CONTEXT_IMAGE = "brainEventContextImage"
     }
