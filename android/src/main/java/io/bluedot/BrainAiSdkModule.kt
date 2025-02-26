@@ -152,7 +152,5 @@ class BrainAiSdkModule(val reactContext: ReactApplicationContext) : ReactContext
         const val BRAIN_EVENT_CONTEXT_RESPONSE = "brainEventContextResponse"
         const val BRAIN_EVENT_ERROR = "brainEventError"
         const val BRAIN_EVENT_RESPONSE_ID = "brainEventResponseID"
-
-        const val BRAIN_EVENT_CONTEXT_IMAGE = "brainEventContextImage"
     }
 }
