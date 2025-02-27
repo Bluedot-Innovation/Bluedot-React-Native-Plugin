@@ -16,7 +16,7 @@ class BrainAi {
 
     createNewChat = () => {
         if (Platform.OS === "ios") {
-            
+            return NativeModules.BluedotPointSDK.iOSCreateChat();
         }
 
         if (Platform.OS === "android") {

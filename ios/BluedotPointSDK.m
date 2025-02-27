@@ -228,6 +228,26 @@ RCT_EXPORT_METHOD(backgroundLocationAccessForWhileUsing: (BOOL) enable)
     BDLocationManager.instance.backgroundLocationAccessForWhileUsing = enable;
 }
 
+RCT_EXPORT_METHOD(iOSCreateNewChat)
+{
+    BrainAI *brainAI = [BDLocationManager.instance brainAI];
+    Chat *chat = [brainAI createNewChat];
+    NSLog(@"New Brain AI Chat Created -> %@", chat.sessionID);
+    
+    [chat sendMessage:@"Hello there! How are you?" onUpdate:^(StreamingResponseDto *response) {
+        NSLog(@"Streaming...");
+        NSLog(@"%@", response.response);
+    } onCompletion:^{
+        NSLog(@"Completed!");
+    } onError:^(NSError *error) {
+        if (error != nil) {
+            NSLog(@"%@", @[error.localizedDescription]);
+        } else {
+            NSLog(@"What is this case?");
+        }
+    }];
+}
+
 /*
  ANDROID METHODS
  
