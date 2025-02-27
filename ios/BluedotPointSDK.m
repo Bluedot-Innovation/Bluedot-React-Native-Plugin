@@ -228,22 +228,48 @@ RCT_EXPORT_METHOD(backgroundLocationAccessForWhileUsing: (BOOL) enable)
     BDLocationManager.instance.backgroundLocationAccessForWhileUsing = enable;
 }
 
-RCT_EXPORT_METHOD(iOSCreateNewChat)
+// Brain AI
+
+RCT_REMAP_METHOD(iOSCreateNewChat,
+                 isNewChatResolved:(RCTPromiseResolveBlock)resolve
+                 isNewChatRejected:(RCTPromiseRejectBlock)reject)
 {
-    BrainAI *brainAI = [BDLocationManager.instance brainAI];
-    Chat *chat = [brainAI createNewChat];
-    NSLog(@"New Brain AI Chat Created -> %@", chat.sessionID);
+    Chat *chat = [[BDLocationManager.instance brainAI] createNewChat];
+    
+    if (chat == nil) {
+        reject(@"FAILED_TO_CREATE_CHAT", @"Chat is null", nil);
+    } else {
+        NSLog(@"Created New Brain AI Chat with ID -> %@", chat.sessionID);
+        resolve(chat.sessionID);
+    }
+}
+
+RCT_EXPORT_METHOD(iOSCloseChatWithSessionID:(NSString *)sessionId)
+{
+    [[BDLocationManager.instance brainAI] closeChatWithSessionID:sessionId];
+}
+
+RCT_EXPORT_METHOD(iOSSendMessage:(NSString *)sessionId message:(NSString *)message)
+{
+    Chat *chat = [[BDLocationManager.instance brainAI] getChatWithSessionID:sessionId];
+    NSLog(@"Continue Brain AI Chat with ID -> %@", chat.sessionID);
     
     [chat sendMessage:@"Hello there! How are you?" onUpdate:^(StreamingResponseDto *response) {
-        NSLog(@"Streaming...");
-        NSLog(@"%@", response.response);
+        switch (response.streamType) {
+            case 2: // RESPONSE_TEXT
+                NSLog(@"%@", response.response);
+                break;
+            default:
+                NSLog(@"Unknown stream type: %ld", (long)response.streamType);
+                break;
+        }
     } onCompletion:^{
         NSLog(@"Completed!");
     } onError:^(NSError *error) {
         if (error != nil) {
             NSLog(@"%@", @[error.localizedDescription]);
         } else {
-            NSLog(@"What is this case?");
+            NSLog(@"Unknown case");
         }
     }];
 }
