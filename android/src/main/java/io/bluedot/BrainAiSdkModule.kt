@@ -5,7 +5,6 @@ import au.com.bluedot.point.net.engine.BDStreamingResponseDtoContext
 import au.com.bluedot.point.net.engine.Chat
 import au.com.bluedot.point.net.engine.ServiceManager
 import au.com.bluedot.point.net.engine.StreamType
-import com.facebook.react.bridge.Callback
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -18,9 +17,8 @@ import io.bluedot.EventUtil.Companion.sendEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.json.simple.JSONObject
 
-class BrainAiSdkModule(val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+class BrainAiSdkModule(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
     private val brainAI = ServiceManager.getInstance(reactContext).brainAI
 
@@ -62,10 +60,11 @@ class BrainAiSdkModule(val reactContext: ReactApplicationContext) : ReactContext
         CoroutineScope(Dispatchers.IO).launch {
             val chat = brainAI.getChatWithSessionID(sessionId)
             if (chat == null) {
-                val mapEvent = mapOf(
-                    Pair(BRAIN_EVENT_ERROR, BrainError.CHAT_NOT_FOUND.value)
-                )
-                sendEvent(reactContext, "$BRAIN_EVENT_ERROR$sessionId", MapUtil.toWritableMap(mapEvent))
+                val map = WritableNativeMap().apply {
+                    putString(BRAIN_EVENT_ERROR, BrainError.CHAT_NOT_FOUND.value)
+                    putInt(BRAIN_EVENT_ERROR_CODE, BrainError.CHAT_NOT_FOUND.code)
+                }
+                sendEvent(reactContext, "$BRAIN_EVENT_ERROR$sessionId", map)
             } else {
                 chat.sendMessage(message).forEach { res ->
                     if (res.stream_type == StreamType.RESPONSE_TEXT) {
@@ -111,12 +110,19 @@ class BrainAiSdkModule(val reactContext: ReactApplicationContext) : ReactContext
             val chat = brainAI.getChatWithSessionID(sessionId)
             val feedback = if (liked) Chat.ChatFeedback.LIKED else Chat.ChatFeedback.DISLIKED
             if (chat == null) {
-                val mapEvent = mapOf(
-                    Pair(BRAIN_EVENT_ERROR, BrainError.CHAT_NOT_FOUND.value)
-                )
-                sendEvent(reactContext, "$BRAIN_EVENT_ERROR$sessionId", MapUtil.toWritableMap(mapEvent))
+                val map = WritableNativeMap().apply {
+                    putString(BRAIN_EVENT_ERROR, BrainError.CHAT_NOT_FOUND.value)
+                    putInt(BRAIN_EVENT_ERROR_CODE, BrainError.CHAT_NOT_FOUND.code)
+                }
+                sendEvent(reactContext, "$BRAIN_EVENT_ERROR$sessionId", map)
             } else {
-                chat.submitFeedback(responseId, feedback)
+                chat.submitFeedback(responseId, feedback)?.let { error ->
+                    val map = WritableNativeMap().apply {
+                        putString(BRAIN_EVENT_ERROR, error.reason)
+                        putInt(BRAIN_EVENT_ERROR_CODE, BrainError.FAILED_TO_SUBMIT_FEEDBACK.code)
+                    }
+                    sendEvent(reactContext, "$BRAIN_EVENT_ERROR$sessionId", map)
+                }
             }
         }
     }
@@ -141,9 +147,10 @@ class BrainAiSdkModule(val reactContext: ReactApplicationContext) : ReactContext
         return map
     }
 
-    enum class BrainError(val value: String) {
-        FAILED_TO_CREATE_CHAT("Failed to create chat"),
-        CHAT_NOT_FOUND("Chat not found"),
+    enum class BrainError(val value: String, val code: Int) {
+        CHAT_NOT_FOUND("Chat not found", 10001),
+        FAILED_TO_CREATE_CHAT("Failed to create chat", 10002),
+        FAILED_TO_SUBMIT_FEEDBACK("Failed to submit feedback", 10003)
     }
 
     companion object {
@@ -151,6 +158,7 @@ class BrainAiSdkModule(val reactContext: ReactApplicationContext) : ReactContext
         const val BRAIN_EVENT_TEXT_RESPONSE = "brainEventTextResponse"
         const val BRAIN_EVENT_CONTEXT_RESPONSE = "brainEventContextResponse"
         const val BRAIN_EVENT_ERROR = "brainEventError"
+        const val BRAIN_EVENT_ERROR_CODE = "brainEventErrorCode"
         const val BRAIN_EVENT_RESPONSE_ID = "brainEventResponseID"
     }
 }

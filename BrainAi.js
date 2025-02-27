@@ -8,6 +8,12 @@ class BrainAi {
     BRAIN_EVENT_RESPONSE_ID = "brainEventResponseID";
     BRAIN_EVENT_ERROR = "brainEventError";
 
+    errorMessages = {
+        10001: "CHAT_NOT_FOUND",
+        10002: "FAILED_TO_CREATE_CHAT",
+        10003: "FAILED_TO_SUBMIT_FEEDBACK",
+    };
+
     createNewChat = () => {
         if (Platform.OS === "ios") {
             
