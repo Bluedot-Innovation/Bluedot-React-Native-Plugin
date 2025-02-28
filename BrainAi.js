@@ -16,7 +16,7 @@ class BrainAi {
 
     createNewChat = () => {
         if (Platform.OS === "ios") {
-            return NativeModules.BluedotPointSDK.iOSCreateChat();
+            return NativeModules.BluedotPointSDK.iOSCreateNewChat();
         }
 
         if (Platform.OS === "android") {
@@ -26,7 +26,7 @@ class BrainAi {
 
     closeChat = (chatSessionId) => {
         if (Platform.OS === "ios") {
-            
+            NativeModules.BluedotPointSDK.iOSCloseChatWithSessionID(chatSessionId);
         }
 
         if (Platform.OS === "android") {
@@ -46,7 +46,7 @@ class BrainAi {
 
     sendMessage = (chatSessionId, message) => {
         if (Platform.OS === "ios") {
-            
+            NativeModules.BluedotPointSDK.iOSSendMessage(chatSessionId, message);
         }
 
         if (Platform.OS === "android") {

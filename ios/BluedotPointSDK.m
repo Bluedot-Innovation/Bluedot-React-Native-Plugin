@@ -254,13 +254,19 @@ RCT_EXPORT_METHOD(iOSSendMessage:(NSString *)sessionId message:(NSString *)messa
     Chat *chat = [[BDLocationManager.instance brainAI] getChatWithSessionID:sessionId];
     NSLog(@"Continue Brain AI Chat with ID -> %@", chat.sessionID);
     
-    [chat sendMessage:@"Hello there! How are you?" onUpdate:^(StreamingResponseDto *response) {
-        switch (response.streamType) {
+    [chat sendMessage:@"Hello there! How are you?" onUpdate:^(StreamingResponseDto *res) {
+        switch (res.streamType) {
             case 2: // RESPONSE_TEXT
-                NSLog(@"%@", response.response);
+                {
+//                    NSMutableDictionary *map = [NSMutableDictionary new];
+//                    [map setObject:res.response forKey:@("BRAIN_EVENT_TEXT_RESPONSE")];
+//                    [map setObject:res.responseID forKey:@("BRAIN_EVENT_RESPONSE_ID")];
+//                    [self sendEventWithName:[NSString stringWithFormat:@"BRAIN_EVENT_TEXT_RESPONSE%@", sessionId] body:map];
+                    NSLog(@"%@", res.response);
+                }
                 break;
             default:
-                NSLog(@"Unknown stream type: %ld", (long)response.streamType);
+                NSLog(@"Unknown stream type: %ld", res.streamType);
                 break;
         }
     } onCompletion:^{
