@@ -154,7 +154,7 @@ public class MapUtil {
                                      ArrayUtil.toWritableArray((Object[]) value));
             }
 
-//            iterator.remove();
+            iterator.remove();
         }
 
         return writableMap;
