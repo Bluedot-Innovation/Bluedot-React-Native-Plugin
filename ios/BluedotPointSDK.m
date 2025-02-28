@@ -230,52 +230,69 @@ RCT_EXPORT_METHOD(backgroundLocationAccessForWhileUsing: (BOOL) enable)
 
 // Brain AI
 
-#define BRAIN_EVENT_TEXT_RESPONSE @"brainEventTextResponse"
-#define BRAIN_EVENT_CONTEXT_RESPONSE @"brainEventContextResponse"
-#define BRAIN_EVENT_ERROR @"brainEventError"
-#define BRAIN_EVENT_ERROR_CODE @"brainEventErrorCode"
-#define BRAIN_EVENT_RESPONSE_ID @"brainEventResponseID"
+#define BRAIN_EVENT_TEXT_RESPONSE       @"brainEventTextResponse"
+#define BRAIN_EVENT_CONTEXT_RESPONSE    @"brainEventContextResponse"
+#define BRAIN_EVENT_ERROR               @"brainEventError"
+#define BRAIN_EVENT_ERROR_CODE          @"brainEventErrorCode"
+#define BRAIN_EVENT_RESPONSE_ID         @"brainEventResponseID"
+
+#define BRAIN_ERROR_CHAT_NOT_FOUND      @"Chat not found"
+#define BRAIN_ERROR_CREATE_CHAT         @"Failed to create chat"
+#define BRAIN_ERROR_SUBMIT_FEEDBACK     @"Failed to submit feedback"
 
 RCT_REMAP_METHOD(iOSCreateNewChat,
                  isNewChatResolved:(RCTPromiseResolveBlock)resolve
                  isNewChatRejected:(RCTPromiseRejectBlock)reject)
 {
+    RCTLogInfo(@"rzlv iOSCreateNewChat");
     Chat *chat = [[BDLocationManager.instance brainAI] createNewChat];
-    
+
     if (chat == nil) {
-        reject(@"FAILED_TO_CREATE_CHAT", @"Chat is null", nil);
+        reject(BRAIN_ERROR_CREATE_CHAT, @"Chat is null", nil);
     } else {
-        NSLog(@"Created New Brain AI Chat with ID -> %@", chat.sessionID);
+        RCTLogInfo(@"rzlv iOSCreateNewChat.success: %@", chat.sessionID);
         resolve(chat.sessionID);
     }
 }
 
 RCT_EXPORT_METHOD(iOSCloseChatWithSessionID:(NSString *)sessionId)
 {
+    RCTLogInfo(@"rzlv iOSCloseChatWithSessionID: %@", sessionId);
     [[BDLocationManager.instance brainAI] closeChatWithSessionID:sessionId];
 }
 
 RCT_EXPORT_METHOD(iOSSendMessage:(NSString *)sessionId message:(NSString *)message)
 {
+    RCTLogInfo(@"rzlv iOSSendMessage: %@: %@", sessionId, message);
     Chat *chat = [[BDLocationManager.instance brainAI] getChatWithSessionID:sessionId];
-    NSLog(@"Continue Brain AI Chat with ID -> %@", chat.sessionID);
-    
+
+    if (chat == nil) {
+        NSMutableDictionary *map = [NSMutableDictionary new];
+        [map setObject:BRAIN_ERROR_CHAT_NOT_FOUND forKey:BRAIN_EVENT_ERROR];
+        [self sendEventWithName:[NSString stringWithFormat:@"%@%@", BRAIN_EVENT_ERROR, sessionId] body:map];
+    }
+
     [chat sendMessage:message onUpdate:^(StreamingResponseDto *res) {
-        switch (res.streamType) {
-            case 2: // RESPONSE_TEXT
-                {
-                    NSMutableDictionary *map = [NSMutableDictionary new];
-                    [map setObject:res.response forKey:BRAIN_EVENT_TEXT_RESPONSE];
-                    [map setObject:res.responseID forKey:BRAIN_EVENT_RESPONSE_ID];
-                    [self sendEventWithName:[NSString stringWithFormat:@"%@%@", BRAIN_EVENT_TEXT_RESPONSE, sessionId] body:map];
-                }
-                break;
-            default:
-                NSLog(@"Unknown stream type: %ld", res.streamType);
-                break;
+        if (res.streamType == 1) { // CONTEXT
+            RCTLogInfo(@"rzlv CONTEXT");
+        }
+
+        if (res.streamType == 2) { // RESPONSE_TEXT
+            RCTLogInfo(@"rzlv RESPONSE_TEXT: %@", res.response);
+            NSMutableDictionary *map = [NSMutableDictionary new];
+            [map setObject:res.response forKey:BRAIN_EVENT_TEXT_RESPONSE];
+            [map setObject:res.responseID forKey:BRAIN_EVENT_RESPONSE_ID];
+            [self sendEventWithName:[NSString stringWithFormat:@"%@%@", BRAIN_EVENT_TEXT_RESPONSE, sessionId] body:map];
+        }
+
+        if (res.streamType == 3) { // RESPONSE_IDENTIFIER
+            RCTLogInfo(@"rzlv RESPONSE_IDENTIFIER: %@", res.responseID);
+            NSMutableDictionary *map = [NSMutableDictionary new];
+            [map setObject:res.responseID forKey:BRAIN_EVENT_RESPONSE_ID];
+            [self sendEventWithName:[NSString stringWithFormat:@"%@%@", BRAIN_EVENT_RESPONSE_ID, sessionId] body:map];
         }
     } onCompletion:^{
-        NSLog(@"Completed!");
+        RCTLogInfo(@"rzlv iOSSendMessage Completed");
     } onError:^(NSError *error) {
         if (error != nil) {
             NSLog(@"%@", @[error.localizedDescription]);
