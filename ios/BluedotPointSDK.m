@@ -230,6 +230,12 @@ RCT_EXPORT_METHOD(backgroundLocationAccessForWhileUsing: (BOOL) enable)
 
 // Brain AI
 
+#define BRAIN_EVENT_TEXT_RESPONSE @"brainEventTextResponse"
+#define BRAIN_EVENT_CONTEXT_RESPONSE @"brainEventContextResponse"
+#define BRAIN_EVENT_ERROR @"brainEventError"
+#define BRAIN_EVENT_ERROR_CODE @"brainEventErrorCode"
+#define BRAIN_EVENT_RESPONSE_ID @"brainEventResponseID"
+
 RCT_REMAP_METHOD(iOSCreateNewChat,
                  isNewChatResolved:(RCTPromiseResolveBlock)resolve
                  isNewChatRejected:(RCTPromiseRejectBlock)reject)
@@ -254,15 +260,14 @@ RCT_EXPORT_METHOD(iOSSendMessage:(NSString *)sessionId message:(NSString *)messa
     Chat *chat = [[BDLocationManager.instance brainAI] getChatWithSessionID:sessionId];
     NSLog(@"Continue Brain AI Chat with ID -> %@", chat.sessionID);
     
-    [chat sendMessage:@"Hello there! How are you?" onUpdate:^(StreamingResponseDto *res) {
+    [chat sendMessage:message onUpdate:^(StreamingResponseDto *res) {
         switch (res.streamType) {
             case 2: // RESPONSE_TEXT
                 {
-//                    NSMutableDictionary *map = [NSMutableDictionary new];
-//                    [map setObject:res.response forKey:@("BRAIN_EVENT_TEXT_RESPONSE")];
-//                    [map setObject:res.responseID forKey:@("BRAIN_EVENT_RESPONSE_ID")];
-//                    [self sendEventWithName:[NSString stringWithFormat:@"BRAIN_EVENT_TEXT_RESPONSE%@", sessionId] body:map];
-                    NSLog(@"%@", res.response);
+                    NSMutableDictionary *map = [NSMutableDictionary new];
+                    [map setObject:res.response forKey:BRAIN_EVENT_TEXT_RESPONSE];
+                    [map setObject:res.responseID forKey:BRAIN_EVENT_RESPONSE_ID];
+                    [self sendEventWithName:[NSString stringWithFormat:@"%@%@", BRAIN_EVENT_TEXT_RESPONSE, sessionId] body:map];
                 }
                 break;
             default:
