@@ -261,34 +261,48 @@ RCT_EXPORT_METHOD(iOSCloseChatWithSessionID:(NSString *)sessionId)
     [[BDLocationManager.instance brainAI] closeChatWithSessionID:sessionId];
 }
 
+RCT_REMAP_METHOD(iOSGetChatSessionIds,
+                 isGetChatResolved:(RCTPromiseResolveBlock)resolve
+                 isGetChatRejected:(RCTPromiseRejectBlock)reject)
+{
+//    RCTLogInfo(@"rzlv: androidGetChatSessionIds");
+//    NSMutableArray *sessionIds = [NSMutableArray new];
+//    for (id chat in [[BDLocationManager.instance brainAI] chats]) {
+//        [sessionIds addObject:chat.sessionID];
+//    }
+//    resolve(sessionIds);
+}
+
 RCT_EXPORT_METHOD(iOSSendMessage:(NSString *)sessionId message:(NSString *)message)
 {
     RCTLogInfo(@"rzlv iOSSendMessage: %@: %@", sessionId, message);
     Chat *chat = [[BDLocationManager.instance brainAI] getChatWithSessionID:sessionId];
 
     if (chat == nil) {
-        NSMutableDictionary *map = [NSMutableDictionary new];
-        [map setObject:BRAIN_ERROR_CHAT_NOT_FOUND forKey:BRAIN_EVENT_ERROR];
+        NSDictionary *map = @{BRAIN_EVENT_ERROR: BRAIN_ERROR_CHAT_NOT_FOUND};
         [self sendEventWithName:[NSString stringWithFormat:@"%@%@", BRAIN_EVENT_ERROR, sessionId] body:map];
     }
 
     [chat sendMessage:message onUpdate:^(StreamingResponseDto *res) {
         if (res.streamType == 1) { // CONTEXT
-            RCTLogInfo(@"rzlv CONTEXT");
+            RCTLogInfo(@"rzlv CONTEXT: %lu", res.contexts.count);
+            if (res.contexts.count > 0) {
+                NSMutableDictionary *map = [NSMutableDictionary new];
+                map[BRAIN_EVENT_CONTEXT_RESPONSE] = res.contexts;
+                map[BRAIN_EVENT_RESPONSE_ID] = res.responseID;
+                [self sendEventWithName:[NSString stringWithFormat:@"%@%@", BRAIN_EVENT_CONTEXT_RESPONSE, sessionId] body:map];
+            }
         }
 
         if (res.streamType == 2) { // RESPONSE_TEXT
             RCTLogInfo(@"rzlv RESPONSE_TEXT: %@", res.response);
-            NSMutableDictionary *map = [NSMutableDictionary new];
-            [map setObject:res.response forKey:BRAIN_EVENT_TEXT_RESPONSE];
-            [map setObject:res.responseID forKey:BRAIN_EVENT_RESPONSE_ID];
+            NSDictionary *map = @{BRAIN_EVENT_TEXT_RESPONSE: res.response};
             [self sendEventWithName:[NSString stringWithFormat:@"%@%@", BRAIN_EVENT_TEXT_RESPONSE, sessionId] body:map];
         }
 
         if (res.streamType == 3) { // RESPONSE_IDENTIFIER
             RCTLogInfo(@"rzlv RESPONSE_IDENTIFIER: %@", res.responseID);
-            NSMutableDictionary *map = [NSMutableDictionary new];
-            [map setObject:res.responseID forKey:BRAIN_EVENT_RESPONSE_ID];
+            NSDictionary *map = @{BRAIN_EVENT_RESPONSE_ID: res.responseID};
             [self sendEventWithName:[NSString stringWithFormat:@"%@%@", BRAIN_EVENT_RESPONSE_ID, sessionId] body:map];
         }
     } onCompletion:^{
@@ -300,6 +314,10 @@ RCT_EXPORT_METHOD(iOSSendMessage:(NSString *)sessionId message:(NSString *)messa
             NSLog(@"Unknown case");
         }
     }];
+}
+
+RCT_EXPORT_METHOD(iOSSubmitFeedback:(NSString *)sessionId responseId:(NSString *)responseId liked:(bool)liked)
+{
 }
 
 /*

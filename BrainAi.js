@@ -36,7 +36,7 @@ class BrainAi {
 
     getChatSessionIDs = () => {
         if (Platform.OS === "ios") {
-            
+            return NativeModules.BluedotPointSDK.iOSGetChatSessionIds();
         }
 
         if (Platform.OS === "android") {
@@ -56,7 +56,7 @@ class BrainAi {
 
     submitFeedback = (chatSessionId, responseId, liked) => {
         if (Platform.OS === "ios") {
-            
+            NativeModules.BluedotPointSDK.iOSSubmitFeedback(chatSessionId, responseId, liked);
         }
 
         if (Platform.OS === "android") {
