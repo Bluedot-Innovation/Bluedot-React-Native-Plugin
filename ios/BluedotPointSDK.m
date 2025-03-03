@@ -308,16 +308,25 @@ RCT_EXPORT_METHOD(iOSSendMessage:(NSString *)sessionId message:(NSString *)messa
     } onCompletion:^{
         RCTLogInfo(@"rzlv iOSSendMessage Completed");
     } onError:^(NSError *error) {
-        if (error != nil) {
-            NSLog(@"%@", @[error.localizedDescription]);
-        } else {
-            NSLog(@"Unknown case");
-        }
+        RCTLogInfo(@"rzlv iOSSendMessage Error: %@", error ? error.localizedDescription : @"No data");
     }];
 }
 
 RCT_EXPORT_METHOD(iOSSubmitFeedback:(NSString *)sessionId responseId:(NSString *)responseId liked:(bool)liked)
 {
+    RCTLogInfo(@"rzlv iOSSubmitFeedback: %@: %@: %d", sessionId, responseId, liked);
+    Chat *chat = [[BDLocationManager.instance brainAI] getChatWithSessionID:sessionId];
+    Reaction feedback = liked ? ReactionLiked : ReactionDisliked;
+    
+    if (chat == nil) {
+        NSDictionary *map = @{BRAIN_EVENT_ERROR: BRAIN_ERROR_CHAT_NOT_FOUND};
+        [self sendEventWithName:[NSString stringWithFormat:@"%@%@", BRAIN_EVENT_ERROR, sessionId] body:map];
+    } else {
+        [chat submitFeedbackWithResponseID:responseId reaction:feedback completion:^(BOOL liked, NSError *error) {
+            NSDictionary *map = @{BRAIN_EVENT_ERROR: BRAIN_ERROR_SUBMIT_FEEDBACK};
+            [self sendEventWithName:[NSString stringWithFormat:@"%@%@", BRAIN_EVENT_ERROR, sessionId] body:map];
+        }];
+    }
 }
 
 /*
