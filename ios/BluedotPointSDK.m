@@ -265,12 +265,6 @@ RCT_REMAP_METHOD(iOSGetChatSessionIds,
                  isGetChatResolved:(RCTPromiseResolveBlock)resolve
                  isGetChatRejected:(RCTPromiseRejectBlock)reject)
 {
-//    RCTLogInfo(@"rzlv: androidGetChatSessionIds");
-//    NSMutableArray *sessionIds = [NSMutableArray new];
-//    for (id chat in [[BDLocationManager.instance brainAI] chats]) {
-//        [sessionIds addObject:chat.sessionID];
-//    }
-//    resolve(sessionIds);
 }
 
 RCT_EXPORT_METHOD(iOSSendMessage:(NSString *)sessionId message:(NSString *)message)
