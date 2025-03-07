@@ -135,7 +135,7 @@ class BrainAiSdkModule(private val reactContext: ReactApplicationContext) : Reac
 
     private fun validateBrainAi() {
         if (brainAi == null) {
-            throw IllegalStateException("SDK not initialized or BrainAi integration missing.")
+            throw IllegalStateException("SDK not initialized.")
         }
     }
 
