@@ -267,6 +267,25 @@ RCT_REMAP_METHOD(iOSGetChatSessionIds,
 {
 }
 
+- (NSDictionary *)toWritableMap:(ChatContext *)context {
+    NSMutableDictionary *map = [NSMutableDictionary dictionary];
+    map[@"title"] = context.title;
+    map[@"price"] = context.price;
+    map[@"description"] = context.description;
+    map[@"merchant_id"] = context.merchantID;
+    map[@"category_id"] = context.categoryID;
+    map[@"product_id"] = context.productID;
+    
+    if (context.imageLinks.count > 0) {
+        NSMutableArray *imageArray = [NSMutableArray array];
+        for (NSURL *item in context.imageLinks) {
+            [imageArray addObject:item.absoluteString];
+        }
+        map[@"image_links"] = imageArray;
+    }
+    return map;
+}
+
 RCT_EXPORT_METHOD(iOSSendMessage:(NSString *)sessionId message:(NSString *)message)
 {
     RCTLogInfo(@"rzlv iOSSendMessage: %@: %@", sessionId, message);
@@ -281,8 +300,13 @@ RCT_EXPORT_METHOD(iOSSendMessage:(NSString *)sessionId message:(NSString *)messa
         if (res.streamType == 1) { // CONTEXT
             RCTLogInfo(@"rzlv CONTEXT: %lu", res.contexts.count);
             if (res.contexts.count > 0) {
-                NSMutableDictionary *map = [NSMutableDictionary new];
-                map[BRAIN_EVENT_CONTEXT_RESPONSE] = res.contexts;
+                NSMutableArray *array = [NSMutableArray array];
+                
+                for (id context in res.contexts) {
+                    [array addObject:[self toWritableMap:context]];
+                }
+                NSMutableDictionary *map = [NSMutableDictionary dictionary];
+                map[BRAIN_EVENT_CONTEXT_RESPONSE] = array;
                 map[BRAIN_EVENT_RESPONSE_ID] = res.responseID;
                 [self sendEventWithName:[NSString stringWithFormat:@"%@%@", BRAIN_EVENT_CONTEXT_RESPONSE, sessionId] body:map];
             }
