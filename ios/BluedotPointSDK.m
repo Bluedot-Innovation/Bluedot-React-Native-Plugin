@@ -330,7 +330,7 @@ RCT_EXPORT_METHOD(iOSSendMessage:(NSString *)sessionId message:(NSString *)messa
     }];
 }
 
-RCT_EXPORT_METHOD(iOSSubmitFeedback:(NSString *)sessionId responseId:(NSString *)responseId liked:(bool)liked)
+RCT_EXPORT_METHOD(iOSSubmitFeedback:(NSString *)sessionId responseId:(NSString *)responseId liked:(BOOL)liked)
 {
     RCTLogInfo(@"rzlv iOSSubmitFeedback: %@: %@: %d", sessionId, responseId, liked);
     Chat *chat = [[BDLocationManager.instance brainAI] getChatWithSessionID:sessionId];
