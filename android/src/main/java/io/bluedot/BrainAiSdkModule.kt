@@ -2,10 +2,10 @@ package io.bluedot
 
 import android.util.Log
 import au.com.bluedot.point.net.engine.BDStreamingResponseDtoContext
+import au.com.bluedot.point.net.engine.BrainAI
 import au.com.bluedot.point.net.engine.Chat
 import au.com.bluedot.point.net.engine.ServiceManager
 import au.com.bluedot.point.net.engine.StreamType
-import au.com.bluedot.point.net.engine.j
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 
 class BrainAiSdkModule(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
-    private val brainAi: j? = ServiceManager.getInstance(reactContext).brainAI
+    private val brainAi: BrainAI? = ServiceManager.getInstance(reactContext).brainAI
 
     override fun getName(): String {
         return "BrainAiSdk"
@@ -29,30 +29,26 @@ class BrainAiSdkModule(private val reactContext: ReactApplicationContext) : Reac
 
     @ReactMethod
     fun androidCreateNewChat(promise: Promise) {
-        Log.d("rzlv", "androidCreateNewChat")
         validateBrainAi()
         val chat = brainAi?.createNewChat()
         if (chat == null) {
             promise.reject(BrainError.FAILED_TO_CREATE_CHAT.value, "Chat is null")
         } else {
-            Log.d("rzlv", "androidCreateNewChat.success: " + chat.sessionID)
             promise.resolve(chat.sessionID)
         }
     }
 
     @ReactMethod
     fun androidCloseChatWithSessionID(sessionId: String) {
-        Log.d("rzlv", "androidCloseChatWithSessionID: $sessionId")
         validateBrainAi()
         brainAi?.closeChatWithSessionID(sessionId)
     }
 
     @ReactMethod
     fun androidGetChatSessionIds(promise: Promise) {
-        Log.d("rzlv", "androidGetChatSessionIds")
         validateBrainAi()
         val sessionIds: WritableArray = WritableNativeArray()
-        brainAi?.chats?.forEach {
+        brainAi?.getChats()?.forEach {
             sessionIds.pushString(it.sessionID)
         }
         promise.resolve(sessionIds)
@@ -60,7 +56,6 @@ class BrainAiSdkModule(private val reactContext: ReactApplicationContext) : Reac
 
     @ReactMethod
     fun androidSendMessage(sessionId: String, message: String) {
-        Log.d("rzlv", "androidSendMessage: $sessionId: $message")
         CoroutineScope(Dispatchers.IO).launch {
             validateBrainAi()
             val chat = brainAi?.getChatWithSessionID(sessionId)
@@ -73,7 +68,6 @@ class BrainAiSdkModule(private val reactContext: ReactApplicationContext) : Reac
             } else {
                 chat.sendMessage(message).forEach { res ->
                     if (res.stream_type == StreamType.RESPONSE_TEXT) {
-                        Log.d("rzlv", "Response RESPONSE_TEXT: ${res.response}")
                         val map = WritableNativeMap().apply {
                             putString(BRAIN_EVENT_TEXT_RESPONSE, res.response)
                             putString(BRAIN_EVENT_RESPONSE_ID, res.response_id)
@@ -82,7 +76,6 @@ class BrainAiSdkModule(private val reactContext: ReactApplicationContext) : Reac
                     }
 
                     if (res.stream_type == StreamType.CONTEXT) {
-                        Log.d("rzlv", "Response CONTEXT: ${res.contexts.size}")
                         if (res.contexts.isNotEmpty()) {
                             val array = WritableNativeArray().apply {
                                 for (item in res.contexts) {
@@ -97,7 +90,6 @@ class BrainAiSdkModule(private val reactContext: ReactApplicationContext) : Reac
                         }
                     }
                     if (res.stream_type == StreamType.RESPONSE_IDENTIFIER) {
-                        Log.d("rzlv", "RESPONSE_IDENTIFIER: ${res.response_id}")
                         val map = WritableNativeMap().apply {
                             putString(BRAIN_EVENT_RESPONSE_ID, res.response_id)
                         }
