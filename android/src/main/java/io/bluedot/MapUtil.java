@@ -26,8 +26,10 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.ReadableType;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -156,5 +158,13 @@ public class MapUtil {
         }
 
         return writableMap;
+    }
+
+    public static WritableArray toWritableArray(List<Map<String, Object>> listOfMaps) {
+        WritableArray writableArray = Arguments.createArray();
+        for (Map<String, Object> map : listOfMaps) {
+            writableArray.pushMap(MapUtil.toWritableMap(map));
+        }
+        return writableArray;
     }
 }

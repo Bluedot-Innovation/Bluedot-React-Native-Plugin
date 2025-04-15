@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import au.com.bluedot.model.geo.Point;
@@ -57,17 +59,10 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
         serviceManager = ServiceManager.getInstance(reactContext);
     }
 
+    @NonNull
     @Override
     public String getName() {
         return "BluedotPointSDK";
-    }
-
-    private void sendEvent(ReactContext reactContext,
-            String eventName,
-            @Nullable WritableMap params) {
-        reactContext
-                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                .emit(eventName, params);
     }
 
     @ReactMethod
