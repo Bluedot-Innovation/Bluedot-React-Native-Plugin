@@ -1,6 +1,5 @@
 package io.bluedot
 
-import android.util.Log
 import au.com.bluedot.point.net.engine.BDStreamingResponseDtoContext
 import au.com.bluedot.point.net.engine.BrainAI
 import au.com.bluedot.point.net.engine.Chat
@@ -21,7 +20,7 @@ import kotlinx.coroutines.launch
 
 class BrainAiSdkModule(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
-    private val brainAi: BrainAI? = ServiceManager.getInstance(reactContext).brainAI
+    private var brainAi: BrainAI? = null
 
     override fun getName(): String {
         return "BrainAiSdk"
@@ -127,6 +126,10 @@ class BrainAiSdkModule(private val reactContext: ReactApplicationContext) : Reac
 
     private fun validateBrainAi() {
         if (brainAi == null) {
+            ServiceManager.getInstance(reactContext).brainAI?.let {
+                brainAi = it
+                return
+            }
             throw IllegalStateException("SDK not initialized.")
         }
     }
