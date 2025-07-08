@@ -228,6 +228,125 @@ RCT_EXPORT_METHOD(backgroundLocationAccessForWhileUsing: (BOOL) enable)
     BDLocationManager.instance.backgroundLocationAccessForWhileUsing = enable;
 }
 
+// Brain AI
+
+#define BRAIN_EVENT_TEXT_RESPONSE       @"brainEventTextResponse"
+#define BRAIN_EVENT_CONTEXT_RESPONSE    @"brainEventContextResponse"
+#define BRAIN_EVENT_ERROR               @"brainEventError"
+#define BRAIN_EVENT_ERROR_CODE          @"brainEventErrorCode"
+#define BRAIN_EVENT_RESPONSE_ID         @"brainEventResponseID"
+
+#define BRAIN_ERROR_CHAT_NOT_FOUND      @"Chat not found"
+#define BRAIN_ERROR_CREATE_CHAT         @"Failed to create chat"
+#define BRAIN_ERROR_SUBMIT_FEEDBACK     @"Failed to submit feedback"
+
+RCT_REMAP_METHOD(iOSCreateNewChat,
+                 isNewChatResolved:(RCTPromiseResolveBlock)resolve
+                 isNewChatRejected:(RCTPromiseRejectBlock)reject)
+{
+    RCTLogInfo(@"rzlv iOSCreateNewChat");
+    Chat *chat = [[BDLocationManager.instance brainAI] createNewChat];
+
+    if (chat == nil) {
+        reject(BRAIN_ERROR_CREATE_CHAT, @"Chat is null", nil);
+    } else {
+        RCTLogInfo(@"rzlv iOSCreateNewChat.success: %@", chat.sessionID);
+        resolve(chat.sessionID);
+    }
+}
+
+RCT_EXPORT_METHOD(iOSCloseChatWithSessionID:(NSString *)sessionId)
+{
+    RCTLogInfo(@"rzlv iOSCloseChatWithSessionID: %@", sessionId);
+    [[BDLocationManager.instance brainAI] closeChatWithSessionID:sessionId];
+}
+
+RCT_REMAP_METHOD(iOSGetChatSessionIds,
+                 isGetChatResolved:(RCTPromiseResolveBlock)resolve
+                 isGetChatRejected:(RCTPromiseRejectBlock)reject)
+{
+}
+
+- (NSDictionary *)toWritableMap:(ChatContext *)context {
+    NSMutableDictionary *map = [NSMutableDictionary dictionary];
+    map[@"title"] = context.title;
+    map[@"price"] = context.price;
+    map[@"description"] = context.description;
+    map[@"merchant_id"] = context.merchantID;
+    map[@"category_id"] = context.categoryID;
+    map[@"product_id"] = context.productID;
+    
+    if (context.imageLinks.count > 0) {
+        NSMutableArray *imageArray = [NSMutableArray array];
+        for (NSURL *item in context.imageLinks) {
+            [imageArray addObject:item.absoluteString];
+        }
+        map[@"image_links"] = imageArray;
+    }
+    return map;
+}
+
+RCT_EXPORT_METHOD(iOSSendMessage:(NSString *)sessionId message:(NSString *)message)
+{
+    RCTLogInfo(@"rzlv iOSSendMessage: %@: %@", sessionId, message);
+    Chat *chat = [[BDLocationManager.instance brainAI] getChatWithSessionID:sessionId];
+
+    if (chat == nil) {
+        NSDictionary *map = @{BRAIN_EVENT_ERROR: BRAIN_ERROR_CHAT_NOT_FOUND};
+        [self sendEventWithName:[NSString stringWithFormat:@"%@%@", BRAIN_EVENT_ERROR, sessionId] body:map];
+    }
+
+    [chat sendMessage:message onUpdate:^(StreamingResponseDto *res) {
+        if (res.streamType == 1) { // CONTEXT
+            RCTLogInfo(@"rzlv CONTEXT: %lu", res.contexts.count);
+            if (res.contexts.count > 0) {
+                NSMutableArray *array = [NSMutableArray array];
+                
+                for (id context in res.contexts) {
+                    [array addObject:[self toWritableMap:context]];
+                }
+                NSMutableDictionary *map = [NSMutableDictionary dictionary];
+                map[BRAIN_EVENT_CONTEXT_RESPONSE] = array;
+                map[BRAIN_EVENT_RESPONSE_ID] = res.responseID;
+                [self sendEventWithName:[NSString stringWithFormat:@"%@%@", BRAIN_EVENT_CONTEXT_RESPONSE, sessionId] body:map];
+            }
+        }
+
+        if (res.streamType == 2) { // RESPONSE_TEXT
+            RCTLogInfo(@"rzlv RESPONSE_TEXT: %@", res.response);
+            NSDictionary *map = @{BRAIN_EVENT_TEXT_RESPONSE: res.response};
+            [self sendEventWithName:[NSString stringWithFormat:@"%@%@", BRAIN_EVENT_TEXT_RESPONSE, sessionId] body:map];
+        }
+
+        if (res.streamType == 3) { // RESPONSE_IDENTIFIER
+            RCTLogInfo(@"rzlv RESPONSE_IDENTIFIER: %@", res.responseID);
+            NSDictionary *map = @{BRAIN_EVENT_RESPONSE_ID: res.responseID};
+            [self sendEventWithName:[NSString stringWithFormat:@"%@%@", BRAIN_EVENT_RESPONSE_ID, sessionId] body:map];
+        }
+    } onCompletion:^{
+        RCTLogInfo(@"rzlv iOSSendMessage Completed");
+    } onError:^(NSError *error) {
+        RCTLogInfo(@"rzlv iOSSendMessage Error: %@", error ? error.localizedDescription : @"No data");
+    }];
+}
+
+RCT_EXPORT_METHOD(iOSSubmitFeedback:(NSString *)sessionId responseId:(NSString *)responseId liked:(BOOL)liked)
+{
+    RCTLogInfo(@"rzlv iOSSubmitFeedback: %@: %@: %d", sessionId, responseId, liked);
+    Chat *chat = [[BDLocationManager.instance brainAI] getChatWithSessionID:sessionId];
+    Reaction feedback = liked ? ReactionLiked : ReactionDisliked;
+    
+    if (chat == nil) {
+        NSDictionary *map = @{BRAIN_EVENT_ERROR: BRAIN_ERROR_CHAT_NOT_FOUND};
+        [self sendEventWithName:[NSString stringWithFormat:@"%@%@", BRAIN_EVENT_ERROR, sessionId] body:map];
+    } else {
+        [chat submitFeedbackWithResponseID:responseId reaction:feedback completion:^(BOOL liked, NSError *error) {
+            NSDictionary *map = @{BRAIN_EVENT_ERROR: BRAIN_ERROR_SUBMIT_FEEDBACK};
+            [self sendEventWithName:[NSString stringWithFormat:@"%@%@", BRAIN_EVENT_ERROR, sessionId] body:map];
+        }];
+    }
+}
+
 /*
  ANDROID METHODS
  
