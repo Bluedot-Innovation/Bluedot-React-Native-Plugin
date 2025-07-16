@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
     LICENSE
   }
   s.author        = { "Bluedot Innovation" => "https://www.bluedot.io" }
-  s.platform      = :ios, '12.0'
+  s.platform      = :ios, '15.1'
   s.swift_version = '5.0'
   s.source       = { :git => "https://github.com/Bluedot-Innovation/Bluedot-React-Native-Plugin.git"}
 
