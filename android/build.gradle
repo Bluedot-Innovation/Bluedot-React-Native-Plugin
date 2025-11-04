@@ -91,7 +91,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.gitlab.bluedotio.android:point_sdk_android:17.1.0'
+    implementation 'com.gitlab.bluedotio.android:point_sdk_android:17.3.0'
     implementation 'com.facebook.react:react-android:0.77.0'
     implementation 'androidx.core:core-ktx:1.15.0'
 }
