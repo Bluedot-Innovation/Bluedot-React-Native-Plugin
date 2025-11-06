@@ -27,12 +27,15 @@
   "license": "ISC",
   "readmeFilename": "README.md",
   "peerDependencies": {
-    "react-native": ">= 0.77.0",
-    "react": ">= 18.3.1"
+    "react": ">= 18.3.1",
+    "react-native": ">= 0.77.0"
   },
   "devDependencies": {
     "@react-native-community/cli": "latest",
     "react": "19.1.0",
-    "react-native": "0.80.1"
+    "react-native": "^0.81.5"
+  },
+  "dependencies": {
+    "upgrade": "^1.1.0"
   }
 }
