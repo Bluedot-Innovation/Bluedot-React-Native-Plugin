@@ -30,6 +30,6 @@ Pod::Spec.new do |s|
   s.source_files  = "ios/**/*.{h,m,swift}"
   s.requires_arc  = true
 
-  s.dependency "BluedotPointSDK", "17.0.2"
+  s.dependency "BluedotPointSDK", "17.1.0"
   s.dependency "React"
 end

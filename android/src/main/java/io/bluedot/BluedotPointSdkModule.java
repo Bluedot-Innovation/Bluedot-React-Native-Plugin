@@ -310,6 +310,11 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
                         location.putDouble("longitude", loc.getLongitude());
 
                         destination.putMap("location", location);
+                        
+                        if (destinationObj.getCustomData() != null) {
+                        	destination.putMap("customData", destinationObj.getCustomData());
+                        }
+                        
                         zone.putMap("destination", destination);
                     }
                     zoneList.pushMap(zone);

@@ -474,6 +474,10 @@ RCT_EXPORT_METHOD(androidStartTempoTracking) {
     [ dict setObject:zone.name forKey:@"name"];
     [ dict setObject:zone.ID forKey:@"ID"];
     [ dict setObject:zone.customData forKey:@"customData"];
+    
+    if (zone.destination != nil) {
+        [ dict setObject:[ self destinationToDict:zone.destination] forKey:@"destination"];
+    }
 
     return dict;
 }
@@ -508,4 +512,30 @@ RCT_EXPORT_METHOD(androidStartTempoTracking) {
     return dict;
 }
 
+- (NSDictionary *)destinationToDict: (Destination *)destination {
+    NSMutableDictionary *dict = [NSMutableDictionary new];
+    
+    [dict setObject:destination.destinationId forKey:@"destinationId"];
+    [dict setObject:[self pointToDict:destination.location] forKey:@"location"];
+    
+    if (destination.name != nil) {
+        [dict setObject:destination.name forKey:@"name"];
+    }
+    if (destination.customData != nil) {
+        [dict setObject:destination.customData forKey:@"customData"];
+    }
+
+    return dict;
+}
+
+- (NSDictionary *)pointToDict: (BDPoint *)point {
+    NSMutableDictionary *dict = [NSMutableDictionary new];
+    
+    [dict setObject:@(point.latitude) forKey:@"latitude"];
+    [dict setObject:@(point.longitude) forKey:@"longitude"];
+    
+    return dict;
+}
+
 @end
+
