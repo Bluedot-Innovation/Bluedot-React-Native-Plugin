@@ -312,7 +312,12 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
                         destination.putMap("location", location);
                         
                         if (destinationObj.getCustomData() != null) {
-                        	destination.putMap("customData", destinationObj.getCustomData());
+                            WritableMap customData = new WritableNativeMap();
+                            Map<String, String> customDataMap = destinationObj.getCustomData();
+                            for (Map.Entry<String, String> entry : customDataMap.entrySet()) {
+                                customData.putString(entry.getKey(), entry.getValue());
+                            }
+                            destination.putMap("customData", customData);
                         }
                         
                         zone.putMap("destination", destination);
