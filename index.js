@@ -55,11 +55,13 @@ const backgroundLocationAccessForWhileUsing = (enable) => {
 }
 
 const on = (eventName, callback) => {
+    console.log(`Subscribing to event: ${eventName}`)
     eventEmitter.addListener(eventName, callback)
     subscriptionsList.add(eventName)
 }
 
 const unsubscribe = (eventName) => {
+    console.log(`UnSubscribing to event: ${eventName}`)
     eventEmitter.removeAllListeners(eventName)
     subscriptionsList.delete(eventName)
 }
