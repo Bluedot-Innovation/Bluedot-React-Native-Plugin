@@ -21,6 +21,7 @@ public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
     private static boolean firstTrigger = true;
     @Override
     public void onZoneInfoUpdate(@NotNull Context context) {
+        Log.d("Plugin", "onZoneInfoUpdate");
         sendEvent(context, "zoneInfoUpdate", null);
     }
 
@@ -29,7 +30,7 @@ public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
         JSONObject jsonObject = null;
         WritableMap writableMap = null;
         try {
-
+            Log.d("Plugin", "onZoneEntryEvent");
             jsonObject = new JSONObject(entryEvent.toJson());
             Map<String, Object> mapEvent = MapUtil.toMap(jsonObject);
             writableMap = MapUtil.toWritableMap(mapEvent);
@@ -46,7 +47,7 @@ public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
                 Log.d("Plugin", "Wait is Over");
                 firstTrigger = false;
             }
-
+            Log.d("Plugin", "Sending Entry Event to JS");
             sendEvent(context, "enterZone", writableMap);
         } catch (JSONException exp) {
             System.out.println("Exception occurred during conversion of EntryEvent" + exp);
