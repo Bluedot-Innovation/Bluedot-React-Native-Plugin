@@ -40,6 +40,32 @@ class EventUtil {
                         }
                     })
             }
+
+            val mReactInstanceManager: ReactInstanceManager =
+                getReactNativeHost().getReactInstanceManager()
+
+            // 1. Check if the ReactContext is already initialized
+            val currentContext: ReactContext = mReactInstanceManager.getCurrentReactContext()
+            if (currentContext != null) {
+                // Context is already ready, use it directly
+                Log.d("BluedotReactPlugin", "ReactContext already initialized.")
+                currentContext.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
+            } else {
+                // Context is not ready, add a listener to wait for it
+                mReactInstanceManager.addReactInstanceEventListener(object :
+                    ReactInstanceEventListener() {
+                    @Override
+                    fun onReactContextInitialized(validContext: ReactContext?) {
+                        Log.d("BluedotReactPlugin", "onReactContextInitialized called.")
+                        validContext.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
+                        // Optional: Remove the listener once it's used to prevent memory leaks,
+                        // especially if the Activity lifecycle means it might be added multiple times.
+                         mReactInstanceManager.removeReactInstanceEventListener(this);
+                    }
+                })
+            }
+
+
         }
     }
 }
