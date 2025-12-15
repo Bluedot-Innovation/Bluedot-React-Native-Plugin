@@ -34,6 +34,7 @@ class EventUtil {
                 reactHost.addReactInstanceEventListener(
                     object : ReactInstanceEventListener {
                         override fun onReactContextInitialized(context: ReactContext) {
+                            Log.d("BluedotReactPlugin", "addReactInstanceEventListener: onReactContextInitialized $eventName")
                             context.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
                             reactHost.removeReactInstanceEventListener(this)
                         }
