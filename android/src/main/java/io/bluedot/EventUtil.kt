@@ -27,8 +27,10 @@ class EventUtil {
             val reactContext = reactHost.currentReactContext
 
             if (reactContext != null) {
+                Log.d("BluedotReactPlugin", "Sending event: $eventName")
                 reactContext.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
             } else {
+                Log.d("BluedotReactPlugin", "addReactInstanceEventListener: $eventName")
                 reactHost.addReactInstanceEventListener(
                     object : ReactInstanceEventListener {
                         override fun onReactContextInitialized(context: ReactContext) {
