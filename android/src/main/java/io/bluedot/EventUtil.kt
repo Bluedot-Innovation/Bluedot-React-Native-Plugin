@@ -5,6 +5,7 @@ import android.util.Log
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactInstanceEventListener
 import com.facebook.react.ReactInstanceManager
+import com.facebook.react.ReactNativeHost
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
@@ -42,11 +43,11 @@ class EventUtil {
 //                    })
 //            }
 
-            val mReactInstanceManager: ReactInstanceManager =
-                getReactNativeHost().getReactInstanceManager()
+            val reactNativeHost: ReactNativeHost  = reactApplication.getReactNativeHost()
+            val mReactInstanceManager = reactNativeHost.reactInstanceManager
 
             // 1. Check if the ReactContext is already initialized
-            val currentContext: ReactContext = mReactInstanceManager.getCurrentReactContext()
+            val currentContext: ReactContext? = mReactInstanceManager.getCurrentReactContext()
             if (currentContext != null) {
                 // Context is already ready, use it directly
                 Log.d("BluedotReactPlugin", "ReactContext already initialized.")
