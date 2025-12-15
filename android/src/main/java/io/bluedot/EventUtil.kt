@@ -55,14 +55,13 @@ class EventUtil {
             } else {
                 // Context is not ready, add a listener to wait for it
                 mReactInstanceManager.addReactInstanceEventListener(object :
-                    ReactInstanceEventListener() {
-                    @Override
-                    fun onReactContextInitialized(validContext: ReactContext?) {
+                    ReactInstanceEventListener {
+                    override fun onReactContextInitialized(validContext: ReactContext) {
                         Log.d("BluedotReactPlugin", "onReactContextInitialized called. validContext", validContext)
-                        validContext!!.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
+                        validContext.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
                         // Optional: Remove the listener once it's used to prevent memory leaks,
                         // especially if the Activity lifecycle means it might be added multiple times.
-                         mReactInstanceManager.removeReactInstanceEventListener(this);
+                         mReactInstanceManager.removeReactInstanceEventListener(this)
                     }
                 })
             }
