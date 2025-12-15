@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactInstanceEventListener
+import com.facebook.react.ReactInstanceManager
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
@@ -26,20 +27,20 @@ class EventUtil {
 
             val reactContext = reactHost.currentReactContext
 
-            if (reactContext != null) {
-                Log.d("BluedotReactPlugin", "Sending event: $eventName")
-                reactContext.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
-            } else {
-                Log.d("BluedotReactPlugin", "addReactInstanceEventListener: $eventName")
-                reactHost.addReactInstanceEventListener(
-                    object : ReactInstanceEventListener {
-                        override fun onReactContextInitialized(context: ReactContext) {
-                            Log.d("BluedotReactPlugin", "addReactInstanceEventListener: onReactContextInitialized $eventName")
-                            context.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
-                            reactHost.removeReactInstanceEventListener(this)
-                        }
-                    })
-            }
+//            if (reactContext != null) {
+//                Log.d("BluedotReactPlugin", "Sending event: $eventName")
+//                reactContext.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
+//            } else {
+//                Log.d("BluedotReactPlugin", "addReactInstanceEventListener: $eventName")
+//                reactHost.addReactInstanceEventListener(
+//                    object : ReactInstanceEventListener {
+//                        override fun onReactContextInitialized(context: ReactContext) {
+//                            Log.d("BluedotReactPlugin", "addReactInstanceEventListener: onReactContextInitialized $eventName")
+//                            context.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
+//                            reactHost.removeReactInstanceEventListener(this)
+//                        }
+//                    })
+//            }
 
             val mReactInstanceManager: ReactInstanceManager =
                 getReactNativeHost().getReactInstanceManager()
@@ -56,8 +57,8 @@ class EventUtil {
                     ReactInstanceEventListener() {
                     @Override
                     fun onReactContextInitialized(validContext: ReactContext?) {
-                        Log.d("BluedotReactPlugin", "onReactContextInitialized called.")
-                        validContext.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
+                        Log.d("BluedotReactPlugin", "onReactContextInitialized called. validContext", validContext)
+                        validContext!!.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
                         // Optional: Remove the listener once it's used to prevent memory leaks,
                         // especially if the Activity lifecycle means it might be added multiple times.
                          mReactInstanceManager.removeReactInstanceEventListener(this);
