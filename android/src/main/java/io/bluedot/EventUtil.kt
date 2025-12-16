@@ -18,22 +18,24 @@ class EventUtil {
             params: WritableMap?
         ) {
             val reactApplication = context.applicationContext as ReactApplication
-            val reactHost = reactApplication.reactHost
-            if (reactHost == null) {
-                Log.e("BluedotReactPlugin", "ReactHost is null")
+            val reactNativeHost: ReactNativeHost = reactApplication.reactNativeHost
+            val reactInstanceManager = reactNativeHost.reactInstanceManager
+
+            if (reactNativeHost == null) {
+                Log.e("BluedotReactPlugin", "reactNativeHost is null")
                 return
             }
 
-            val reactContext = reactHost.currentReactContext
-
+            val reactContext: ReactContext? = reactInstanceManager.currentReactContext
             if (reactContext != null) {
                 reactContext.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
             } else {
-                reactHost.addReactInstanceEventListener(
+                reactInstanceManager.addReactInstanceEventListener(
                     object : ReactInstanceEventListener {
                         override fun onReactContextInitialized(context: ReactContext) {
-                            context.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
-                            reactHost.removeReactInstanceEventListener(this)
+                            context.getJSModule(RCTDeviceEventEmitter::class.java)
+                                .emit(eventName, params)
+                            reactInstanceManager.removeReactInstanceEventListener(this)
                         }
                     })
             }
