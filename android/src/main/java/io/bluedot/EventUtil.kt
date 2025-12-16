@@ -43,7 +43,7 @@ class EventUtil {
 //                    })
 //            }
 
-            val reactNativeHost: ReactNativeHost  = reactApplication.getReactNativeHost()
+            val reactNativeHost: ReactNativeHost  = reactApplication.reactNativeHost
             val mReactInstanceManager = reactNativeHost.reactInstanceManager
 
             // 1. Check if the ReactContext is already initialized
@@ -57,7 +57,7 @@ class EventUtil {
                 mReactInstanceManager.addReactInstanceEventListener(object :
                     ReactInstanceEventListener {
                     override fun onReactContextInitialized(validContext: ReactContext) {
-                        Log.d("BluedotReactPlugin", "onReactContextInitialized called. validContext", validContext)
+                        Log.d("BluedotReactPlugin", "onReactContextInitialized called. validContext")
                         validContext.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
                         // Optional: Remove the listener once it's used to prevent memory leaks,
                         // especially if the Activity lifecycle means it might be added multiple times.
