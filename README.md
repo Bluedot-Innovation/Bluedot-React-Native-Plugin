@@ -12,6 +12,6 @@ Functionality is provided through one single npm package so you can use it for b
 
 - Android API 24+
 - iOS 15.1+
-- Compatible with React Native 0.80.1
+- Compatible with React Native 0.81.5
 
 Native support levels are based on [React Native requirements](https://github.com/facebook/react-native#-requirements).
