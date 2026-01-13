@@ -21,12 +21,13 @@ class EventUtil {
         ) {
             val reactApplication = context.applicationContext as ReactApplication
             val reactNativeHost: ReactNativeHost = reactApplication.reactNativeHost
-            val reactInstanceManager = reactNativeHost.reactInstanceManager
 
             if (reactNativeHost == null) {
                 Log.e("BluedotReactPlugin", "reactNativeHost is null")
                 return
             }
+
+            val reactInstanceManager = reactNativeHost.reactInstanceManager
 
             val reactContext: ReactContext? = reactInstanceManager.currentReactContext
             if (reactContext != null) {
