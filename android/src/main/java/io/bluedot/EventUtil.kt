@@ -4,6 +4,8 @@ import android.content.Context
 import android.util.Log
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactInstanceEventListener
+import com.facebook.react.ReactInstanceManager
+import com.facebook.react.ReactNativeHost
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
@@ -18,22 +20,25 @@ class EventUtil {
             params: WritableMap?
         ) {
             val reactApplication = context.applicationContext as ReactApplication
-            val reactHost = reactApplication.reactHost
-            if (reactHost == null) {
-                Log.e("BluedotReactPlugin", "ReactHost is null")
+            val reactNativeHost: ReactNativeHost = reactApplication.reactNativeHost
+
+            if (reactNativeHost == null) {
+                Log.e("BluedotReactPlugin", "reactNativeHost is null")
                 return
             }
 
-            val reactContext = reactHost.currentReactContext
+            val reactInstanceManager = reactNativeHost.reactInstanceManager
 
+            val reactContext: ReactContext? = reactInstanceManager.currentReactContext
             if (reactContext != null) {
                 reactContext.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
             } else {
-                reactHost.addReactInstanceEventListener(
+                reactInstanceManager.addReactInstanceEventListener(
                     object : ReactInstanceEventListener {
                         override fun onReactContextInitialized(context: ReactContext) {
-                            context.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
-                            reactHost.removeReactInstanceEventListener(this)
+                            context.getJSModule(RCTDeviceEventEmitter::class.java)
+                                .emit(eventName, params)
+                            reactInstanceManager.removeReactInstanceEventListener(this)
                         }
                     })
             }
