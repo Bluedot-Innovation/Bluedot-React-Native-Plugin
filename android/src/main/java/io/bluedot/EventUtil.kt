@@ -31,14 +31,17 @@ class EventUtil {
 
             val reactContext: ReactContext? = reactInstanceManager.currentReactContext
             if (reactContext != null) {
+                Log.i("BluedotReactPlugin", "reactContext is not null emit event", eventName)
                 reactContext.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
             } else {
+                Log.i("BluedotReactPlugin", "reactContext is null use addReactInstanceEventListener", eventName)
                 reactInstanceManager.addReactInstanceEventListener(
                     object : ReactInstanceEventListener {
                         override fun onReactContextInitialized(context: ReactContext) {
+                            Log.i("BluedotReactPlugin", "onReactContextInitialized emit event", eventName)
                             context.getJSModule(RCTDeviceEventEmitter::class.java)
                                 .emit(eventName, params)
-                            reactInstanceManager.removeReactInstanceEventListener(this)
+                          //  reactInstanceManager.removeReactInstanceEventListener(this)
                         }
                     })
             }
