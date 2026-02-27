@@ -35,15 +35,18 @@ class EventUtil {
                 reactContext.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
             } else {
                 Log.i("BluedotReactPlugin", "reactContext is null use addReactInstanceEventListener " + eventName)
-                reactInstanceManager.addReactInstanceEventListener(
-                    object : ReactInstanceEventListener {
-                        override fun onReactContextInitialized(context: ReactContext) {
-                            Log.i("BluedotReactPlugin", "onReactContextInitialized emit event " + eventName)
-                            context.getJSModule(RCTDeviceEventEmitter::class.java)
-                                .emit(eventName, params)
-                          //  reactInstanceManager.removeReactInstanceEventListener(this)
-                        }
-                    })
+                val listener = object : ReactInstanceEventListener {
+                    override fun onReactContextInitialized(context: ReactContext) {
+                        Log.i("BluedotReactPlugin", "onReactContextInitialized emit event " + eventName)
+                        context.getJSModule(RCTDeviceEventEmitter::class.java)
+                            .emit(eventName, params)
+                        // Remove listener after event is sent
+                        reactInstanceManager.removeReactInstanceEventListener(this)
+                        Log.i("BluedotReactPlugin", "Listener removed after event emission.")
+                    }
+                }
+                reactInstanceManager.addReactInstanceEventListener(listener)
+                Log.i("BluedotReactPlugin", "Listener added, waiting for ReactContext initialization.")
             }
         }
     }
