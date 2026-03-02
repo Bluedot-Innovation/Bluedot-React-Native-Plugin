@@ -456,6 +456,10 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
     @Override
     public void onHostResume() {
        Log.d("Plugin", "onHostResume()");
+       // Flush buffered events when ReactContext is ready
+       if (reactContext != null && reactContext.hasActiveCatalystInstance()) {
+           EventUtil.flushBufferedEvents();
+       }
     }
 
     @Override
