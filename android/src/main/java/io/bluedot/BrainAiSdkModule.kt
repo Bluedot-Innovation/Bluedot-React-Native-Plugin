@@ -63,7 +63,7 @@ class BrainAiSdkModule(private val reactContext: ReactApplicationContext) : Reac
                     putString(BRAIN_EVENT_ERROR, BrainError.CHAT_NOT_FOUND.value)
                     putInt(BRAIN_EVENT_ERROR_CODE, BrainError.CHAT_NOT_FOUND.code)
                 }
-                sendEvent(reactContext, "$BRAIN_EVENT_ERROR$sessionId", map)
+                sendEvent("$BRAIN_EVENT_ERROR$sessionId", map)
             } else {
                 chat.sendMessage(message).forEach { res ->
                     if (res.stream_type == StreamType.RESPONSE_TEXT) {
@@ -71,7 +71,7 @@ class BrainAiSdkModule(private val reactContext: ReactApplicationContext) : Reac
                             putString(BRAIN_EVENT_TEXT_RESPONSE, res.response)
                             putString(BRAIN_EVENT_RESPONSE_ID, res.response_id)
                         }
-                        sendEvent(reactContext, "$BRAIN_EVENT_TEXT_RESPONSE$sessionId", map)
+                        sendEvent("$BRAIN_EVENT_TEXT_RESPONSE$sessionId", map)
                     }
 
                     if (res.stream_type == StreamType.CONTEXT) {
@@ -85,14 +85,14 @@ class BrainAiSdkModule(private val reactContext: ReactApplicationContext) : Reac
                                 putArray(BRAIN_EVENT_CONTEXT_RESPONSE, array)
                                 putString(BRAIN_EVENT_RESPONSE_ID, res.response_id)
                             }
-                            sendEvent(reactContext, "$BRAIN_EVENT_CONTEXT_RESPONSE$sessionId", map)
+                            sendEvent("$BRAIN_EVENT_CONTEXT_RESPONSE$sessionId", map)
                         }
                     }
                     if (res.stream_type == StreamType.RESPONSE_IDENTIFIER) {
                         val map = WritableNativeMap().apply {
                             putString(BRAIN_EVENT_RESPONSE_ID, res.response_id)
                         }
-                        sendEvent(reactContext, "$BRAIN_EVENT_RESPONSE_ID$sessionId", map)
+                        sendEvent("$BRAIN_EVENT_RESPONSE_ID$sessionId", map)
                         return@forEach
                     }
                 }
@@ -111,14 +111,14 @@ class BrainAiSdkModule(private val reactContext: ReactApplicationContext) : Reac
                     putString(BRAIN_EVENT_ERROR, BrainError.CHAT_NOT_FOUND.value)
                     putInt(BRAIN_EVENT_ERROR_CODE, BrainError.CHAT_NOT_FOUND.code)
                 }
-                sendEvent(reactContext, "$BRAIN_EVENT_ERROR$sessionId", map)
+                sendEvent("$BRAIN_EVENT_ERROR$sessionId", map)
             } else {
                 chat.submitFeedback(responseId, feedback)?.let { error ->
                     val map = WritableNativeMap().apply {
                         putString(BRAIN_EVENT_ERROR, error.reason)
                         putInt(BRAIN_EVENT_ERROR_CODE, BrainError.FAILED_TO_SUBMIT_FEEDBACK.code)
                     }
-                    sendEvent(reactContext, "$BRAIN_EVENT_ERROR$sessionId", map)
+                    sendEvent("$BRAIN_EVENT_ERROR$sessionId", map)
                 }
             }
         }

@@ -59,7 +59,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
     }
 
     public static ReactApplicationContext getReactContextRef() {
-        return reactContextRef;
+        return reactContext;
     }
 
     @NonNull
