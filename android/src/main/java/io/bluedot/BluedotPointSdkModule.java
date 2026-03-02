@@ -46,9 +46,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static android.app.Notification.PRIORITY_MAX;
 
 public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
-
-    private final ReactApplicationContext reactContext;
-    static ReactApplicationContext reactContextRef = null;
+    static ReactApplicationContext reactContext = null;
     ServiceManager serviceManager;
     private Callback logOutCallback;
     private int notificationResourceId = 0;
@@ -56,7 +54,6 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
     public BluedotPointSdkModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
-        reactContextRef = reactContext;
         this.reactContext.addLifecycleEventListener(this);
         serviceManager = ServiceManager.getInstance(reactContext);
     }

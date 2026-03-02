@@ -12,11 +12,10 @@ class EventUtil {
     companion object {
         @JvmStatic
         fun sendEvent(
-            context: Context,
             eventName: String,
             params: WritableMap?
         ) {
-            val reactContext = BluedotPointSdkModule.reactContextRef
+            val reactContext = BluedotPointSdkModule.reactContext
             if (reactContext != null && reactContext.hasActiveCatalystInstance()) {
                 Log.i("BluedotReactPlugin", "emit event $eventName")
                 reactContext.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
