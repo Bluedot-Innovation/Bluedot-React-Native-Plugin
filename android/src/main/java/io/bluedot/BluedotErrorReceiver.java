@@ -24,6 +24,6 @@ public class BluedotErrorReceiver extends BluedotServiceReceiver {
     public void onBluedotServiceError(@NotNull BDError bdError, @NotNull Context context) {
         WritableMap error = new WritableNativeMap();
         error.putString("error",bdError.getReason());
-        sendEvent(context, "onBluedotServiceError",error);
+        sendEvent("onBluedotServiceError",error);
     }
 }

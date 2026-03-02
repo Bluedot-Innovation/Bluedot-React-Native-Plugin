@@ -24,7 +24,7 @@ public class AppTempoReceiver extends TempoTrackingReceiver {
             jsonObject = new JSONObject(tempoTrackingUpdate.toJson());
             Map<String, Object> mapEvent = MapUtil.toMap(jsonObject);
             tempoUpdate = MapUtil.toWritableMap(mapEvent);
-            sendEvent(context, "tempoTrackingDidUpdate", tempoUpdate);
+            sendEvent("tempoTrackingDidUpdate", tempoUpdate);
         } catch (JSONException exp) {
             System.out.println("Exception occurred during conversion of ExitEvent" + exp);
         }
@@ -42,6 +42,6 @@ public class AppTempoReceiver extends TempoTrackingReceiver {
     public void tempoStoppedWithError(@NotNull BDError bdError, @NotNull Context context) {
         WritableMap error = new WritableNativeMap();
         error.putString("error",bdError.getReason());
-        sendEvent(context, "tempoStoppedWithError", error);
+        sendEvent("tempoStoppedWithError", error);
     }
 }
