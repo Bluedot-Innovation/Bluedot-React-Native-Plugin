@@ -3,9 +3,6 @@ package io.bluedot
 import android.content.Context
 import android.util.Log
 import com.facebook.react.ReactApplication
-import com.facebook.react.ReactInstanceEventListener
-import com.facebook.react.ReactInstanceManager
-import com.facebook.react.ReactNativeHost
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
@@ -19,34 +16,13 @@ class EventUtil {
             eventName: String,
             params: WritableMap?
         ) {
-            val reactApplication = context.applicationContext as ReactApplication
-            val reactNativeHost: ReactNativeHost = reactApplication.reactNativeHost
-
-            if (reactNativeHost == null) {
-                Log.e("BluedotReactPlugin", "reactNativeHost is null")
-                return
-            }
-
-            val reactInstanceManager = reactNativeHost.reactInstanceManager
-
-            val reactContext: ReactContext? = reactInstanceManager.currentReactContext
-            if (reactContext != null) {
-                Log.i("BluedotReactPlugin", "reactContext is not null emit event " + eventName)
+            val reactContext = BluedotPointSdkModule.reactContextRef
+            if (reactContext != null && reactContext.hasActiveCatalystInstance()) {
+                Log.i("BluedotReactPlugin", "emit event $eventName")
                 reactContext.getJSModule(RCTDeviceEventEmitter::class.java).emit(eventName, params)
             } else {
-                Log.i("BluedotReactPlugin", "reactContext is null use addReactInstanceEventListener " + eventName)
-                val listener = object : ReactInstanceEventListener {
-                    override fun onReactContextInitialized(context: ReactContext) {
-                        Log.i("BluedotReactPlugin", "onReactContextInitialized emit event " + eventName)
-                        context.getJSModule(RCTDeviceEventEmitter::class.java)
-                            .emit(eventName, params)
-                        // Remove listener after event is sent
-                        reactInstanceManager.removeReactInstanceEventListener(this)
-                        Log.i("BluedotReactPlugin", "Listener removed after event emission.")
-                    }
-                }
-                reactInstanceManager.addReactInstanceEventListener(listener)
-                Log.i("BluedotReactPlugin", "Listener added, waiting for ReactContext initialization.")
+                Log.e("BluedotReactPlugin", "ReactContext not ready, event not sent: $eventName")
+                // Optionally buffer or drop the event
             }
         }
     }
