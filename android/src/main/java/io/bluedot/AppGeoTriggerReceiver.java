@@ -21,7 +21,7 @@ public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
     private static boolean firstTrigger = true;
     @Override
     public void onZoneInfoUpdate(@NotNull Context context) {
-        sendEvent(context, "zoneInfoUpdate", null);
+        sendEvent("zoneInfoUpdate", null);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
                 firstTrigger = false;
             }
 
-            sendEvent(context, "enterZone", writableMap);
+            sendEvent("enterZone", writableMap);
         } catch (JSONException exp) {
             System.out.println("Exception occurred during conversion of EntryEvent" + exp);
         }
@@ -63,7 +63,7 @@ public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
             jsonObject = new JSONObject(exitEvent.toJson());
             Map<String, Object> mapEvent = MapUtil.toMap(jsonObject);
             writableMap = MapUtil.toWritableMap(mapEvent);
-            sendEvent(context, "exitZone", writableMap);
+            sendEvent("exitZone", writableMap);
         } catch (JSONException exp) {
             System.out.println("Exception occurred during conversion of ExitEvent" + exp);
         }
