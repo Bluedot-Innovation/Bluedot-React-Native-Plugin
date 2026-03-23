@@ -1,0 +1,39 @@
+{
+  "name": "bluedot-react-native-pushnotifications",
+  "title": "React Native Bluedot Push Notifications SDK",
+  "version": "1.0.0",
+  "description": "Bluedot Push Notifications React Native module; integrates the Android Push Notifications SDK library",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bluedot-Innovation/Bluedot-React-Native-Plugin.git",
+    "baseUrl": "https://github.com/Bluedot-Innovation/Bluedot-React-Native-Plugin"
+  },
+  "homepage": "https://bluedot.io",
+  "keywords": [
+    "react-native",
+    "pushnotifications",
+    "push",
+    "location",
+    "bluedot"
+  ],
+  "author": {
+    "name": "Bluedot Innovation",
+    "email": "help@bluedot.io"
+  },
+  "license": "ISC",
+  "readmeFilename": "README.md",
+  "peerDependencies": {
+    "react": ">= 19.1.0",
+    "react-native": ">= 0.81.5",
+    "bluedot-react-native": ">= 3.4.1"
+  },
+  "devDependencies": {
+    "@react-native-community/cli": "latest",
+    "react": "19.1.0",
+    "react-native": "^0.81.5"
+  }
+}
