@@ -1,7 +1,7 @@
 package io.bluedot.pushnotifications
 
-import au.com.bluedot.point.net.engine.PushNotificationsEventReceiver
-import au.com.bluedot.point.net.engine.RezolvePushData
+import au.com.bluedot.point.api.push.model.RezolvePushData
+import com.rezolve.pushnotifications.PushNotificationsEventReceiver
 import com.facebook.react.bridge.WritableNativeMap
 
 class AppPushNotificationsEventReceiver : PushNotificationsEventReceiver() {

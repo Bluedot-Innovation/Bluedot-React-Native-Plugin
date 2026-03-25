@@ -5,6 +5,8 @@ import static io.bluedot.EventUtil.sendEvent;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import au.com.bluedot.point.net.engine.GeoTriggeringEventReceiver;
 import au.com.bluedot.point.net.engine.event.GeoTriggerEvent;
 import com.facebook.react.bridge.WritableMap;
@@ -66,6 +68,21 @@ public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
             sendEvent("exitZone", writableMap);
         } catch (JSONException exp) {
             System.out.println("Exception occurred during conversion of ExitEvent" + exp);
+        }
+    }
+
+    @Override
+    public void onZoneDwellEvent(@NonNull GeoTriggerEvent geoTriggerEvent, @NonNull Context context) {
+        JSONObject jsonObject = null;
+        WritableMap writableMap = null;
+        try {
+
+            jsonObject = new JSONObject(exitEvent.toJson());
+            Map<String, Object> mapEvent = MapUtil.toMap(jsonObject);
+            writableMap = MapUtil.toWritableMap(mapEvent);
+            sendEvent("dwellZone", writableMap);
+        } catch (JSONException exp) {
+            System.out.println("Exception occurred during conversion of DwellEvent" + exp);
         }
     }
 }

@@ -15,6 +15,26 @@ import groovy.json.JsonSlurper
 def DEFAULT_COMPILE_SDK_VERSION = 36
 def DEFAULT_MIN_SDK_VERSION = 26
 
+// ---------------------------------------------------------------------------
+// Downstream / CI build switch
+//
+// To build against a private GitLab Maven artifact instead of JitPack, simply
+// provide a gitlabPipelineId. When set, the private registry is added and the
+// versioned artifact is used. When absent, JitPack is used as normal.
+//
+// Pass as Gradle properties on the command line or via gradle.properties:
+//
+//   -PgitlabMavenToken=<your-GitLab-personal-or-CI-token>
+//   -PgitlabPipelineId=<artifact-version>   (e.g. the pipeline ID / semver)
+//
+// Example:
+//   ./gradlew assembleRelease \
+//     -PgitlabMavenToken=$CI_JOB_TOKEN \
+//     -PgitlabPipelineId=$CI_PIPELINE_ID
+// ---------------------------------------------------------------------------
+def gitlabMavenToken   = project.findProperty('gitlabMavenToken')   ?: ''
+def gitlabPipelineId   = project.findProperty('gitlabPipelineId')   ?: ''
+
 def safeExtGet(prop, fallback) {
     rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
 }
@@ -42,8 +62,20 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
-        // ADD IT HERE
-        maven { url "https://jitpack.io" }
+        google()
+        if (gitlabPipelineId) {
+            maven {
+                url 'https://gitlab.com/api/v4/projects/14682665/packages/maven'
+                credentials(HttpHeaderCredentials) {
+                    name  'Private-Token'
+                    value gitlabMavenToken
+                }
+                authentication {
+                    header(HttpHeaderAuthentication)
+                }
+            }
+        }
+        maven { url 'https://jitpack.io' }
     }
 }
 
@@ -72,13 +104,13 @@ android {
         abortOnError false
     }
 
-    java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(17)
-        }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
+
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = '21'
     }
 
 }
@@ -90,8 +122,15 @@ repositories {
     mavenCentral()
 }
 
+def sdkDependency
+if (gitlabPipelineId) {
+    sdkDependency = "au.com.bluedot:pointsdk:${gitlabPipelineId}"
+} else {
+    sdkDependency = 'com.gitlab.bluedotio.android:point_sdk_android:18.0.0'
+}
+
 dependencies {
-    implementation 'com.gitlab.bluedotio.android:point_sdk_android:17.3.0'
+    implementation sdkDependency
     implementation 'com.facebook.react:react-android:0.77.0'
     implementation 'androidx.core:core-ktx:1.15.0'
 }
