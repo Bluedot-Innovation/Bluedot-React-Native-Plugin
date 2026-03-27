@@ -107,7 +107,8 @@ clickedSub.remove();
 
 ### 3. Customise notification appearance (optional)
 
-Call this before the first message arrives — for example inside a `useEffect` at the root of your app:
+Call this before the first message arrives — for example inside a `useEffect` at the root of your app.
+Pass `null` to revert to the SDK default appearance.
 
 ```js
 import PushNotifications from 'bluedot-react-native-pushnotifications';
@@ -118,29 +119,19 @@ PushNotifications.setCustomPushNotification({
     channelName: 'My App Notifications',
 
     // Appearance
-    importance:            PushNotifications.IMPORTANCE_HIGH,
-    smallIconResourceName: 'ic_notification',      // drawable resource name in your Android project
-    largeIconResourceName: 'ic_large_notification', // drawable resource name in your Android project
-    color:                 '#FF6200',               // accent color
-    badgeIconType:         PushNotifications.BADGE_ICON_SMALL,
-    subText:               'Bluedot',
+    importance:            PushNotifications.IMPORTANCE_HIGH,  // default: IMPORTANCE_DEFAULT
+    smallIconResourceName: 'ic_notification',       // drawable resource name in your Android project
+    largeIconResourceName: 'ic_large_notification', // bitmap drawable resource name (vector XML not supported)
+    color:                 '#FF6200',               // accent color hex string
 
     // Behaviour
-    autoCancel:       true,
-    silent:           false,
-    onlyAlertOnce:    true,
-    vibrationPattern: [0, 250, 500, 250],  // off/on/off/on in ms
-    timeoutAfter:     30000,               // auto-dismiss after 30s (Android 8+)
-    lights:           { color: '#FF6200', onMs: 500, offMs: 1000 },
-
-    // Grouping
-    group:              'bluedot_notifications',
-    groupAlertBehavior: PushNotifications.GROUP_ALERT_SUMMARY,
-
-    // Categorisation
-    category:   PushNotifications.CATEGORY_PROMO,
-    visibility: PushNotifications.VISIBILITY_PUBLIC,
+    autoCancel: true,   // dismiss on tap (default: true)
+    ongoing:    false,  // prevent user from dismissing the notification
+    silent:     false,  // suppress sound & vibration
 });
+
+// Pass null to revert to the SDK default appearance
+PushNotifications.setCustomPushNotification(null);
 ```
 
 ---
@@ -148,37 +139,16 @@ PushNotifications.setCustomPushNotification({
 ## Available constants
 
 ### `IMPORTANCE_*` — notification channel importance
-| Constant | Value |
-|---|---|
-| `IMPORTANCE_MIN` | 1 |
-| `IMPORTANCE_LOW` | 2 |
-| `IMPORTANCE_DEFAULT` | 3 |
-| `IMPORTANCE_HIGH` | 4 |
-| `IMPORTANCE_MAX` | 5 |
 
-### `BADGE_ICON_*` — badge icon type
-| Constant | Value |
-|---|---|
-| `BADGE_ICON_NONE` | 0 |
-| `BADGE_ICON_SMALL` | 1 |
-| `BADGE_ICON_LARGE` | 2 |
+Used for the `importance` option in `setCustomPushNotification`. Maps to both the Android notification channel importance (API 26+) and the legacy `NotificationCompat` priority on older devices.
 
-### `VISIBILITY_*` — lockscreen visibility
-| Constant | Value |
-|---|---|
-| `VISIBILITY_PRIVATE` | -1 (default) |
-| `VISIBILITY_PUBLIC` | 1 |
-| `VISIBILITY_SECRET` | -2 |
-
-### `GROUP_ALERT_*` — group alert behaviour
-| Constant | Value |
-|---|---|
-| `GROUP_ALERT_ALL` | 0 (default) |
-| `GROUP_ALERT_SUMMARY` | 1 |
-| `GROUP_ALERT_CHILDREN` | 2 |
-
-### `CATEGORY_*` — notification category
-`CATEGORY_ALARM`, `CATEGORY_CALL`, `CATEGORY_EMAIL`, `CATEGORY_ERROR`, `CATEGORY_EVENT`, `CATEGORY_MESSAGE`, `CATEGORY_MISSED_CALL`, `CATEGORY_NAVIGATION`, `CATEGORY_PROGRESS`, `CATEGORY_PROMO`, `CATEGORY_RECOMMENDATION`, `CATEGORY_REMINDER`, `CATEGORY_SERVICE`, `CATEGORY_SOCIAL`, `CATEGORY_STATUS`, `CATEGORY_SYSTEM`, `CATEGORY_TRANSPORT`
+| Constant | Value | Channel importance | Legacy priority |
+|---|---|---|---|
+| `IMPORTANCE_MIN` | 1 | `IMPORTANCE_MIN` | `PRIORITY_MIN` |
+| `IMPORTANCE_LOW` | 2 | `IMPORTANCE_LOW` | `PRIORITY_LOW` |
+| `IMPORTANCE_DEFAULT` | 3 | `IMPORTANCE_DEFAULT` | `PRIORITY_DEFAULT` |
+| `IMPORTANCE_HIGH` | 4 | `IMPORTANCE_HIGH` | `PRIORITY_HIGH` |
+| `IMPORTANCE_MAX` | 5 | `IMPORTANCE_MAX` | `PRIORITY_MAX` |
 
 ---
 
