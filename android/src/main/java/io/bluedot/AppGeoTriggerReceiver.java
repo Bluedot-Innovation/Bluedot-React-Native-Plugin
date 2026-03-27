@@ -5,8 +5,6 @@ import static io.bluedot.EventUtil.sendEvent;
 import android.content.Context;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import au.com.bluedot.point.net.engine.GeoTriggeringEventReceiver;
 import au.com.bluedot.point.net.engine.event.GeoTriggerEvent;
 import com.facebook.react.bridge.WritableMap;
@@ -72,12 +70,12 @@ public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
     }
 
     @Override
-    public void onZoneDwellEvent(@NonNull GeoTriggerEvent geoTriggerEvent, @NonNull Context context) {
+    public void onZoneDwellEvent(@NotNull GeoTriggerEvent geoTriggerEvent, @NotNull Context context) {
         JSONObject jsonObject = null;
         WritableMap writableMap = null;
         try {
 
-            jsonObject = new JSONObject(exitEvent.toJson());
+            jsonObject = new JSONObject(geoTriggerEvent.toJson());
             Map<String, Object> mapEvent = MapUtil.toMap(jsonObject);
             writableMap = MapUtil.toWritableMap(mapEvent);
             sendEvent("dwellZone", writableMap);
