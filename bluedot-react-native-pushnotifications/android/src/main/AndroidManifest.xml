@@ -1,0 +1,23 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!--
+            Register AppPushNotificationsEventReceiver to receive push notification callbacks
+            from the Bluedot Push Notifications SDK.
+
+            The consumer app must also:
+              1. Implement FirebaseMessagingService and forward onNewToken / onMessageReceived
+                 to ServiceManager.getInstance(this).pushNotificationsManager
+              2. Register that FirebaseMessagingService in their own AndroidManifest.xml
+        -->
+        <receiver
+            android:name="io.bluedot.pushnotifications.AppPushNotificationsEventReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="io.bluedot.point.PUSHNOTIFICATIONS" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>

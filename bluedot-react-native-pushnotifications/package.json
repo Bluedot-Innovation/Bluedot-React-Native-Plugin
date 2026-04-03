@@ -1,19 +1,9 @@
 {
-  "name": "bluedot-react-native",
-  "title": "React Native Bluedot Point SDK",
+  "name": "bluedot-react-native-pushnotifications",
+  "title": "React Native Bluedot Push Notifications SDK",
   "version": "4.0.0",
-  "description": "Bluedot Point SDK React Native SDK; integrates the Android and iOS Point SDK libraries",
+  "description": "Bluedot Push Notifications React Native module; integrates the Android Push Notifications SDK library",
   "main": "index.js",
-  "files": [
-    "android/",
-    "ios/",
-    "index.js",
-    "GeoTriggeringBuilder.js",
-    "TempoBuilder.js",
-    "BrainAi.js",
-    "react-native-plugin.podspec",
-    "README.md"
-  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -25,9 +15,9 @@
   "homepage": "https://bluedot.io",
   "keywords": [
     "react-native",
-    "pointsdk",
+    "pushnotifications",
+    "push",
     "location",
-    "geolocation",
     "bluedot"
   ],
   "author": {
@@ -38,12 +28,12 @@
   "readmeFilename": "README.md",
   "peerDependencies": {
     "react": ">= 19.1.0",
-    "react-native": ">= 0.81.5"
+    "react-native": ">= 0.81.5",
+    "bluedot-react-native": ">= 3.4.1"
   },
   "devDependencies": {
     "@react-native-community/cli": "latest",
     "react": "19.1.0",
-    "react-native": "^0.81.5",
-    "upgrade": "^1.1.0"
+    "react-native": "^0.81.5"
   }
 }

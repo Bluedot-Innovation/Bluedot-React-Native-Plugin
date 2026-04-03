@@ -38,6 +38,7 @@ local.properties
 *.iml
 .classpath
 .core.prefs
+android/.settings/
 
 # BUCK
 buck-out/

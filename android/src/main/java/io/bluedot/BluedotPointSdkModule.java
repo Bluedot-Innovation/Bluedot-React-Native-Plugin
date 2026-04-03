@@ -81,7 +81,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
                 onSucessCallback.invoke(text);
             }
         };
-        serviceManager.initialize(projectId, resultListener);
+        serviceManager.initialize(projectId, "https://globalconfig.dev-bluedot.com/", resultListener);
     }
 
     @ReactMethod
@@ -132,7 +132,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
                 GeoTriggeringService.builder()
                         .notification(fgNotification)
                         .notificationId(androidNotificationId)
-                        .start(reactContext, geoTriggerError -> {
+                        .start(geoTriggerError -> {
                             if (geoTriggerError != null) {
                                 onError.invoke("Error " + geoTriggerError.getReason());
                                 return;
@@ -143,7 +143,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
                 // Use default notificationId set by PointSDK
                 GeoTriggeringService.builder()
                         .notification(fgNotification)
-                        .start(reactContext, geoTriggerError -> {
+                        .start(geoTriggerError -> {
                             if (geoTriggerError != null) {
                                 onError.invoke("Error " + geoTriggerError.getReason());
                                 return;
@@ -154,7 +154,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
         } else {
             // Start as No FG Service
             GeoTriggeringService.builder()
-                    .start(reactContext, geoTriggerError -> {
+                    .start(geoTriggerError -> {
                         if (geoTriggerError != null) {
                             onError.invoke("Error " + geoTriggerError.getReason());
                             return;
@@ -167,7 +167,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
     @ReactMethod
     public void isGeoTriggeringRunning(Promise promise) {
         try {
-            boolean isRunning = GeoTriggeringService.isRunning(reactContext);
+            boolean isRunning = GeoTriggeringService.isRunning();
             promise.resolve(isRunning);
         } catch (Exception e) {
             promise.reject("Error getting isGeoTriggeringRunning");
@@ -195,7 +195,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
             }
             onFailCallback.invoke(error.getReason());
         };
-        GeoTriggeringService.stop(reactContext, statusListener);
+        GeoTriggeringService.stop(statusListener);
     }
 
     @ReactMethod
@@ -235,19 +235,19 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
                     .notificationId(androidNotificationId)
                     .notification(fgNotification)
                     .destinationId(destinationId)
-                    .start(reactContext, tempoStatusListener);
+                    .start(tempoStatusListener);
         } else {
             TempoService.builder()
                     .notification(fgNotification)
                     .destinationId(destinationId)
-                    .start(reactContext, tempoStatusListener);
+                    .start(tempoStatusListener);
         }
     }
 
     @ReactMethod
     public void isTempoRunning(Promise promise) {
         try {
-            boolean isRunning = TempoService.isRunning(reactContext);
+            boolean isRunning = TempoService.isRunning();
             promise.resolve(isRunning);
         } catch (Exception e) {
             promise.reject("Error getting the isTempoRunning");
@@ -256,7 +256,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
 
     @ReactMethod
     public void stopTempoTracking(Callback onSuccessCallback, Callback onFailCallback) {
-        BDError error = TempoService.stop(reactContext);
+        BDError error = TempoService.stop();
         if (error == null)
             onSuccessCallback.invoke();
         else

@@ -68,4 +68,19 @@ public class AppGeoTriggerReceiver extends GeoTriggeringEventReceiver {
             System.out.println("Exception occurred during conversion of ExitEvent" + exp);
         }
     }
+
+    @Override
+    public void onZoneDwellEvent(@NotNull GeoTriggerEvent geoTriggerEvent, @NotNull Context context) {
+        JSONObject jsonObject = null;
+        WritableMap writableMap = null;
+        try {
+
+            jsonObject = new JSONObject(geoTriggerEvent.toJson());
+            Map<String, Object> mapEvent = MapUtil.toMap(jsonObject);
+            writableMap = MapUtil.toWritableMap(mapEvent);
+            sendEvent("dwellZone", writableMap);
+        } catch (JSONException exp) {
+            System.out.println("Exception occurred during conversion of DwellEvent" + exp);
+        }
+    }
 }
