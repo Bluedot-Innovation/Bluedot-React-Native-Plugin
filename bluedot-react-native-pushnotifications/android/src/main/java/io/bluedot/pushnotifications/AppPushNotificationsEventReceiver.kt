@@ -6,11 +6,11 @@ import com.facebook.react.bridge.WritableNativeMap
 
 class AppPushNotificationsEventReceiver : PushNotificationsEventReceiver() {
 
-    override fun onNotificationReceived(rezolvePushData: RezolvePushData) {
+    override fun onNotificationReceived(rezolvePushData: RezolvePushData, context: Context) {
         PushEventUtil.sendEvent(PUSH_NOTIFICATION_RECEIVED, rezolvePushDataToWritableMap(rezolvePushData))
     }
 
-    override fun onNotificationClicked(rezolvePushData: RezolvePushData) {
+    override fun onNotificationClicked(rezolvePushData: RezolvePushData, context: Context) {
         PushEventUtil.sendEvent(PUSH_NOTIFICATION_CLICKED, rezolvePushDataToWritableMap(rezolvePushData))
     }
 
