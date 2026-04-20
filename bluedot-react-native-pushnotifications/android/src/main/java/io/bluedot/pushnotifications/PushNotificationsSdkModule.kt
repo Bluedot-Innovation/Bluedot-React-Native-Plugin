@@ -49,7 +49,7 @@ class PushNotificationsSdkModule(reactContext: ReactApplicationContext) :
      *
      * Expected message shape (matches @react-native-firebase/messaging payload):
      * {
-     *   data: { notification_title, campaignId, zoneId, notificationId }
+     *   data: { notification_title, notification_body, com.rezolveai.push, campaignId, zoneId, notificationId }
      * }
      */
     @ReactMethod
