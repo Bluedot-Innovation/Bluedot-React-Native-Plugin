@@ -1,6 +1,5 @@
 package io.bluedot.pushnotifications
 
-import android.util.Log
 import au.com.bluedot.point.net.engine.ServiceManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -45,16 +44,12 @@ import com.rezolve.pushnotifications.toRezolvePushData
 class DefaultMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        Log.d(TAG, "From: ${remoteMessage.from}, data: ${remoteMessage.data}")
-        Log.d(TAG, "title: ${remoteMessage.notification?.title}")
-        Log.d(TAG, "body: ${remoteMessage.notification?.body}")
         if (remoteMessage.isRezolvePushNotification()) {
             ServiceManager.getInstance(this).pushNotificationsManager.onMessageReceived(remoteMessage.toRezolvePushData())
         }
     }
 
     override fun onNewToken(token: String) {
-        Log.d(TAG, "Refreshed token: $token")
         ServiceManager.getInstance(this).pushNotificationsManager.onNewFcmToken(token)
     }
 

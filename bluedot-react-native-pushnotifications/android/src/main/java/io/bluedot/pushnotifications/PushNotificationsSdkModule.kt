@@ -43,14 +43,13 @@ class PushNotificationsSdkModule(reactContext: ReactApplicationContext) :
     }
 
     /**
-     * Forward an incoming FCM message to the Bluedot push module.
+     * Forward an incoming FCM message to the Rezolve push module.
      * Call this from your @react-native-firebase/messaging onMessage and
      * setBackgroundMessageHandler callbacks.
      *
      * Expected message shape (matches @react-native-firebase/messaging payload):
      * {
-     *   notification: { title: string, body: string },
-     *   data: { campaignId, zoneId, notificationId, pushVersion, ...custom }
+     *   data: { notification_title, campaignId, zoneId, notificationId }
      * }
      */
     @ReactMethod
@@ -75,90 +74,6 @@ class PushNotificationsSdkModule(reactContext: ReactApplicationContext) :
         ServiceManager.getInstance(reactApplicationContext)
             .pushNotificationsManager
             .onMessageReceived(rezolvePushData)
-    }
-
-    /**
-     * Customise the notification appearance shown by the Bluedot push module.
-     * Must be called before the first message arrives (e.g. in your app root component).
-     * Pass null to revert to the SDK default appearance.
-     *
-     * Required:
-     *   channelId    {string}  Notification channel ID
-     *   channelName  {string}  User-visible channel name
-     *
-     * Appearance:
-     *   importance              {number}   Channel importance: 1=MIN 2=LOW 3=DEFAULT 4=HIGH 5=MAX
-     *   smallIconResourceName   {string}   Drawable resource name in the consumer app
-     *   largeIconResourceName   {string}   Drawable resource name for the large icon. This must be a bitmap drawable, can't be a vector XML drawable
-     *   color                   {string}   Accent color hex string e.g. "#FF0000"
-     *
-     * Behaviour:
-     *   autoCancel              {boolean}  Dismiss on tap (default: true)
-     *   ongoing                 {boolean}  Prevent user from dismissing the notification
-     *   silent                  {boolean}  Suppress sound and vibration for this notification
-     */
-    @ReactMethod
-    fun setCustomPushNotification(options: ReadableMap?) {
-        if (options == null) {
-            ServiceManager.getInstance(reactApplicationContext)
-                .pushNotificationsManager
-                .setCustomPushNotification(null)
-            return
-        }
-        val channelId   = options.getString("channelId")   ?: "rezolve_push_channel"
-        val channelName = options.getString("channelName") ?: "Push Notifications"
-        val importance  = if (options.hasKey("importance")) options.getInt("importance")
-                          else NotificationManager.IMPORTANCE_DEFAULT
-
-        val notificationManager = reactApplicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(
-            NotificationChannel(channelId, channelName, importance)
-        )
-
-        // Tap always opens MainActivity — the JS layer decides where to navigate
-        // via the PUSH_NOTIFICATION_CLICKED event.
-        val launchIntent = reactApplicationContext.packageManager
-            .getLaunchIntentForPackage(reactApplicationContext.packageName)
-            ?.apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP }
-        val contentIntent = PendingIntent.getActivity(
-            reactApplicationContext,
-            0,
-            launchIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val builder = NotificationCompat.Builder(reactApplicationContext, channelId)
-            // Map channel importance to legacy priority so pre-API-26 devices also honour
-            // the requested urgency level (e.g. IMPORTANCE_HIGH → PRIORITY_HIGH for heads-up).
-            .setPriority(importanceToPriority(importance))
-            .setAutoCancel(options.getBoolOr("autoCancel", true))
-            .setContentIntent(contentIntent)
-
-        if (options.hasKey("smallIconResourceName")) {
-            val resId = reactApplicationContext.resources.getIdentifier(
-                options.getString("smallIconResourceName"), "drawable", reactApplicationContext.packageName
-            )
-            if (resId != 0) builder.setSmallIcon(resId)
-        }
-        if (options.hasKey("largeIconResourceName")) {
-            val resId = reactApplicationContext.resources.getIdentifier(
-                options.getString("largeIconResourceName"), "drawable", reactApplicationContext.packageName
-            )
-            if (resId != 0) {
-                val bmp = BitmapFactory.decodeResource(reactApplicationContext.resources, resId)
-                if (bmp != null) builder.setLargeIcon(bmp)
-            }
-        }
-        if (options.hasKey("color")) {
-            runCatching { Color.parseColor(options.getString("color")) }
-                .onSuccess { builder.setColor(it) }
-        }
-        if (options.hasKey("ongoing")) builder.setOngoing(options.getBoolean("ongoing"))
-        if (options.hasKey("silent"))  builder.setSilent(options.getBoolean("silent"))
-
-        ServiceManager.getInstance(reactApplicationContext)
-            .pushNotificationsManager
-            .setCustomPushNotification(builder)
     }
 
     // Helper: read a boolean from ReadableMap with a fallback default
