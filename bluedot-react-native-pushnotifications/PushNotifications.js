@@ -39,31 +39,6 @@ class PushNotifications {
     }
 
     /**
-     * Customise the notification appearance shown by the Bluedot push module.
-     * Must be called before the first message arrives — e.g. in your root component's useEffect.
-     * Pass null to revert to the SDK default appearance.
-     *
-     * Required:
-     *   channelId    {string}  Notification channel ID
-     *   channelName  {string}  User-visible channel name
-     *
-     * Appearance:
-     *   importance              {number}    Channel importance — use IMPORTANCE_* constants (default: IMPORTANCE_DEFAULT)
-     *   smallIconResourceName   {string}    Drawable resource name in your Android app
-     *   largeIconResourceName   {string}    Drawable resource name for the large icon
-     *   color                   {string}    Accent color hex e.g. "#FF0000"
-     *
-     * Behaviour:
-     *   autoCancel              {boolean}   Dismiss on tap (default: true)
-     *   ongoing                 {boolean}   Prevent user from dismissing the notification
-     *   silent                  {boolean}   Suppress sound & vibration for this notification
-     */
-    setCustomPushNotification = (options) => {
-        if (Platform.OS !== 'android') return;
-        NativeModules.BluedotPushNotificationsSDK.setCustomPushNotification(options);
-    }
-
-    /**
      * Subscribe to a push notification event.
      *
      * Payload delivered to the callback contains:
