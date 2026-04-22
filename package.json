@@ -10,7 +10,6 @@
     "index.js",
     "GeoTriggeringBuilder.js",
     "TempoBuilder.js",
-    "BrainAi.js",
     "react-native-plugin.podspec",
     "README.md"
   ],

@@ -8,13 +8,6 @@ class PushNotifications {
     PUSH_NOTIFICATION_RECEIVED = "pushNotificationReceived";
     PUSH_NOTIFICATION_CLICKED  = "pushNotificationClicked";
 
-    // Android NotificationManager importance constants
-    IMPORTANCE_MIN     = 1;
-    IMPORTANCE_LOW     = 2;
-    IMPORTANCE_DEFAULT = 3;
-    IMPORTANCE_HIGH    = 4;
-    IMPORTANCE_MAX     = 5;
-
     /**
      * Forward a new FCM token to the Bluedot push module.
      * Call this from your @react-native-firebase/messaging onTokenRefresh handler.
@@ -36,31 +29,6 @@ class PushNotifications {
     onMessageReceived = (remoteMessage) => {
         if (Platform.OS !== 'android') return;
         NativeModules.BluedotPushNotificationsSDK.onMessageReceived(remoteMessage);
-    }
-
-    /**
-     * Customise the notification appearance shown by the Bluedot push module.
-     * Must be called before the first message arrives — e.g. in your root component's useEffect.
-     * Pass null to revert to the SDK default appearance.
-     *
-     * Required:
-     *   channelId    {string}  Notification channel ID
-     *   channelName  {string}  User-visible channel name
-     *
-     * Appearance:
-     *   importance              {number}    Channel importance — use IMPORTANCE_* constants (default: IMPORTANCE_DEFAULT)
-     *   smallIconResourceName   {string}    Drawable resource name in your Android app
-     *   largeIconResourceName   {string}    Drawable resource name for the large icon
-     *   color                   {string}    Accent color hex e.g. "#FF0000"
-     *
-     * Behaviour:
-     *   autoCancel              {boolean}   Dismiss on tap (default: true)
-     *   ongoing                 {boolean}   Prevent user from dismissing the notification
-     *   silent                  {boolean}   Suppress sound & vibration for this notification
-     */
-    setCustomPushNotification = (options) => {
-        if (Platform.OS !== 'android') return;
-        NativeModules.BluedotPushNotificationsSDK.setCustomPushNotification(options);
     }
 
     /**
