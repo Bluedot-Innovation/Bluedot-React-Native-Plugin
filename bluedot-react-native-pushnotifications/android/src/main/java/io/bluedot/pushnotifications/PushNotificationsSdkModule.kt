@@ -70,20 +70,6 @@ class PushNotificationsSdkModule(reactContext: ReactApplicationContext) :
             .onMessageReceived(rezolvePushData)
     }
 
-    // Helper: read a boolean from ReadableMap with a fallback default
-    private fun ReadableMap.getBoolOr(key: String, default: Boolean): Boolean =
-        if (hasKey(key)) getBoolean(key) else default
-
-    // Helper: map NotificationManager.IMPORTANCE_* to the equivalent NotificationCompat.PRIORITY_*
-    // so that pre-API-26 devices honour the requested urgency level.
-    private fun importanceToPriority(importance: Int): Int = when (importance) {
-        NotificationManager.IMPORTANCE_MIN     -> NotificationCompat.PRIORITY_MIN
-        NotificationManager.IMPORTANCE_LOW     -> NotificationCompat.PRIORITY_LOW
-        NotificationManager.IMPORTANCE_HIGH    -> NotificationCompat.PRIORITY_HIGH
-        NotificationManager.IMPORTANCE_MAX     -> NotificationCompat.PRIORITY_MAX
-        else                                   -> NotificationCompat.PRIORITY_DEFAULT
-    }
-
     companion object {
         @JvmStatic
         var reactContextRef: ReactApplicationContext? = null
