@@ -105,51 +105,6 @@ clickedSub.remove();
 
 > **Cold-start taps:** If the user taps a notification while the app is fully closed, the `PUSH_NOTIFICATION_CLICKED` event is buffered and delivered automatically once the JS bridge is ready.
 
-### 3. Customise notification appearance (optional)
-
-Call this before the first message arrives — for example inside a `useEffect` at the root of your app.
-Pass `null` to revert to the SDK default appearance.
-
-```js
-import PushNotifications from 'bluedot-react-native-pushnotifications';
-
-PushNotifications.setCustomPushNotification({
-    // Required
-    channelId:   'my_push_channel',
-    channelName: 'My App Notifications',
-
-    // Appearance
-    importance:            PushNotifications.IMPORTANCE_HIGH,  // default: IMPORTANCE_DEFAULT
-    smallIconResourceName: 'ic_notification',       // drawable resource name in your Android project
-    largeIconResourceName: 'ic_large_notification', // bitmap drawable resource name (vector XML not supported)
-    color:                 '#FF6200',               // accent color hex string
-
-    // Behaviour
-    autoCancel: true,   // dismiss on tap (default: true)
-    ongoing:    false,  // prevent user from dismissing the notification
-    silent:     false,  // suppress sound & vibration
-});
-
-// Pass null to revert to the SDK default appearance
-PushNotifications.setCustomPushNotification(null);
-```
-
----
-
-## Available constants
-
-### `IMPORTANCE_*` — notification channel importance
-
-Used for the `importance` option in `setCustomPushNotification`. Maps to both the Android notification channel importance (API 26+) and the legacy `NotificationCompat` priority on older devices.
-
-| Constant | Value | Channel importance | Legacy priority |
-|---|---|---|---|
-| `IMPORTANCE_MIN` | 1 | `IMPORTANCE_MIN` | `PRIORITY_MIN` |
-| `IMPORTANCE_LOW` | 2 | `IMPORTANCE_LOW` | `PRIORITY_LOW` |
-| `IMPORTANCE_DEFAULT` | 3 | `IMPORTANCE_DEFAULT` | `PRIORITY_DEFAULT` |
-| `IMPORTANCE_HIGH` | 4 | `IMPORTANCE_HIGH` | `PRIORITY_HIGH` |
-| `IMPORTANCE_MAX` | 5 | `IMPORTANCE_MAX` | `PRIORITY_MAX` |
-
 ---
 
 ## Notification payload fields
@@ -174,7 +129,6 @@ Delivered to both `PUSH_NOTIFICATION_RECEIVED` and `PUSH_NOTIFICATION_CLICKED` c
 |---|---|
 | `onNewFcmToken(token)` | Forward an FCM token update to the Bluedot SDK |
 | `onMessageReceived(remoteMessage)` | Forward an incoming FCM message to the Bluedot SDK |
-| `setCustomPushNotification(options)` | Customise notification appearance and behaviour |
 | `on(eventName, callback)` | Subscribe to a notification event, returns subscription |
 | `removeAllListeners(eventName)` | Remove all listeners for a given event name |
 </content>

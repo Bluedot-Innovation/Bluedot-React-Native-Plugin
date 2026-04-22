@@ -8,13 +8,6 @@ class PushNotifications {
     PUSH_NOTIFICATION_RECEIVED = "pushNotificationReceived";
     PUSH_NOTIFICATION_CLICKED  = "pushNotificationClicked";
 
-    // Android NotificationManager importance constants
-    IMPORTANCE_MIN     = 1;
-    IMPORTANCE_LOW     = 2;
-    IMPORTANCE_DEFAULT = 3;
-    IMPORTANCE_HIGH    = 4;
-    IMPORTANCE_MAX     = 5;
-
     /**
      * Forward a new FCM token to the Bluedot push module.
      * Call this from your @react-native-firebase/messaging onTokenRefresh handler.
