@@ -10,6 +10,7 @@
     "index.js",
     "GeoTriggeringBuilder.js",
     "TempoBuilder.js",
+    "PushNotifications.js",
     "react-native-plugin.podspec",
     "README.md"
   ],

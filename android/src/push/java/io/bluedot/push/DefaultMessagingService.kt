@@ -1,4 +1,4 @@
-package io.bluedot.pushnotifications
+package io.bluedot.push
 
 import au.com.bluedot.point.net.engine.ServiceManager
 import com.google.firebase.messaging.FirebaseMessagingService

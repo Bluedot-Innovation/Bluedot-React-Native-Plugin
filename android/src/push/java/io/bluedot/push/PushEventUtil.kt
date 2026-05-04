@@ -1,4 +1,4 @@
-package io.bluedot.pushnotifications
+package io.bluedot.push
 
 import android.util.Log
 import com.facebook.react.bridge.WritableMap

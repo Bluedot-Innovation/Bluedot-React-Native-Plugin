@@ -1,6 +1,7 @@
 import { NativeModules, NativeEventEmitter, Platform } from 'react-native';
 
-const pushEventEmitter = new NativeEventEmitter(NativeModules.BluedotPushNotificationsSDK);
+const pushModule = NativeModules.BluedotPushNotificationsSDK;
+const pushEventEmitter = pushModule ? new NativeEventEmitter(pushModule) : null;
 
 class PushNotifications {
 
@@ -16,7 +17,11 @@ class PushNotifications {
      */
     onNewFcmToken = (token) => {
         if (Platform.OS !== 'android') return;
-        NativeModules.BluedotPushNotificationsSDK.onNewFcmToken(token);
+        if (!pushModule) {
+            console.error('BluedotPushNotifications: push support is not enabled. Set bluedotPushEnabled=true in android/gradle.properties and rebuild.');
+            return;
+        }
+        pushModule.onNewFcmToken(token);
     }
 
     /**
@@ -28,7 +33,11 @@ class PushNotifications {
      */
     onMessageReceived = (remoteMessage) => {
         if (Platform.OS !== 'android') return;
-        NativeModules.BluedotPushNotificationsSDK.onMessageReceived(remoteMessage);
+        if (!pushModule) {
+            console.error('BluedotPushNotifications: push support is not enabled. Set bluedotPushEnabled=true in android/gradle.properties and rebuild.');
+            return;
+        }
+        pushModule.onMessageReceived(remoteMessage);
     }
 
     /**
@@ -48,8 +57,8 @@ class PushNotifications {
      * @returns {EmitterSubscription}  Call .remove() to unsubscribe
      */
     on = (eventName, callback) => {
-        if (Platform.OS !== 'android') {
-            console.warn('BluedotPushNotifications: push notifications are only supported on Android.');
+        if (!pushEventEmitter) {
+            console.error('BluedotPushNotifications: push support is not enabled. Set bluedotPushEnabled=true in android/gradle.properties and rebuild.');
             return { remove: () => {} };
         }
         return pushEventEmitter.addListener(eventName, callback);
@@ -61,6 +70,7 @@ class PushNotifications {
      * @param {string} eventName
      */
     removeAllListeners = (eventName) => {
+        if (!pushEventEmitter) return;
         pushEventEmitter.removeAllListeners(eventName);
     }
 }

@@ -1,4 +1,4 @@
-package io.bluedot.pushnotifications;
+package io.bluedot.push;
 
 import androidx.annotation.NonNull;
 

@@ -1,6 +1,7 @@
 import { NativeModules, NativeEventEmitter } from 'react-native';
 import GeoTriggeringBuilder from './GeoTriggeringBuilder'
 import TempoBuilder from './TempoBuilder'
+import PushNotifications from './PushNotifications'
 
 const eventEmitter = new NativeEventEmitter(NativeModules.BluedotPointSDK)
 const subscriptionsList = new Set(); // Set of strings - eventNames
@@ -103,4 +104,5 @@ const BluedotPointSDK = {
     backgroundLocationAccessForWhileUsing
 }
 
+export { PushNotifications }
 export default BluedotPointSDK

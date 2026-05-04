@@ -2,13 +2,51 @@
           xmlns:tools="http://schemas.android.com/tools">
 
     <application>
+
+        <!-- ================================================================
+             Core receivers — identical to src/main/AndroidManifest.xml.
+             This manifest replaces (not merges with) the main manifest when
+             bluedotPushEnabled=true, so all core entries must be present here.
+             ================================================================ -->
+
+        <receiver
+            android:name="io.bluedot.AppGeoTriggerReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="io.bluedot.point.GEOTRIGGER" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="io.bluedot.AppTempoReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="io.bluedot.point.TEMPO" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="io.bluedot.BluedotErrorReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="io.bluedot.point.SERVICE" />
+            </intent-filter>
+        </receiver>
+
+        <!-- ================================================================
+             Push-only entries — only present when bluedotPushEnabled=true.
+             ================================================================ -->
+
         <!--
             AppPushNotificationsEventReceiver: receives push notification callbacks
             (onNotificationReceived / onNotificationClicked) from the Bluedot Push SDK
             and bridges them to the React Native JS layer.
         -->
         <receiver
-            android:name="io.bluedot.pushnotifications.AppPushNotificationsEventReceiver"
+            android:name="io.bluedot.push.AppPushNotificationsEventReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
@@ -23,12 +61,12 @@
             app registers without an explicit priority defaults to 0, which takes precedence.
             This service is never reached once the consumer registers their own.
 
-            Pattern B  - @react-native-firebase/messaging:
+            Pattern B — @react-native-firebase/messaging:
             That library registers its own service at priority 0, pre-empting this one.
             Forward messages to Bluedot via the JS bridge instead:
               PushNotifications.onMessageReceived(msg) and PushNotifications.onNewFcmToken(token).
 
-            Pattern C  - multiple push sources (e.g. Airship + Bluedot):
+            Pattern C — multiple push sources (e.g. Airship + Bluedot):
             Register your own FirebaseMessagingService (default priority 0). Route Bluedot
             messages to ServiceManager.getInstance(this).pushNotificationsManager inside it.
             This service is pre-empted automatically. No manifest changes needed.
@@ -37,12 +75,13 @@
             in your app AndroidManifest.xml with tools:node="remove" targeting this class name.
         -->
         <service
-            android:name="io.bluedot.pushnotifications.DefaultMessagingService"
+            android:name="io.bluedot.push.DefaultMessagingService"
             android:exported="false">
             <intent-filter android:priority="-1">
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
     </application>
 
 </manifest>

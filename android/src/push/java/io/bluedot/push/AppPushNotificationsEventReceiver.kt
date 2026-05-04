@@ -1,4 +1,4 @@
-package io.bluedot.pushnotifications
+package io.bluedot.push
 
 import android.content.Context
 import au.com.bluedot.point.api.push.model.RezolvePushData
@@ -29,6 +29,6 @@ class AppPushNotificationsEventReceiver : PushNotificationsEventReceiver() {
 
     companion object {
         const val PUSH_NOTIFICATION_RECEIVED = "pushNotificationReceived"
-        const val PUSH_NOTIFICATION_CLICKED = "pushNotificationClicked"
+        const val PUSH_NOTIFICATION_CLICKED  = "pushNotificationClicked"
     }
 }

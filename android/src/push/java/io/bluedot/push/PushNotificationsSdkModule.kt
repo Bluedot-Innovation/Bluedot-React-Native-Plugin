@@ -1,7 +1,5 @@
-package io.bluedot.pushnotifications
+package io.bluedot.push
 
-import android.app.NotificationManager
-import androidx.core.app.NotificationCompat
 import au.com.bluedot.point.api.push.model.RezolvePushData
 import au.com.bluedot.point.net.engine.ServiceManager
 import com.facebook.react.bridge.ReactApplicationContext
