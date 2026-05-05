@@ -81,7 +81,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
                 onSucessCallback.invoke(text);
             }
         };
-        serviceManager.initialize(projectId, resultListener);
+        serviceManager.initialize(projectId, "https://globalconfig.dev-bluedot.com/", resultListener);
     }
 
     @ReactMethod
