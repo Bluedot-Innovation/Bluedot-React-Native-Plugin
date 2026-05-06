@@ -1,0 +1,5 @@
+// Single source of truth for shared dependency versions across all modules.
+// Both android/ and bluedot-react-native-pushnotifications/android/ apply this file.
+ext {
+    pointSdkVersion = '18.0.0'
+}
