@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		3046C7872A41314500B1078D /* BDPointSDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3046C7862A41314500B1078D /* BDPointSDK.xcframework */; };
 		B3E7B58A1CC2AC0600A0062D /* BluedotPointSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* BluedotPointSDK.m */; };
+		E1AD1EF52FAC7EB8000A62B9 /* BluedotPushAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1AD1EF42FAC7EB8000A62B9 /* BluedotPushAdapter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -151,6 +152,7 @@
 		78F37D4F238F86FC005517BB /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "../node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
 		B3E7B5881CC2AC0600A0062D /* BluedotPointSDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BluedotPointSDK.h; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* BluedotPointSDK.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BluedotPointSDK.m; sourceTree = "<group>"; };
+		E1AD1EF42FAC7EB8000A62B9 /* BluedotPushAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluedotPushAdapter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -186,6 +188,7 @@
 			children = (
 				B3E7B5881CC2AC0600A0062D /* BluedotPointSDK.h */,
 				B3E7B5891CC2AC0600A0062D /* BluedotPointSDK.m */,
+				E1AD1EF42FAC7EB8000A62B9 /* BluedotPushAdapter.swift */,
 				134814211AA4EA7D00B7C361 /* Products */,
 				78F37D4C238F867B005517BB /* Framework */,
 				3046C7852A41314500B1078D /* Frameworks */,
@@ -255,6 +258,7 @@
 				TargetAttributes = {
 					58B511DA1A9E6C8500147676 = {
 						CreatedOnToolsVersion = 6.1.1;
+						LastSwiftMigration = 2630;
 					};
 				};
 			};
@@ -403,6 +407,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B3E7B58A1CC2AC0600A0062D /* BluedotPointSDK.m in Sources */,
+				E1AD1EF52FAC7EB8000A62B9 /* BluedotPushAdapter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -513,6 +518,7 @@
 		58B511F01A9E6C8500147676 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
@@ -528,12 +534,15 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = BluedotPointSDK;
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
 		58B511F11A9E6C8500147676 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
@@ -549,6 +558,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = BluedotPointSDK;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
 		};
