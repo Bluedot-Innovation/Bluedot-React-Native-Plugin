@@ -1,7 +1,7 @@
 {
   "name": "bluedot-react-native-pushnotifications",
   "title": "React Native Bluedot Push Notifications SDK",
-  "version": "4.0.0",
+  "version": "1.0.0",
   "description": "Bluedot Push Notifications React Native module; integrates the Android Push Notifications SDK library",
   "main": "index.js",
   "scripts": {
