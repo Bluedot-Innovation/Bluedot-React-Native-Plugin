@@ -51,6 +51,36 @@ RCT_EXPORT_MODULE()
             }
         };
     }
+
+        __weak typeof(self) weakSelf = self;
+    [BDLocationManager instance].pushNotifications.onNotificationReceived = ^(PushPayload *payload) {
+        if (!weakSelf) { return; }
+        
+        NSDictionary *notificationEventMap;
+        @try {
+            notificationEventMap = [weakSelf notificationEventMapFromPayload:payload];
+        } @catch (NSException *exception) {
+
+        } @finally {
+            [weakSelf sendEventWithName:@"pushNotificationReceived"
+                                    body:notificationEventMap];
+        }
+    };
+    
+    [BDLocationManager instance].pushNotifications.onNotificationClicked = ^(PushPayload *payload) {
+        if (!weakSelf) { return; }
+        
+        NSDictionary *notificationEventMap;
+        @try {
+            notificationEventMap = [weakSelf notificationEventMapFromPayload:payload];
+        } @catch (NSException *exception) {
+
+        } @finally {
+            [weakSelf sendEventWithName:@"pushNotificationClicked"
+                                    body:notificationEventMap];
+        }
+    };
+
     return self;
 }
 
