@@ -24,11 +24,12 @@ RCT_EXPORT_MODULE()
         [BDLocationManager instance].pushNotifications.onNotificationReceived = ^(PushPayload *payload) {
             if (!weakSelf) { return; }
                 
-            NSDictionary *notificationEventMap;
+            NSDictionary *notificationEventMap = @{};
             @try {
                 notificationEventMap = [weakSelf notificationEventMapFromPayload:payload];
             } @catch (NSException *exception) {
-
+                NSLog(@"[BluedotPointSDK] notificationEventMapFromPayload: threw exception: %@", exception);
+                notificationEventMap = @{};
             } @finally {
                 [weakSelf sendEventWithName:@"pushNotificationReceived"
                                        body:notificationEventMap];
@@ -38,11 +39,12 @@ RCT_EXPORT_MODULE()
         [BDLocationManager instance].pushNotifications.onNotificationClicked = ^(PushPayload *payload) {
             if (!weakSelf) { return; }
             
-            NSDictionary *notificationEventMap;
+            NSDictionary *notificationEventMap = @{};
             @try {
                 notificationEventMap = [weakSelf notificationEventMapFromPayload:payload];
             } @catch (NSException *exception) {
-
+                NSLog(@"[BluedotPointSDK] notificationEventMapFromPayload: threw exception: %@", exception);
+                notificationEventMap = @{};
             } @finally {
                 [weakSelf sendEventWithName:@"pushNotificationClicked"
                                        body:notificationEventMap];

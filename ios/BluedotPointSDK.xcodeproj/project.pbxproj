@@ -535,7 +535,7 @@
 				PRODUCT_NAME = BluedotPointSDK;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 6.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -558,7 +558,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = BluedotPointSDK;
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 6.0;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};

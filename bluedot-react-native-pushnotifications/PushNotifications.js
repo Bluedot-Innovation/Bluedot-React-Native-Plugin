@@ -1,15 +1,17 @@
 import { NativeModules, NativeEventEmitter, Platform } from 'react-native';
 
+let activeEmitter = null;
+
 const getActiveEmitter = () => {
+    if (activeEmitter) return activeEmitter;
     if (Platform.OS === 'android') {
         const nativeModule = NativeModules.BluedotPushNotificationsSDK;
-        return nativeModule ? new NativeEventEmitter(nativeModule) : null;
-    }
-    if (Platform.OS === 'ios') {
+        activeEmitter = nativeModule ? new NativeEventEmitter(nativeModule) : null;
+    } else if (Platform.OS === 'ios') {
         const nativeModule = NativeModules.BluedotPointSDK;
-        return nativeModule ? new NativeEventEmitter(nativeModule) : null;
+        activeEmitter = nativeModule ? new NativeEventEmitter(nativeModule) : null;
     }
-    return null;
+    return activeEmitter;
 };
 
 class PushNotifications {
