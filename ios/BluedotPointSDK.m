@@ -19,6 +19,37 @@ RCT_EXPORT_MODULE()
         //  Setup a generic date formatter
         _dateFormatter = [ NSDateFormatter new ];
         [ _dateFormatter setDateFormat: @"dd-MMM-yyyy HH:mm" ];
+        
+        __weak typeof(self) weakSelf = self;
+        [BDLocationManager instance].pushNotifications.onNotificationReceived = ^(PushPayload *payload) {
+            if (!weakSelf) { return; }
+                
+            NSDictionary *notificationEventMap = @{};
+            @try {
+                notificationEventMap = [weakSelf notificationEventMapFromPayload:payload];
+            } @catch (NSException *exception) {
+                NSLog(@"[BluedotPointSDK] notificationEventMapFromPayload: threw exception: %@", exception);
+                notificationEventMap = @{};
+            } @finally {
+                [weakSelf sendEventWithName:@"pushNotificationReceived"
+                                       body:notificationEventMap];
+            }
+        };
+            
+        [BDLocationManager instance].pushNotifications.onNotificationClicked = ^(PushPayload *payload) {
+            if (!weakSelf) { return; }
+            
+            NSDictionary *notificationEventMap = @{};
+            @try {
+                notificationEventMap = [weakSelf notificationEventMapFromPayload:payload];
+            } @catch (NSException *exception) {
+                NSLog(@"[BluedotPointSDK] notificationEventMapFromPayload: threw exception: %@", exception);
+                notificationEventMap = @{};
+            } @finally {
+                [weakSelf sendEventWithName:@"pushNotificationClicked"
+                                       body:notificationEventMap];
+            }
+        };
     }
 
         __weak typeof(self) weakSelf = self;

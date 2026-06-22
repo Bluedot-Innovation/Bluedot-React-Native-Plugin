@@ -1,19 +1,17 @@
 import { NativeModules, NativeEventEmitter, Platform } from 'react-native';
 
-const androidPushEventEmitter =
-    Platform.OS === 'android' && NativeModules.BluedotPushNotificationsSDK
-        ? new NativeEventEmitter(NativeModules.BluedotPushNotificationsSDK)
-        : null;
-
-const iOSPushEventEmitter =
-    Platform.OS === 'ios' && NativeModules.BluedotPointSDK
-        ? new NativeEventEmitter(NativeModules.BluedotPointSDK)
-        : null;
+let activeEmitter = null;
 
 const getActiveEmitter = () => {
-    if (Platform.OS === 'android') return androidPushEventEmitter;
-    if (Platform.OS === 'ios') return iOSPushEventEmitter;
-    return null;
+    if (activeEmitter) return activeEmitter;
+    if (Platform.OS === 'android') {
+        const nativeModule = NativeModules.BluedotPushNotificationsSDK;
+        activeEmitter = nativeModule ? new NativeEventEmitter(nativeModule) : null;
+    } else if (Platform.OS === 'ios') {
+        const nativeModule = NativeModules.BluedotPointSDK;
+        activeEmitter = nativeModule ? new NativeEventEmitter(nativeModule) : null;
+    }
+    return activeEmitter;
 };
 
 class PushNotifications {
@@ -31,7 +29,9 @@ class PushNotifications {
      */
     onNewFcmToken = (token) => {
         if (Platform.OS !== 'android') return;
-        NativeModules.BluedotPushNotificationsSDK.onNewFcmToken(token);
+        const pushModule = NativeModules.BluedotPushNotificationsSDK;
+        if (!pushModule) return;
+        pushModule.onNewFcmToken(token);
     }
 
     /**
@@ -44,7 +44,9 @@ class PushNotifications {
      */
     onMessageReceived = (remoteMessage) => {
         if (Platform.OS !== 'android') return;
-        NativeModules.BluedotPushNotificationsSDK.onMessageReceived(remoteMessage);
+        const pushModule = NativeModules.BluedotPushNotificationsSDK;
+        if (!pushModule) return;
+        pushModule.onMessageReceived(remoteMessage);
     }
 
     /**
