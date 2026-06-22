@@ -22,21 +22,27 @@ def safeExtGet(prop, fallback) {
 }
 
 buildscript {
-    // The Android Gradle plugin is only required when opening the android folder stand-alone.
-    // This avoids unnecessary downloads and potential conflicts when the library is included as a
-    // module dependency in an application project.
-    // ref: https://docs.gradle.org/current/userguide/tutorial_using_tasks.html#sec:build_script_external_dependencies
-    if (project == rootProject) {
-        ext {
-            kotlinVersion = "2.3.0"
-        }
-        repositories {
-            google()
-            mavenCentral()
-        }
-        dependencies {
+    // PointSDK 18.0.0 is compiled with Kotlin 2.3.0 metadata. Declaring the Kotlin gradle
+    // plugin classpath unconditionally (not just for rootProject) allows Gradle's "highest
+    // version wins" resolution to upgrade the Kotlin compiler to 2.3.0 even when this module
+    // is consumed as a library in a host app that defaults to an older Kotlin version.
+    ext {
+        kotlinVersion = "2.3.0"
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Always declare so the required Kotlin version is visible to the multi-project build.
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${project.ext.kotlinVersion}"
+
+        // The Android Gradle plugin is only required when opening the android folder stand-alone.
+        // This avoids unnecessary downloads and potential conflicts when the library is included
+        // as a module dependency in an application project.
+        // ref: https://docs.gradle.org/current/userguide/tutorial_using_tasks.html#sec:build_script_external_dependencies
+        if (project == rootProject) {
             classpath 'com.android.tools.build:gradle:8.2.2'
-            classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${project.ext.kotlinVersion}"
         }
     }
 }
