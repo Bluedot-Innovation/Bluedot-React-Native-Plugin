@@ -23,7 +23,7 @@ buildscript {
     }
     dependencies {
         // Always declare so the required Kotlin version is visible to the multi-project build.
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.0"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${project.ext.kotlinVersion}"
 
         // AGP only needed for stand-alone builds.
         if (project == rootProject) {
