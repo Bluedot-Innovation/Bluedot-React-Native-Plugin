@@ -11,7 +11,8 @@
     "GeoTriggeringBuilder.js",
     "TempoBuilder.js",
     "react-native-plugin.podspec",
-    "README.md"
+    "README.md",
+    "versions.gradle"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -1,6 +1,10 @@
 import groovy.json.JsonSlurper
 
-apply from: file('../../versions.gradle')
+def versionsGradle = file('../../bluedot-react-native/versions.gradle')
+if (!versionsGradle.exists()) {
+    versionsGradle = file('../../versions.gradle')
+}
+apply from: versionsGradle
 
 def DEFAULT_COMPILE_SDK_VERSION = 36
 def DEFAULT_MIN_SDK_VERSION = 29
@@ -10,17 +14,24 @@ def safeExtGet(prop, fallback) {
 }
 
 buildscript {
-    if (project == rootProject) {
-        ext {
-            kotlinVersion = "2.0.21"
-        }
-        repositories {
-            google()
-            mavenCentral()
-        }
-        dependencies {
+    // PointSDK 18.0.0 is compiled with Kotlin 2.3.0 metadata. Declaring the Kotlin gradle
+    // plugin classpath unconditionally allows Gradle's "highest version wins" resolution to
+    // upgrade the Kotlin compiler to 2.3.0 even when this module is consumed as a library
+    // in a host app that defaults to an older Kotlin version.
+    ext {
+        kotlinVersion = "2.3.0"
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Always declare so the required Kotlin version is visible to the multi-project build.
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${project.ext.kotlinVersion}"
+
+        // AGP only needed for stand-alone builds.
+        if (project == rootProject) {
             classpath 'com.android.tools.build:gradle:8.2.2'
-            classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${project.ext.kotlinVersion}"
         }
     }
 }
