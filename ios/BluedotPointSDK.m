@@ -316,6 +316,7 @@ RCT_EXPORT_METHOD(androidStartTempoTracking) {
         @"zoneInfoUpdate",
         @"enterZone",
         @"exitZone",
+        @"dwellZone",
         @"tempoTrackingDidExpire",
         @"tempoTrackingDidUpdate",
         @"tempoTrackingStoppedWithError",
@@ -359,6 +360,20 @@ RCT_EXPORT_METHOD(androidStartTempoTracking) {
 
     } @finally {
         [self sendEventWithName:@"exitZone" body:exitEventMap];
+    }
+}
+
+- (void)didDwellInZone:(nonnull GeoTriggerEvent *)dwellEvent {
+    NSDictionary *dwellEventMap = @{};
+    @try {
+        NSData *data = [[dwellEvent toJson:nil] dataUsingEncoding:NSUTF8StringEncoding];
+        dwellEventMap = [NSJSONSerialization JSONObjectWithData:data
+                                                        options:0
+                                                        error:nil];
+    } @catch (NSException *exception) {
+
+    } @finally {
+        [self sendEventWithName:@"dwellZone" body:dwellEventMap];
     }
 }
 
