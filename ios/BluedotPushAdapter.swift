@@ -15,10 +15,12 @@ public final class BluedotPushAdapter: NSObject {
     public class func notificationEventMap(from payload: PushPayload) -> NSDictionary {
         return [
             "title": payload.title,
-            "body": "",
+            "body": NSNull(),
+            "pushVersion": NSNull(),
             "campaignId": payload.campaignId,
             "zoneId": payload.zoneId,
-            "notificationId": payload.notificationId
+            "notificationId": payload.notificationId,
+            "data": NSNull()
         ] as NSDictionary
     }
 }

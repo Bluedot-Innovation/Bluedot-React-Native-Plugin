@@ -109,17 +109,17 @@ clickedSub.remove();
 
 ## Notification payload fields
 
-Delivered to both `PUSH_NOTIFICATION_RECEIVED` and `PUSH_NOTIFICATION_CLICKED` callbacks:
+Delivered to both `PUSH_NOTIFICATION_RECEIVED` and `PUSH_NOTIFICATION_CLICKED` callbacks. The same set of keys is always present on both platforms; keys unsupported on iOS are delivered as `null`.
 
-| Field | Type | Description |
-|---|---|---|
-| `title` | `string` | Notification title |
-| `body` | `string` | Notification body |
-| `pushVersion` | `string` | Push schema version |
-| `campaignId` | `string` | Campaign UUID |
-| `zoneId` | `string` | Zone UUID |
-| `notificationId` | `string` | Notification UUID |
-| `data` | `object` | Custom key-value pairs from the payload |
+| Field | Type | Android | iOS | Description |
+|---|---|---|---|---|
+| `title` | `string` | ✅ | ✅ | Notification title |
+| `body` | `string` | ✅ | `null` | Notification body |
+| `pushVersion` | `string` | ✅ | `null` | Push schema version |
+| `campaignId` | `string` | ✅ | ✅ | Campaign UUID |
+| `zoneId` | `string` | ✅ | ✅ | Zone UUID |
+| `notificationId` | `string` | ✅ | ✅ | Notification UUID |
+| `data` | `object` | ✅ | `null` | Custom key-value pairs from the payload |
 
 ---
 
