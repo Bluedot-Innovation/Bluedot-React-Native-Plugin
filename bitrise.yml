@@ -11,6 +11,28 @@ workflows:
     - activate-ssh-key@4: {}
     - git-clone@8: {}
     - script@1:
+        title: configure git identity and writable push remote
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -euo pipefail
+
+            git config user.name "${GIT_AUTHOR_NAME:-Bitrise CI}"
+            git config user.email "${GIT_AUTHOR_EMAIL:-ci@bluedot.io}"
+
+            # git-clone leaves origin on the GitHub App HTTPS URL, which authenticates
+            # as bitrise[bot] and is read-only, so tag pushes fail with HTTP 403.
+            if [ -n "${GITHUB_ACCESS_TOKEN:-}" ]; then
+              git remote set-url origin "https://x-access-token:${GITHUB_ACCESS_TOKEN}@github.com/${GIT_REPO_SLUG}.git"
+              echo "origin repointed to https://github.com/${GIT_REPO_SLUG}.git (GITHUB_ACCESS_TOKEN)"
+            else
+              git remote set-url origin "git@github.com:${GIT_REPO_SLUG}.git"
+              echo "origin repointed to git@github.com:${GIT_REPO_SLUG}.git (SSH key)"
+            fi
+
+            git ls-remote --heads origin >/dev/null
+            echo "origin is reachable"
+    - script@1:
         title: set auth code for npmjs
         inputs:
         - content: |-
@@ -627,6 +649,9 @@ app:
   - opts:
       is_expand: false
     SLACK_CHANNEL_PUSH: "#point_merge_requests"
+  - opts:
+      is_expand: false
+    GIT_REPO_SLUG: Bluedot-Innovation/Bluedot-React-Native-Plugin
   - opts:
       is_expand: false
     GIT_MIN_APP_REPO: git@github.com:Bluedot-Innovation/Bluedot-React-Native-Minimal-Integration.git
