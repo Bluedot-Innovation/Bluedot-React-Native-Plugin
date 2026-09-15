@@ -4,6 +4,12 @@
   "version": "1.0.0",
   "description": "Bluedot Push Notifications React Native module; integrates the Android Push Notifications SDK library",
   "main": "index.js",
+  "files": [
+    "android/",
+    "index.js",
+    "PushNotifications.js",
+    "README.md"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
