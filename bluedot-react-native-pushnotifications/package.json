@@ -4,8 +4,11 @@
   "version": "1.0.0",
   "description": "Bluedot Push Notifications React Native module; integrates the Android Push Notifications SDK library",
   "main": "index.js",
+  "packageManager": "npm@11.16.0",
   "files": [
-    "android/",
+    "android/src/",
+    "android/build.gradle",
+    "android/gradle.properties",
     "index.js",
     "PushNotifications.js",
     "README.md"
