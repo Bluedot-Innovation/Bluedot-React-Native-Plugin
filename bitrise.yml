@@ -5,12 +5,11 @@ project_type: react-native
 workflows:
   _setup:
     description: |
-      Shared bootstrap: clone, restore cache, install dependencies and
-      authenticate against the npm registry. Not runnable on its own.
+      Shared bootstrap: clone, install dependencies and authenticate against the
+      npm registry. Not runnable on its own.
     steps:
     - activate-ssh-key@4: {}
     - git-clone@8: {}
-    - cache-pull@2: {}
     - script@1:
         title: set auth code for npmjs
         inputs:
@@ -29,7 +28,6 @@ workflows:
             echo "Authenticated to npm as: $(npm whoami)"
     - npm@3:
         inputs:
-        - cache_local_deps: 'true'
         - command: ci
         title: npm install
     - script@1:
@@ -452,10 +450,8 @@ workflows:
         - command: publish --dry-run --access public
         title: npm publish push dry run
   _teardown:
-    description: Shared cache push and artifact deploy. Not runnable on its own.
+    description: Shared artifact deploy. Not runnable on its own.
     steps:
-    - cache-push@2:
-        is_always_run: true
     - deploy-to-bitrise-io@2:
         is_always_run: true
         inputs:
