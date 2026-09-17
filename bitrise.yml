@@ -39,12 +39,12 @@ workflows:
             #!/usr/bin/env bash
             set -euo pipefail
 
-            if [ -z "${NPM_TOKEN:-}" ]; then
-              echo "NPM_TOKEN is not set. Add it as a protected Bitrise secret."
+            if [ -z "${NPM_TOKEN_2026:-}" ]; then
+              echo "NPM_TOKEN_2026 is not set. Add it as a protected Bitrise secret."
               exit 1
             fi
 
-            echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+            echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN_2026}" > ~/.npmrc
             chmod 600 ~/.npmrc
 
             NPM_USER="$(npm whoami --registry=https://registry.npmjs.org/)"
