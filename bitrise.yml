@@ -678,5 +678,5 @@ app:
 trigger_map:
 - push_branch: release/*
   workflow: qa-app-release
-- push_branch: master
+- push_branch: nk/BD-8382-npm-deploy
   workflow: deploy-core-npm
