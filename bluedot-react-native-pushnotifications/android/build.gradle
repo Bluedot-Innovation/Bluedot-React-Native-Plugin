@@ -1,21 +1,13 @@
 import groovy.json.JsonSlurper
 
-// android/build.gradle
-
-// based on:
-//
-// * https://github.com/facebook/react-native/blob/0.60-stable/template/android/build.gradle
-//   original location:
-//   - https://github.com/facebook/react-native/blob/0.58-stable/local-cli/templates/HelloWorld/android/build.gradle
-//
-// * https://github.com/facebook/react-native/blob/0.60-stable/template/android/app/build.gradle
-//   original location:
-//   - https://github.com/facebook/react-native/blob/0.58-stable/local-cli/templates/HelloWorld/android/app/build.gradle
-
-apply from: file('../versions.gradle')
+def versionsGradle = file('../../bluedot-react-native/versions.gradle')
+if (!versionsGradle.exists()) {
+    versionsGradle = file('../../versions.gradle')
+}
+apply from: versionsGradle
 
 def DEFAULT_COMPILE_SDK_VERSION = 36
-def DEFAULT_MIN_SDK_VERSION = 26
+def DEFAULT_MIN_SDK_VERSION = 29
 
 def safeExtGet(prop, fallback) {
     rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
@@ -23,9 +15,9 @@ def safeExtGet(prop, fallback) {
 
 buildscript {
     // PointSDK 18.0.0 is compiled with Kotlin 2.3.0 metadata. Declaring the Kotlin gradle
-    // plugin classpath unconditionally (not just for rootProject) allows Gradle's "highest
-    // version wins" resolution to upgrade the Kotlin compiler to 2.3.0 even when this module
-    // is consumed as a library in a host app that defaults to an older Kotlin version.
+    // plugin classpath unconditionally allows Gradle's "highest version wins" resolution to
+    // upgrade the Kotlin compiler to 2.3.0 even when this module is consumed as a library
+    // in a host app that defaults to an older Kotlin version.
     ext {
         kotlinVersion = "2.3.0"
     }
@@ -37,22 +29,18 @@ buildscript {
         // Always declare so the required Kotlin version is visible to the multi-project build.
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${project.ext.kotlinVersion}"
 
-        // The Android Gradle plugin is only required when opening the android folder stand-alone.
-        // This avoids unnecessary downloads and potential conflicts when the library is included
-        // as a module dependency in an application project.
-        // ref: https://docs.gradle.org/current/userguide/tutorial_using_tasks.html#sec:build_script_external_dependencies
+        // AGP only needed for stand-alone builds.
         if (project == rootProject) {
             classpath 'com.android.tools.build:gradle:8.2.2'
         }
     }
 }
-allprojects {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        google()
-        maven { url 'https://jitpack.io' }
-    }
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    google()
+    maven { url 'https://jitpack.io' }
 }
 
 apply plugin: 'com.android.library'
@@ -62,7 +50,7 @@ apply plugin: 'kotlin-android'
 android {
     compileSdkVersion safeExtGet('compileSdkVersion', DEFAULT_COMPILE_SDK_VERSION)
 
-    namespace "io.bluedot"
+    namespace "io.bluedot.pushnotifications"
     defaultConfig {
         minSdkVersion safeExtGet('minSdkVersion', DEFAULT_MIN_SDK_VERSION)
         versionCode 1
@@ -88,20 +76,18 @@ android {
     kotlinOptions {
         jvmTarget = '21'
     }
-
 }
 
-repositories {
-    // ref: https://www.baeldung.com/maven-local-repository
-    mavenLocal()
-    google()
-    mavenCentral()
-}
+def firebaseBomVersion = safeExtGet('firebaseBomVersion', '34.12.0')
 
 dependencies {
+    implementation "com.gitlab.bluedotio.android:point_sdk_push:${pointSdkVersion}"
     implementation "com.gitlab.bluedotio.android:point_sdk_android:${pointSdkVersion}"
     implementation 'com.facebook.react:react-android:0.77.0'
     implementation 'androidx.core:core-ktx:1.15.0'
+
+    implementation platform("com.google.firebase:firebase-bom:${firebaseBomVersion}")
+    implementation "com.google.firebase:firebase-messaging"
 }
 
 def configureReactNativePom(def pom) {
@@ -133,9 +119,6 @@ def configureReactNativePom(def pom) {
 }
 
 afterEvaluate { project ->
-    // some Gradle build hooks ref:
-    // https://www.oreilly.com/library/view/gradle-beyond-the/9781449373801/ch03.html
-
     task androidSourcesJar(type: Jar) {
         archiveClassifier.set("sources")
         from android.sourceSets.main.java.srcDirs

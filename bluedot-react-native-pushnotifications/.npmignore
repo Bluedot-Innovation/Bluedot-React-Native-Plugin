@@ -1,0 +1,7 @@
+# Android build outputs and local machine artefacts — must not be published
+android/.gradle/
+android/build/
+android/local.properties
+android/gradlew
+android/gradlew.bat
+android/gradle/

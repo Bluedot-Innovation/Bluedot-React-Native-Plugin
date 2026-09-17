@@ -1,7 +1,6 @@
 import { NativeModules, NativeEventEmitter } from 'react-native';
 import GeoTriggeringBuilder from './GeoTriggeringBuilder'
 import TempoBuilder from './TempoBuilder'
-import BrainAi from './BrainAi'
 
 const eventEmitter = new NativeEventEmitter(NativeModules.BluedotPointSDK)
 const subscriptionsList = new Set(); // Set of strings - eventNames
@@ -94,7 +93,6 @@ const BluedotPointSDK = {
     reset,
     GeoTriggeringBuilder,
     TempoBuilder,
-    BrainAi,
     isGeoTriggeringRunning,
     stopGeoTriggering,
     isTempoRunning,
