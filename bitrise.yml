@@ -48,7 +48,7 @@ workflows:
             chmod 600 ~/.npmrc
 
             NPM_USER="$(npm whoami --registry=https://registry.npmjs.org/)"
-            echo "Authenticated to npm as: ${NPM_USER}"
+            echo "Authenticated to npm as a user: ${NPM_USER}"
     - npm@3:
         inputs:
         - command: ci
