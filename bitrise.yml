@@ -1,0 +1,681 @@
+---
+format_version: '11'
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+project_type: react-native
+workflows:
+  _setup:
+    description: |
+      Shared bootstrap: clone, install dependencies and authenticate against the
+      npm registry. Not runnable on its own.
+    steps:
+    - activate-ssh-key@4: {}
+    - git-clone@8: {}
+    - script@1:
+        title: configure git identity and writable push remote
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -euo pipefail
+
+            git config user.name "${GIT_AUTHOR_NAME:-Bitrise CI}"
+            git config user.email "${GIT_AUTHOR_EMAIL:-ci@bluedot.io}"
+
+            # git-clone leaves origin on the GitHub App HTTPS URL, which authenticates
+            # as bitrise[bot] and is read-only, so tag pushes fail with HTTP 403.
+            if [ -n "${GITHUB_ACCESS_TOKEN:-}" ]; then
+              git remote set-url origin "https://x-access-token:${GITHUB_ACCESS_TOKEN}@github.com/${GIT_REPO_SLUG}.git"
+              echo "origin repointed to https://github.com/${GIT_REPO_SLUG}.git (GITHUB_ACCESS_TOKEN)"
+            else
+              git remote set-url origin "git@github.com:${GIT_REPO_SLUG}.git"
+              echo "origin repointed to git@github.com:${GIT_REPO_SLUG}.git (SSH key)"
+            fi
+
+            git ls-remote --heads origin >/dev/null
+            echo "origin is reachable"
+    - script@1:
+        title: set auth code for npmjs
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -euo pipefail
+
+            if [ -z "${NPM_TOKEN:-}" ]; then
+              echo "NPM_TOKEN is not set. Add it as a protected Bitrise secret."
+              exit 1
+            fi
+
+            echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+            chmod 600 ~/.npmrc
+
+            echo "Authenticated to npm as: $(npm whoami)"
+    - npm@3:
+        inputs:
+        - command: ci
+        title: npm install
+    - script@1:
+        title: Extract latest git commit for github release
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -euo pipefail
+
+            RELEASE_TAG_COMMIT=$(git rev-parse HEAD)
+            echo "Latest commit for Release tag: ${RELEASE_TAG_COMMIT}"
+
+            envman add --key RELEASE_TAG_COMMIT --value "${RELEASE_TAG_COMMIT}"
+  _core-version:
+    description: |
+      Reads name and version of bluedot-react-native from the root package.json.
+      Never reads the Push Notifications package. Not runnable on its own.
+    steps:
+    - script@1:
+        title: set NPM_PACKAGE_NAME / NPM_PACKAGE_VERSION
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -euo pipefail
+
+            NPM_PACKAGE_NAME=$(jq -r .name "$VERSION_JSON_FILE")
+            NPM_PACKAGE_VERSION=$(jq -r .version "$VERSION_JSON_FILE")
+
+            if [ -z "$NPM_PACKAGE_NAME" ] || [ "$NPM_PACKAGE_NAME" = "null" ]; then
+              echo "Could not read .name from $VERSION_JSON_FILE"
+              exit 1
+            fi
+
+            if [ -z "$NPM_PACKAGE_VERSION" ] || [ "$NPM_PACKAGE_VERSION" = "null" ]; then
+              echo "Could not read .version from $VERSION_JSON_FILE"
+              exit 1
+            fi
+
+            echo "Core package: ${NPM_PACKAGE_NAME}@${NPM_PACKAGE_VERSION}"
+
+            envman add --key NPM_PACKAGE_NAME --value "${NPM_PACKAGE_NAME}"
+            envman add --key NPM_PACKAGE_VERSION --value "${NPM_PACKAGE_VERSION}"
+            envman add --key GITHUB_RELEASE_TAG --value "v${NPM_PACKAGE_VERSION}"
+    - script@1:
+        title: parse core release notes
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -euo pipefail
+
+            envman add --key RELEASE_NOTES --valuefile "$RELEASE_NOTES_FILE"
+  _push-version:
+    description: |
+      Reads name and version of bluedot-react-native-pushnotifications from its
+      own package.json. Never inherits the root version. Not runnable on its own.
+    steps:
+    - script@1:
+        title: set PUSH_PACKAGE_NAME / PUSH_PACKAGE_VERSION
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -euo pipefail
+
+            PUSH_PACKAGE_NAME=$(jq -r .name "$PUSH_VERSION_JSON_FILE")
+            PUSH_PACKAGE_VERSION=$(jq -r .version "$PUSH_VERSION_JSON_FILE")
+
+            if [ -z "$PUSH_PACKAGE_NAME" ] || [ "$PUSH_PACKAGE_NAME" = "null" ]; then
+              echo "Could not read .name from $PUSH_VERSION_JSON_FILE"
+              exit 1
+            fi
+
+            if [ -z "$PUSH_PACKAGE_VERSION" ] || [ "$PUSH_PACKAGE_VERSION" = "null" ]; then
+              echo "Could not read .version from $PUSH_VERSION_JSON_FILE"
+              exit 1
+            fi
+
+            echo "Push package: ${PUSH_PACKAGE_NAME}@${PUSH_PACKAGE_VERSION}"
+
+            envman add --key PUSH_PACKAGE_NAME --value "${PUSH_PACKAGE_NAME}"
+            envman add --key PUSH_PACKAGE_VERSION --value "${PUSH_PACKAGE_VERSION}"
+            envman add --key PUSH_RELEASE_TAG --value "${PUSH_TAG_PREFIX}${PUSH_PACKAGE_VERSION}"
+    - script@1:
+        title: parse push release notes
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -euo pipefail
+
+            if [ -f "$PUSH_RELEASE_NOTES_FILE" ]; then
+              envman add --key PUSH_RELEASE_NOTES --valuefile "$PUSH_RELEASE_NOTES_FILE"
+            else
+              echo "$PUSH_RELEASE_NOTES_FILE not found, falling back to a generated note."
+              envman add --key PUSH_RELEASE_NOTES --value "${PUSH_PACKAGE_NAME} ${PUSH_PACKAGE_VERSION}"
+            fi
+  _deploy-core:
+    description: |
+      Tags, releases and publishes bluedot-react-native only.
+      Not runnable on its own: requires _setup and _core-version.
+    steps:
+    - script@1:
+        title: guard - core version must not exist on npm
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -uo pipefail
+
+            PKG="${NPM_PACKAGE_NAME}@${NPM_PACKAGE_VERSION}"
+            echo "Checking npm for ${PKG}..."
+
+            VIEW_OUT=$(npm view "$PKG" version 2>&1)
+            VIEW_RC=$?
+
+            if [ $VIEW_RC -eq 0 ] && [ -n "$VIEW_OUT" ]; then
+              if [ "${SKIP_IF_PUBLISHED}" = "true" ]; then
+                echo "${PKG} is already on npm, SKIP_IF_PUBLISHED=true - skipping core release."
+                envman add --key CORE_PUBLISH_REQUIRED --value "false"
+                envman add --key CORE_SLACK_PRETEXT --value "*:information_source: ${PKG} is already on npm - core release skipped*"
+                exit 0
+              fi
+              echo "${PKG} is already published. Bump .version in ${VERSION_JSON_FILE} first."
+              exit 1
+            fi
+
+            if [ $VIEW_RC -ne 0 ] && ! echo "$VIEW_OUT" | grep -q "E404"; then
+              echo "npm view failed unexpectedly:"
+              echo "$VIEW_OUT"
+              exit 1
+            fi
+
+            echo "${PKG} is not published yet - proceeding."
+            envman add --key CORE_PUBLISH_REQUIRED --value "true"
+            envman add --key CORE_SLACK_PRETEXT --value "*:tada: ${GITHUB_RELEASE_TAG} released to Github + published to npm :tada:*"
+    - git-tag@1:
+        run_if: '{{enveq "CORE_PUBLISH_REQUIRED" "true"}}'
+        title: Tag for github release
+        inputs:
+        - tag: "$GITHUB_RELEASE_TAG"
+    - script@1:
+        run_if: '{{enveq "CORE_PUBLISH_REQUIRED" "true"}}'
+        title: Package core for release
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -euo pipefail
+
+            TARBALL="${NPM_PACKAGE_NAME}-${NPM_PACKAGE_VERSION}.tgz"
+
+            npm pack
+            mkdir -p output/artifact
+            cp "$TARBALL" output/artifact/
+
+            echo "Contents of ${TARBALL}:"
+            tar -tzf "output/artifact/${TARBALL}"
+    - github-release@0:
+        run_if: '{{enveq "CORE_PUBLISH_REQUIRED" "true"}}'
+        inputs:
+        - body: "$RELEASE_NOTES"
+        - files_to_upload: output/artifact/$NPM_PACKAGE_NAME-$NPM_PACKAGE_VERSION.tgz
+        - name: "$GITHUB_RELEASE_TAG"
+        - username: "$GITHUB_USERNAME"
+        - tag: "$GITHUB_RELEASE_TAG"
+        - commit: "$RELEASE_TAG_COMMIT"
+        - draft: 'no'
+        - api_token: "$GITHUB_ACCESS_TOKEN"
+    - npm@3:
+        run_if: '{{enveq "CORE_PUBLISH_REQUIRED" "true"}}'
+        inputs:
+        - command: publish
+        title: npm publish core
+    - script@1:
+        run_if: '{{enveq "CORE_PUBLISH_REQUIRED" "true"}}'
+        title: verify core publication
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -uo pipefail
+
+            PKG="${NPM_PACKAGE_NAME}@${NPM_PACKAGE_VERSION}"
+
+            for attempt in 1 2 3 4 5; do
+              FOUND=$(npm view "$PKG" version 2>/dev/null)
+              if [ "$FOUND" = "${NPM_PACKAGE_VERSION}" ]; then
+                echo "Verified ${PKG} on the npm registry."
+                exit 0
+              fi
+              echo "Attempt ${attempt}: ${PKG} not visible on npm yet, retrying..."
+              sleep 10
+            done
+
+            echo "Could not verify ${PKG} on the npm registry."
+            exit 1
+    - slack@4:
+        is_always_run: true
+        inputs:
+        - channel: "$SLACK_CHANNEL"
+        - emoji: ":tada:"
+        - from_username: React Native Plugin
+        - footer: ''
+        - webhook_url_on_error: "$SLACK_WEBHOOK"
+        - channel_on_error: "$SLACK_CHANNEL"
+        - text_on_error: ''
+        - emoji_on_error: ":sob:"
+        - from_username_on_error: React Native Plugin
+        - text: ''
+        - buttons: |
+            View App|${BITRISE_APP_URL}
+            View Build|${BITRISE_BUILD_URL}
+            View npmjs|https://www.npmjs.com/package/$NPM_PACKAGE_NAME
+            Github Release|https://github.com/Bluedot-Innovation/Bluedot-React-Native-Plugin/releases/tag/$GITHUB_RELEASE_TAG
+        - pretext: "$CORE_SLACK_PRETEXT"
+        - pretext_on_error: "*Oh no, the $NPM_PACKAGE_NAME release failed! :sob:*"
+        - webhook_url: "$SLACK_WEBHOOK"
+  _deploy-push:
+    description: |
+      Tags, releases and publishes bluedot-react-native-pushnotifications only.
+      Not runnable on its own: requires _setup and _push-version.
+    steps:
+    - script@1:
+        title: guard - push version must not exist on npm
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -uo pipefail
+
+            PKG="${PUSH_PACKAGE_NAME}@${PUSH_PACKAGE_VERSION}"
+            echo "Checking npm for ${PKG}..."
+
+            VIEW_OUT=$(npm view "$PKG" version 2>&1)
+            VIEW_RC=$?
+
+            if [ $VIEW_RC -eq 0 ] && [ -n "$VIEW_OUT" ]; then
+              if [ "${SKIP_IF_PUBLISHED}" = "true" ]; then
+                echo "${PKG} is already on npm, SKIP_IF_PUBLISHED=true - skipping push release."
+                envman add --key PUSH_PUBLISH_REQUIRED --value "false"
+                envman add --key PUSH_SLACK_PRETEXT --value "*:information_source: ${PKG} is already on npm - push release skipped*"
+                exit 0
+              fi
+              echo "${PKG} is already published. Bump .version in ${PUSH_VERSION_JSON_FILE} first."
+              exit 1
+            fi
+
+            if [ $VIEW_RC -ne 0 ] && ! echo "$VIEW_OUT" | grep -q "E404"; then
+              echo "npm view failed unexpectedly:"
+              echo "$VIEW_OUT"
+              exit 1
+            fi
+
+            echo "${PKG} is not published yet - proceeding."
+            envman add --key PUSH_PUBLISH_REQUIRED --value "true"
+            envman add --key PUSH_SLACK_PRETEXT --value "*:tada: ${PKG} released to Github + published to npm :tada:*"
+    - npm@3:
+        run_if: '{{enveq "PUSH_PUBLISH_REQUIRED" "true"}}'
+        inputs:
+        - workdir: "$PUSH_NOTIFICATIONS_DIR"
+        - command: publish --dry-run --access public
+        title: npm publish push dry run
+    - git-tag@1:
+        run_if: '{{enveq "PUSH_PUBLISH_REQUIRED" "true"}}'
+        title: Tag for push github release
+        inputs:
+        - tag: "$PUSH_RELEASE_TAG"
+    - script@1:
+        run_if: '{{enveq "PUSH_PUBLISH_REQUIRED" "true"}}'
+        title: Package push for release
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -euo pipefail
+
+            TARBALL="${PUSH_PACKAGE_NAME}-${PUSH_PACKAGE_VERSION}.tgz"
+
+            mkdir -p output/artifact
+
+            cd "$PUSH_NOTIFICATIONS_DIR"
+            npm pack
+            cp "$TARBALL" ../output/artifact/
+            cd -
+
+            echo "Contents of ${TARBALL}:"
+            tar -tzf "output/artifact/${TARBALL}"
+    - github-release@0:
+        run_if: '{{enveq "PUSH_PUBLISH_REQUIRED" "true"}}'
+        inputs:
+        - body: "$PUSH_RELEASE_NOTES"
+        - files_to_upload: output/artifact/$PUSH_PACKAGE_NAME-$PUSH_PACKAGE_VERSION.tgz
+        - name: "$PUSH_PACKAGE_NAME $PUSH_PACKAGE_VERSION"
+        - username: "$GITHUB_USERNAME"
+        - tag: "$PUSH_RELEASE_TAG"
+        - commit: "$RELEASE_TAG_COMMIT"
+        - draft: 'no'
+        - api_token: "$GITHUB_ACCESS_TOKEN"
+    - npm@3:
+        run_if: '{{enveq "PUSH_PUBLISH_REQUIRED" "true"}}'
+        inputs:
+        - workdir: "$PUSH_NOTIFICATIONS_DIR"
+        - command: publish --access public
+        title: npm publish push
+    - script@1:
+        run_if: '{{enveq "PUSH_PUBLISH_REQUIRED" "true"}}'
+        title: verify push publication
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -uo pipefail
+
+            PKG="${PUSH_PACKAGE_NAME}@${PUSH_PACKAGE_VERSION}"
+
+            for attempt in 1 2 3 4 5; do
+              FOUND=$(npm view "$PKG" version 2>/dev/null)
+              if [ "$FOUND" = "${PUSH_PACKAGE_VERSION}" ]; then
+                echo "Verified ${PKG} on the npm registry."
+                exit 0
+              fi
+              echo "Attempt ${attempt}: ${PKG} not visible on npm yet, retrying..."
+              sleep 10
+            done
+
+            echo "Could not verify ${PKG} on the npm registry."
+            exit 1
+    - slack@4:
+        is_always_run: true
+        inputs:
+        - channel: "$SLACK_CHANNEL_PUSH"
+        - emoji: ":tada:"
+        - from_username: React Native Push Notifications
+        - footer: ''
+        - webhook_url_on_error: "$SLACK_WEBHOOK"
+        - channel_on_error: "$SLACK_CHANNEL_PUSH"
+        - text_on_error: ''
+        - emoji_on_error: ":sob:"
+        - from_username_on_error: React Native Push Notifications
+        - text: ''
+        - buttons: |
+            View App|${BITRISE_APP_URL}
+            View Build|${BITRISE_BUILD_URL}
+            View npmjs|https://www.npmjs.com/package/$PUSH_PACKAGE_NAME
+            Github Release|https://github.com/Bluedot-Innovation/Bluedot-React-Native-Plugin/releases/tag/$PUSH_RELEASE_TAG
+        - pretext: "$PUSH_SLACK_PRETEXT"
+        - pretext_on_error: "*Oh no, the $PUSH_PACKAGE_NAME release failed! :sob:*"
+        - webhook_url: "$SLACK_WEBHOOK"
+  _dry-run-core:
+    description: |
+      Validates bluedot-react-native without tagging, releasing or publishing.
+      Not runnable on its own: requires _setup and _core-version.
+    steps:
+    - script@1:
+        title: report core npm availability
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -uo pipefail
+
+            PKG="${NPM_PACKAGE_NAME}@${NPM_PACKAGE_VERSION}"
+
+            if [ -n "$(npm view "$PKG" version 2>/dev/null)" ]; then
+              echo "WARNING: ${PKG} is ALREADY published - deploy-core-npm would fail."
+            else
+              echo "OK: ${PKG} is not published yet."
+            fi
+    - script@1:
+        title: Package core and list tarball contents
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -euo pipefail
+
+            TARBALL="${NPM_PACKAGE_NAME}-${NPM_PACKAGE_VERSION}.tgz"
+
+            npm pack
+            mkdir -p output/artifact
+            cp "$TARBALL" output/artifact/
+
+            echo "Contents of ${TARBALL}:"
+            tar -tzf "output/artifact/${TARBALL}"
+    - npm@3:
+        inputs:
+        - command: publish --dry-run
+        title: npm publish core dry run
+  _dry-run-push:
+    description: |
+      Validates bluedot-react-native-pushnotifications without tagging,
+      releasing or publishing.
+      Not runnable on its own: requires _setup and _push-version.
+    steps:
+    - script@1:
+        title: report push npm availability
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -uo pipefail
+
+            PKG="${PUSH_PACKAGE_NAME}@${PUSH_PACKAGE_VERSION}"
+
+            if [ -n "$(npm view "$PKG" version 2>/dev/null)" ]; then
+              echo "WARNING: ${PKG} is ALREADY published - deploy-push-npm would fail."
+            else
+              echo "OK: ${PKG} is not published yet."
+            fi
+    - script@1:
+        title: Package push and list tarball contents
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -euo pipefail
+
+            TARBALL="${PUSH_PACKAGE_NAME}-${PUSH_PACKAGE_VERSION}.tgz"
+
+            mkdir -p output/artifact
+
+            cd "$PUSH_NOTIFICATIONS_DIR"
+            npm pack
+            cp "$TARBALL" ../output/artifact/
+            cd -
+
+            echo "Contents of ${TARBALL}:"
+            tar -tzf "output/artifact/${TARBALL}"
+    - npm@3:
+        inputs:
+        - workdir: "$PUSH_NOTIFICATIONS_DIR"
+        - command: publish --dry-run --access public
+        title: npm publish push dry run
+  _teardown:
+    description: Shared artifact deploy. Not runnable on its own.
+    steps:
+    - deploy-to-bitrise-io@2:
+        is_always_run: true
+        inputs:
+        - is_enable_public_page: 'false'
+        - notify_user_groups: none
+  deploy-core-npm:
+    description: |
+      Releases bluedot-react-native only, using NPM_PACKAGE_VERSION from the root
+      package.json. Never touches the Push Notifications package.
+      Triggered on push to master.
+    before_run:
+    - _setup
+    - _core-version
+    after_run:
+    - _deploy-core
+    - _teardown
+  qa-app-release:
+    description: |
+      QA pre-release from release/* branches. Tags this repo and the downstream
+      Minimal Integration app for both packages. Publishes nothing to npm.
+    before_run:
+    - _setup
+    - _core-version
+    - _push-version
+    after_run:
+    - _teardown
+    steps:
+    - set-env-var@0:
+        inputs:
+        - destination_keys: GITHUB_RELEASE_TAG
+        - value: v$NPM_PACKAGE_VERSION-pre+build.$BITRISE_BUILD_NUMBER
+        title: set core pre-release tag name
+    - set-env-var@0:
+        inputs:
+        - destination_keys: PUSH_RELEASE_TAG
+        - value: $PUSH_TAG_PREFIX$PUSH_PACKAGE_VERSION-pre+build.$BITRISE_BUILD_NUMBER
+        title: set push pre-release tag name
+    - git-tag@1:
+        title: Tag for github release
+        inputs:
+        - tag: "$GITHUB_RELEASE_TAG"
+    - git-tag@1:
+        title: Tag push module for github release
+        inputs:
+        - tag: "$PUSH_RELEASE_TAG"
+    - script@1:
+        title: Tag downstream Minimal App
+        inputs:
+        - content: "#!/usr/bin/env bash
+
+
+            # first delete MinApp folder if exists
+
+            rm -rf $MIN_APP_REPO_DIR
+
+
+            # clone MinApp repo\ 
+
+            git clone
+            git@github.com:Bluedot-Innovation/Bluedot-React-Native-Minimal-Inte\
+            gration.git $MIN_APP_REPO_DIR
+
+
+            cd $MIN_APP_REPO_DIR
+
+
+            git checkout master
+
+            git tag \"$GITHUB_RELEASE_TAG\"
+
+            git push origin \"$GITHUB_RELEASE_TAG\"\n"
+    - slack@4:
+        is_always_run: true
+        inputs:
+        - channel: "$SLACK_CHANNEL"
+        - emoji: ":tada:"
+        - from_username: React Native Plugin
+        - footer: ''
+        - webhook_url_on_error: "$SLACK_WEBHOOK"
+        - channel_on_error: "$SLACK_CHANNEL"
+        - text_on_error: ''
+        - emoji_on_error: ":sob:"
+        - from_username_on_error: React Native Plugin
+        - text: ''
+        - buttons: |
+            View App|${BITRISE_APP_URL}
+            View Build|${BITRISE_BUILD_URL}
+            Github Tag|https://github.com/Bluedot-Innovation/Bluedot-React-Native-Plugin/releases/tag/${GITHUB_RELEASE_TAG}
+            Push Github Tag|https://github.com/Bluedot-Innovation/Bluedot-React-Native-Plugin/releases/tag/${PUSH_RELEASE_TAG}
+        - pretext: "*:tada: React Native Plugin $GITHUB_RELEASE_TAG and $PUSH_RELEASE_TAG
+            are pushed to Github :tada:*"
+        - pretext_on_error: "*Oh no, Build Failed! :sob:*"
+        - webhook_url: "$SLACK_WEBHOOK"
+  deploy-push-npm:
+    description: |
+      Releases bluedot-react-native-pushnotifications only, using
+      PUSH_PACKAGE_VERSION from bluedot-react-native-pushnotifications/package.json.
+      Manual trigger only - deliberately absent from trigger_map.
+    before_run:
+    - _setup
+    - _push-version
+    after_run:
+    - _deploy-push
+    - _teardown
+  deploy-npm-all:
+    description: |
+      Convenience pipeline that releases the core package and then the Push
+      Notifications package. Packages already present on npm are skipped rather
+      than failing the build. Core runs first because the push package declares a
+      peer dependency on it; if core fails, push never runs. Manual trigger only.
+    before_run:
+    - _setup
+    - _core-version
+    - _push-version
+    after_run:
+    - _deploy-core
+    - _deploy-push
+    - _teardown
+    steps:
+    - script@1:
+        title: allow skipping already-published packages
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -euo pipefail
+
+            envman add --key SKIP_IF_PUBLISHED --value "true"
+  deploy-npm-dry-run:
+    description: |
+      Validates bluedot-react-native only. Publishes nothing. Manual trigger only.
+    before_run:
+    - _setup
+    - _core-version
+    after_run:
+    - _dry-run-core
+    - _teardown
+  deploy-push-npm-dry-run:
+    description: |
+      Validates bluedot-react-native-pushnotifications only. Publishes nothing.
+      Manual trigger only.
+    before_run:
+    - _setup
+    - _push-version
+    after_run:
+    - _dry-run-push
+    - _teardown
+  deploy-all-npm-dry-run:
+    description: |
+      Validates both packages in one build. Publishes nothing.
+      Manual trigger only.
+    before_run:
+    - _setup
+    - _core-version
+    - _push-version
+    after_run:
+    - _dry-run-core
+    - _dry-run-push
+    - _teardown
+meta:
+  bitrise.io:
+    stack: linux-docker-android-22.04
+app:
+  envs:
+  - opts:
+      is_expand: false
+    RELEASE_NOTES_FILE: "./ReleaseNotes.md"
+  - opts:
+      is_expand: false
+    VERSION_JSON_FILE: "./package.json"
+  - opts:
+      is_expand: false
+    SLACK_CHANNEL: "#point_merge_requests"
+  - opts:
+      is_expand: false
+    SLACK_CHANNEL_PUSH: "#point_merge_requests"
+  - opts:
+      is_expand: false
+    GIT_REPO_SLUG: Bluedot-Innovation/Bluedot-React-Native-Plugin
+  - opts:
+      is_expand: false
+    GIT_MIN_APP_REPO: git@github.com:Bluedot-Innovation/Bluedot-React-Native-Minimal-Integration.git
+  - opts:
+      is_expand: false
+    MIN_APP_REPO_DIR: Bluedot-React-Native-Minimal-Integration
+  - PUSH_NOTIFICATIONS_DIR: bluedot-react-native-pushnotifications
+    opts:
+      is_expand: false
+  - opts:
+      is_expand: false
+    PUSH_VERSION_JSON_FILE: "./bluedot-react-native-pushnotifications/package.json"
+  - opts:
+      is_expand: false
+    PUSH_RELEASE_NOTES_FILE: "./bluedot-react-native-pushnotifications/ReleaseNotes.md"
+  - opts:
+      is_expand: false
+    PUSH_TAG_PREFIX: push-v
+  # Overridden to 'true' by deploy-npm-all so an unchanged package is skipped, not fatal.
+  - opts:
+      is_expand: false
+    SKIP_IF_PUBLISHED: 'false'
+trigger_map:
+- push_branch: release/*
+  workflow: qa-app-release
+- push_branch: master
+  workflow: deploy-core-npm

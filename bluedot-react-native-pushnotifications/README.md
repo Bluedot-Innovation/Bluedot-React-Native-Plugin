@@ -7,7 +7,7 @@ An optional React Native wrapper for the Bluedot Push Notifications SDK. Deliver
 ## Requirements
 
 - Android API 29+ (Android 10)
-- `bluedot-react-native` ≥ 3.4.1 (core SDK must be installed and initialised first)
+- `bluedot-react-native` ≥ 3.5.0 (core SDK must be installed and initialised first)
 - Firebase Cloud Messaging configured in your app (`@react-native-firebase/messaging`)
 
 ---
