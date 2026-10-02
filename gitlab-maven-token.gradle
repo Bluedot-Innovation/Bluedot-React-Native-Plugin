@@ -1,0 +1,26 @@
+// Single source of truth for resolving the GitLab Maven "Private-Token" credential.
+// Both android/ and bluedot-react-native-pushnotifications/android/ apply this file.
+//
+// Resolution order:
+//   1. local.properties (key: gitlabMavenToken) - rootProject, then the applying module
+//   2. -PgitlabMavenToken=<token> project property
+//   3. GITLAB_MAVEN_TOKEN environment variable
+//
+// local.properties is gitignored, so this is the preferred way to supply the token locally.
+// Never hardcode a token in any build.gradle file.
+ext {
+    resolveGitlabMavenToken = { Project project ->
+        def candidates = [rootProject.file('local.properties'), project.file('local.properties')]
+        for (file in candidates) {
+            if (file.exists()) {
+                def props = new Properties()
+                file.withInputStream { props.load(it) }
+                def token = props.getProperty('gitlabMavenToken')
+                if (token) {
+                    return token
+                }
+            }
+        }
+        return project.findProperty('gitlabMavenToken') ?: System.getenv('GITLAB_MAVEN_TOKEN') ?: ''
+    }
+}

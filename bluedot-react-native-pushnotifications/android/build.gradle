@@ -6,6 +6,12 @@ if (!versionsGradle.exists()) {
 }
 apply from: versionsGradle
 
+def gitlabMavenTokenGradle = file('../../bluedot-react-native/gitlab-maven-token.gradle')
+if (!gitlabMavenTokenGradle.exists()) {
+    gitlabMavenTokenGradle = file('../../gitlab-maven-token.gradle')
+}
+apply from: gitlabMavenTokenGradle
+
 def DEFAULT_COMPILE_SDK_VERSION = 36
 def DEFAULT_MIN_SDK_VERSION = 29
 
@@ -41,6 +47,19 @@ repositories {
     mavenCentral()
     google()
     maven { url 'https://jitpack.io' }
+
+    maven {
+        url "https://gitlab.com/api/v4/projects/14682665/packages/maven"
+        credentials(HttpHeaderCredentials) {
+            name "Private-Token"
+            // Resolution order: local.properties, -PgitlabMavenToken, GITLAB_MAVEN_TOKEN env var.
+            // See gitlab-maven-token.gradle. Never hardcode a token here.
+            value resolveGitlabMavenToken(project)
+        }
+        authentication {
+            header(HttpHeaderAuthentication)
+        }
+    }
 }
 
 apply plugin: 'com.android.library'
