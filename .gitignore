@@ -57,3 +57,7 @@ ios/Carthage/Build
 .expo/
 output/
 *.tgz
+
+.agents/
+.claude/
+docs/

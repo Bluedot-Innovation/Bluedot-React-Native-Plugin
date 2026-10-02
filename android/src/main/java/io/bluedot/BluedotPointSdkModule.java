@@ -1,18 +1,8 @@
 package io.bluedot;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
 import au.com.bluedot.model.geo.Point;
 import au.com.bluedot.point.net.engine.BDError;
 import au.com.bluedot.point.net.engine.GeoTriggeringService;
@@ -27,7 +17,6 @@ import au.com.bluedot.ruleEngine.model.rule.Destination;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
@@ -37,19 +26,15 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.bridge.LifecycleEventListener;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static android.app.Notification.PRIORITY_MAX;
-
 public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
     static ReactApplicationContext reactContext = null;
     ServiceManager serviceManager;
     private Callback logOutCallback;
-    private int notificationResourceId = 0;
 
     public BluedotPointSdkModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -110,58 +95,15 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
     }
 
     @ReactMethod
-    public void androidStartGeoTriggering(String channelId,
-            String channelName,
-            String androidNotificationTitle,
-            String androidNotificationContent,
-            Integer androidNotificationId,
-            Callback onSuccess,
-            Callback onError) {
-        // Start as With FG Service
-        if (!androidNotificationTitle.isEmpty() && !androidNotificationContent.isEmpty()) {
-
-            if ((channelId.isEmpty()) || (channelName.isEmpty())) {
-                onError.invoke("Missing channelId and channelName for Notification");
-                return;
-            }
-
-            Notification fgNotification = createNotification(channelId, channelName, androidNotificationTitle,
-                    androidNotificationContent);
-            if (androidNotificationId != -1) {
-                // Set notificationId for GeoTriggerService
-                GeoTriggeringService.builder()
-                        .notification(fgNotification)
-                        .notificationId(androidNotificationId)
-                        .start(geoTriggerError -> {
-                            if (geoTriggerError != null) {
-                                onError.invoke("Error " + geoTriggerError.getReason());
-                                return;
-                            }
-                            onSuccess.invoke();
-                        });
-            } else {
-                // Use default notificationId set by PointSDK
-                GeoTriggeringService.builder()
-                        .notification(fgNotification)
-                        .start(geoTriggerError -> {
-                            if (geoTriggerError != null) {
-                                onError.invoke("Error " + geoTriggerError.getReason());
-                                return;
-                            }
-                            onSuccess.invoke();
-                        });
-            }
-        } else {
-            // Start as No FG Service
-            GeoTriggeringService.builder()
-                    .start(geoTriggerError -> {
-                        if (geoTriggerError != null) {
-                            onError.invoke("Error " + geoTriggerError.getReason());
-                            return;
-                        }
-                        onSuccess.invoke();
-                    });
-        }
+    public void androidStartGeoTriggering(Callback onSuccess, Callback onError) {
+        GeoTriggeringService.builder()
+                .start(geoTriggerError -> {
+                    if (geoTriggerError != null) {
+                        onError.invoke("Error " + geoTriggerError.getReason());
+                        return;
+                    }
+                    onSuccess.invoke();
+                });
     }
 
     @ReactMethod
@@ -199,29 +141,12 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
     }
 
     @ReactMethod
-    public void androidStartTempoTracking(String destinationId,
-            String channelId,
-            String channelName,
-            String androidNotificationTitle,
-            String androidNotificationContent,
-            Integer androidNotificationId,
-            Callback onSuccess,
-            Callback onError) {
-
+    public void androidStartTempoTracking(String destinationId, Callback onSuccess, Callback onError) {
         if (destinationId.isEmpty()) {
             onError.invoke("destinationId is null");
             return;
         }
 
-        if ((channelId.isEmpty()) || (channelName.isEmpty()) || (androidNotificationTitle.isEmpty())
-                || (androidNotificationContent.isEmpty())) {
-            onError.invoke(
-                    "Missing param from channelId/channelName/androidNotificationTitle/androidNotificationContent");
-            return;
-        }
-
-        Notification fgNotification = createNotification(channelId, channelName, androidNotificationTitle,
-                androidNotificationContent);
         TempoServiceStatusListener tempoStatusListener = error -> {
             if (error == null) {
                 onSuccess.invoke();
@@ -230,18 +155,9 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
             }
         };
 
-        if (androidNotificationId != -1) {
-            TempoService.builder()
-                    .notificationId(androidNotificationId)
-                    .notification(fgNotification)
-                    .destinationId(destinationId)
-                    .start(tempoStatusListener);
-        } else {
-            TempoService.builder()
-                    .notification(fgNotification)
-                    .destinationId(destinationId)
-                    .start(tempoStatusListener);
-        }
+        TempoService.builder()
+                .destinationId(destinationId)
+                .start(tempoStatusListener);
     }
 
     @ReactMethod
@@ -261,7 +177,47 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
             onSuccessCallback.invoke();
         else
             onFailCallback.invoke("Error " + error.getReason());
+    }
 
+    /**
+     * Links the foreground service that the host app has already started and foregrounded.
+     *
+     * The host app must call this from within its own foreground service's onStartCommand()
+     * (or equivalent lifecycle point) — after startForeground() has succeeded — so that
+     * the SDK can use the host process's foreground state for GeoTriggering (high-accuracy
+     * mode) and Tempo (mandatory since SDK 19.0.0).
+     *
+     * This method is a thin JS-accessible wrapper over
+     * ServiceManager.linkForegroundService(). It exists for app code that manages its
+     * foreground service lifecycle via a React Native bridge (e.g. a JS-driven start
+     * callback fired once the native service has actually foregrounded).
+     */
+    @ReactMethod
+    public void linkForegroundService(Promise promise) {
+        try {
+            serviceManager.linkForegroundService();
+            promise.resolve(null);
+        } catch (Exception e) {
+            promise.reject("linkForegroundService failed", e.getMessage());
+        }
+    }
+
+    /**
+     * Unlinks the foreground service previously linked via linkForegroundService().
+     *
+     * The host app must call this (or call unlinkForegroundService() natively from its
+     * service's onDestroy()) before or when the foreground service stops. After unlinking,
+     * any running Tempo session will stop and report a ForegroundServiceNotLinkedError via
+     * the tempoStoppedWithError event.
+     */
+    @ReactMethod
+    public void unlinkForegroundService(Promise promise) {
+        try {
+            serviceManager.unlinkForegroundService();
+            promise.resolve(null);
+        } catch (Exception e) {
+            promise.reject("unlinkForegroundService failed", e.getMessage());
+        }
     }
 
     @ReactMethod
@@ -313,7 +269,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
                         location.putDouble("longitude", loc.getLongitude());
 
                         destination.putMap("location", location);
-                        
+
                         if (destinationObj.getCustomData() != null) {
                             WritableMap customData = new WritableNativeMap();
                             Map<String, String> customDataMap = destinationObj.getCustomData();
@@ -322,7 +278,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
                             }
                             destination.putMap("customData", customData);
                         }
-                        
+
                         zone.putMap("destination", destination);
                     }
                     zoneList.pushMap(zone);
@@ -339,49 +295,6 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
     @ReactMethod
     public void setZoneDisableByApplication(String zoneId, boolean disable) {
         serviceManager.setZoneDisableByApplication(zoneId, disable);
-    }
-
-    private Notification createNotification(String channelId, String channelName, String title, String content) {
-
-        Intent activityIntent = new Intent(this.getCurrentActivity().getIntent());
-        activityIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(reactContext, 0,
-                activityIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-
-        NotificationManager notificationManager = (NotificationManager) reactContext
-                .getSystemService(Context.NOTIFICATION_SERVICE);
-
-        int iconResourceId = notificationResourceId != 0 ? notificationResourceId : R.mipmap.ic_launcher;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (notificationManager.getNotificationChannel(channelId) == null) {
-                NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName,
-                        NotificationManager.IMPORTANCE_HIGH);
-                notificationChannel.enableLights(false);
-                notificationChannel.setLightColor(Color.RED);
-                notificationChannel.enableVibration(false);
-                notificationManager.createNotificationChannel(notificationChannel);
-            }
-            Notification.Builder notification = new Notification.Builder(reactContext, channelId)
-                    .setContentTitle(title)
-                    .setContentText(content)
-                    .setStyle(new Notification.BigTextStyle().bigText(content))
-                    .setOngoing(true)
-                    .setCategory(Notification.CATEGORY_SERVICE)
-                    .setContentIntent(pendingIntent)
-                    .setSmallIcon(iconResourceId);
-            return notification.build();
-        } else {
-            NotificationCompat.Builder notification = new NotificationCompat.Builder(reactContext)
-                    .setContentTitle(title)
-                    .setContentText(content)
-                    .setStyle(new NotificationCompat.BigTextStyle().bigText(content))
-                    .setOngoing(true)
-                    .setCategory(Notification.CATEGORY_SERVICE)
-                    .setPriority(PRIORITY_MAX)
-                    .setContentIntent(pendingIntent)
-                    .setSmallIcon(iconResourceId);
-            return notification.build();
-        }
     }
 
     @ReactMethod
@@ -405,24 +318,6 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
             promise.resolve(writableMap);
         } catch (Exception e) {
             promise.reject("Error getting the customEventMetaData");
-        }
-    }
-
-    @ReactMethod
-    public void setNotificationIDResourceID(String resourceName) {
-        // find the resourceID int from the resourceIDString passed in
-        String packageName = reactContext.getPackageName();
-        int resourceID = reactContext.getResources().getIdentifier(resourceName, "drawable", packageName);
-        if (resourceID == 0) {
-            // not found in drawble, try mipmap
-            resourceID = reactContext.getResources().getIdentifier(resourceName, "mipmap", packageName);
-        }
-
-        // save the resourceId
-        notificationResourceId = resourceID;
-
-        if (resourceID != 0) {
-            serviceManager.setNotificationIDResourceID(resourceID);
         }
     }
 
@@ -451,7 +346,6 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
     public void removeListeners(Integer count) {
         // Keep: Required for RN built in Event Emitter Calls.
     }
-
 
     @Override
     public void onHostResume() {
