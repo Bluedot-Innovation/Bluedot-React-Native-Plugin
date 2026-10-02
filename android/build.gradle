@@ -13,7 +13,6 @@ import groovy.json.JsonSlurper
 //   - https://github.com/facebook/react-native/blob/0.58-stable/local-cli/templates/HelloWorld/android/app/build.gradle
 
 apply from: file('../versions.gradle')
-apply from: file('../gitlab-maven-token.gradle')
 
 def DEFAULT_COMPILE_SDK_VERSION = 36
 def DEFAULT_MIN_SDK_VERSION = 26
