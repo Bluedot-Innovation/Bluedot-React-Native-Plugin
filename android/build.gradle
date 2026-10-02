@@ -22,7 +22,7 @@ def safeExtGet(prop, fallback) {
 }
 
 buildscript {
-    // PointSDK 18.0.0 is compiled with Kotlin 2.3.0 metadata. Declaring the Kotlin gradle
+    // PointSDK 19.0.0 is compiled with Kotlin 2.3.0 metadata. Declaring the Kotlin gradle
     // plugin classpath unconditionally (not just for rootProject) allows Gradle's "highest
     // version wins" resolution to upgrade the Kotlin compiler to 2.3.0 even when this module
     // is consumed as a library in a host app that defaults to an older Kotlin version.
@@ -96,10 +96,24 @@ repositories {
     mavenLocal()
     google()
     mavenCentral()
+
+    maven {
+      url "https://gitlab.com/api/v4/projects/14682665/packages/maven"
+      credentials(HttpHeaderCredentials) {
+        name "Private-Token"
+        // Provide via -PgitlabMavenToken=<token> (e.g. in gradle.properties) or the
+        // GITLAB_MAVEN_TOKEN env var. Never hardcode a token here.
+        value project.findProperty('gitlabMavenToken') ?: System.getenv('GITLAB_MAVEN_TOKEN') ?: ''
+      }
+      authentication {
+        header(HttpHeaderAuthentication)
+      }
+    }
 }
 
 dependencies {
-    implementation "com.gitlab.bluedotio.android:point_sdk_android:${pointSdkVersion}"
+    implementation 'au.com.bluedot:pointsdk:1380190974'
+    // implementation "com.gitlab.bluedotio.android:point_sdk_android:${pointSdkVersion}"
     implementation 'com.facebook.react:react-android:0.77.0'
     implementation 'androidx.core:core-ktx:1.15.0'
 }
