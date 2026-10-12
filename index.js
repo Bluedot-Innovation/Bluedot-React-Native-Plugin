@@ -41,16 +41,38 @@ const getCustomEventMetaData = () => {
     return NativeModules.BluedotPointSDK.getCustomEventMetaData()
 }
 
-const setNotificationIdResourceId = (resourceId) => {
-    NativeModules.BluedotPointSDK.setNotificationIDResourceID(resourceId)
-}
-
 const setZoneDisableByApplication = (zoneId, disable) => {
     NativeModules.BluedotPointSDK.setZoneDisableByApplication(zoneId, disable)
 }
 
 const backgroundLocationAccessForWhileUsing = (enable) => {
     NativeModules.BluedotPointSDK.backgroundLocationAccessForWhileUsing(enable)
+}
+
+/**
+ * Android only. Links the foreground service that the host app has already started.
+ *
+ * Call this after your app's own foreground service has successfully called
+ * startForeground(). This is required before starting Tempo (SDK 19.0.0+) and
+ * optional (but recommended for high-accuracy mode) before starting GeoTriggering.
+ *
+ * Returns a Promise that resolves when the link succeeds or rejects on error.
+ */
+const linkForegroundService = () => {
+    return NativeModules.BluedotPointSDK.linkForegroundService()
+}
+
+/**
+ * Android only. Unlinks the foreground service previously linked via linkForegroundService().
+ *
+ * Call this when your foreground service is stopping. If Tempo is running when this is
+ * called, Tempo will stop and emit a tempoStoppedWithError event with
+ * isForegroundServiceNotLinked: true.
+ *
+ * Returns a Promise.
+ */
+const unlinkForegroundService = () => {
+    return NativeModules.BluedotPointSDK.unlinkForegroundService()
 }
 
 const on = (eventName, callback) => {
@@ -80,13 +102,12 @@ const getZonesAndFences = () => {
     return NativeModules.BluedotPointSDK.getZonesAndFences()
 }
 
-const BluedotPointSDK = { 
-    on, 
+const BluedotPointSDK = {
+    on,
     unsubscribe,
     unsubscribeAll,
     setCustomEventMetaData,
     getCustomEventMetaData,
-    setNotificationIdResourceId,
     getInstallRef,
     initialize,
     isInitialized,
@@ -97,6 +118,8 @@ const BluedotPointSDK = {
     stopGeoTriggering,
     isTempoRunning,
     stopTempoTracking,
+    linkForegroundService,
+    unlinkForegroundService,
     getSdkVersion,
     getZonesAndFences,
     setZoneDisableByApplication,

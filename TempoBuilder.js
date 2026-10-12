@@ -1,23 +1,7 @@
 import { NativeModules, Platform } from 'react-native'
 
 class TempoBuilder {
-    constructor() {
-        this.channelId = "";
-        this.channelName = "";
-        this.androidNotificationTitle = "";
-        this.androidNotificationContent = "";
-        this.androidNotificationId = -1;
-    }
-
-    androidNotification = (channelId = "", channelName = "", title = "", content = "", id = -1) => {
-        this.channelId = channelId;
-        this.channelName = channelName;
-        this.androidNotificationTitle = title;
-        this.androidNotificationContent = content;
-        this.androidNotificationId = id;
-
-        return this 
-    }
+    constructor() {}
 
     start = (destinationId = "", onSuccess, onError) => {
         if (Platform.OS === "ios") {
@@ -25,16 +9,7 @@ class TempoBuilder {
         }
 
         if (Platform.OS === "android") {
-            NativeModules.BluedotPointSDK.androidStartTempoTracking(
-                destinationId,
-                this.channelId,
-                this.channelName,
-                this.androidNotificationTitle,
-                this.androidNotificationContent,
-                this.androidNotificationId,
-                onSuccess,
-                onError
-            )
+            NativeModules.BluedotPointSDK.androidStartTempoTracking(destinationId, onSuccess, onError)
         }
     }
 }

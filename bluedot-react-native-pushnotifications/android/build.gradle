@@ -41,6 +41,19 @@ repositories {
     mavenCentral()
     google()
     maven { url 'https://jitpack.io' }
+
+    maven {
+        url "https://gitlab.com/api/v4/projects/14682665/packages/maven"
+        credentials(HttpHeaderCredentials) {
+            name "Private-Token"
+            // Provide via -PgitlabMavenToken=<token> (e.g. in gradle.properties) or the
+            // GITLAB_MAVEN_TOKEN env var. Never hardcode a token here.
+            value project.findProperty('gitlabMavenToken') ?: System.getenv('GITLAB_MAVEN_TOKEN') ?: ''
+        }
+        authentication {
+            header(HttpHeaderAuthentication)
+        }
+    }
 }
 
 apply plugin: 'com.android.library'
@@ -81,8 +94,10 @@ android {
 def firebaseBomVersion = safeExtGet('firebaseBomVersion', '34.12.0')
 
 dependencies {
-    implementation "com.gitlab.bluedotio.android:point_sdk_push:${pointSdkVersion}"
-    implementation "com.gitlab.bluedotio.android:point_sdk_android:${pointSdkVersion}"
+    implementation 'au.com.bluedot:pointsdk:1380190974'
+    implementation 'au.com.bluedot:pushnotifications:1380190974'
+    // implementation "com.gitlab.bluedotio.android:point_sdk_push:${pointSdkVersion}"
+    // implementation "com.gitlab.bluedotio.android:point_sdk_android:${pointSdkVersion}"
     implementation 'com.facebook.react:react-android:0.77.0'
     implementation 'androidx.core:core-ktx:1.15.0'
 
