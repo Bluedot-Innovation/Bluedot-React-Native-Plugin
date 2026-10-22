@@ -41,6 +41,7 @@ public class AppTempoReceiver extends TempoTrackingReceiver {
      * @param context: Android context
      * @since 15.3.0
      */
+    // Native SDK callback name; the JS event is tempoTrackingStoppedWithError.
     @Override
     public void tempoStoppedWithError(@NotNull BDError bdError, @NotNull Context context) {
         WritableMap error = new WritableNativeMap();
@@ -48,11 +49,11 @@ public class AppTempoReceiver extends TempoTrackingReceiver {
 
         // ForegroundServiceNotLinkedError (SDK 19.0.0+): the linked foreground service was
         // stopped or killed while Tempo was tracking. JS consumers should handle this in their
-        // tempoStoppedWithError listener and re-link / restart or update UI accordingly.
+        // tempoTrackingStoppedWithError listener and re-link / restart or update UI accordingly.
         if (bdError instanceof ForegroundServiceNotLinkedError) {
             error.putBoolean("isForegroundServiceNotLinked", true);
         }
 
-        sendEvent("tempoStoppedWithError", error);
+        sendEvent("tempoTrackingStoppedWithError", error);
     }
 }

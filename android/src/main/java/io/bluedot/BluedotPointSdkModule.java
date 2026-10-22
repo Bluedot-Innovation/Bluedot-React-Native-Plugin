@@ -208,7 +208,7 @@ public class BluedotPointSdkModule extends ReactContextBaseJavaModule implements
      * The host app must call this (or call unlinkForegroundService() natively from its
      * service's onDestroy()) before or when the foreground service stops. After unlinking,
      * any running Tempo session will stop and report a ForegroundServiceNotLinkedError via
-     * the tempoStoppedWithError event.
+     * the tempoTrackingStoppedWithError event.
      */
     @ReactMethod
     public void unlinkForegroundService(Promise promise) {
