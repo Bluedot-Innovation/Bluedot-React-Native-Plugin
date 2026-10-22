@@ -66,7 +66,7 @@ const linkForegroundService = () => {
  * Android only. Unlinks the foreground service previously linked via linkForegroundService().
  *
  * Call this when your foreground service is stopping. If Tempo is running when this is
- * called, Tempo will stop and emit a tempoStoppedWithError event with
+ * called, Tempo will stop and emit a tempoTrackingStoppedWithError event with
  * isForegroundServiceNotLinked: true.
  *
  * Returns a Promise.
