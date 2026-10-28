@@ -1,3 +1,4 @@
 # Bluedot React Native Plugin release notes
 
 - Integrated with Bluedot Android SDK v19.0.0 and iOS SDK 18.0.0
+- Tempo errors now emit `tempoTrackingStoppedWithError` on both Android and iOS.
