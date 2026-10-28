@@ -80,8 +80,8 @@ android {
 def firebaseBomVersion = safeExtGet('firebaseBomVersion', '34.12.0')
 
 dependencies {
-    implementation "com.bluedotio.android:point_sdk_android:${pointSdkVersion}"
-    implementation "com.bluedotio.android:point_sdk_push:${pointSdkVersion}"
+    implementation "com.gitlab.bluedotio.android:point_sdk_android:${pointSdkVersion}"
+    implementation "com.gitlab.bluedotio.android:point_sdk_push:${pointSdkVersion}"
     implementation 'com.facebook.react:react-android:0.77.0'
     implementation 'androidx.core:core-ktx:1.15.0'
 
