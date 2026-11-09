@@ -22,7 +22,7 @@ def safeExtGet(prop, fallback) {
 }
 
 buildscript {
-    // PointSDK 18.0.0 is compiled with Kotlin 2.3.0 metadata. Declaring the Kotlin gradle
+    // PointSDK 19.0.0 is compiled with Kotlin 2.3.0 metadata. Declaring the Kotlin gradle
     // plugin classpath unconditionally (not just for rootProject) allows Gradle's "highest
     // version wins" resolution to upgrade the Kotlin compiler to 2.3.0 even when this module
     // is consumed as a library in a host app that defaults to an older Kotlin version.
